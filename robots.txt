@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# 说明：robots.txt 按 RFC 9309 只应从「源站根」读取，即
+#   https://cryo-skm.github.io/robots.txt
+# 本文件位于项目子路径下，主要用于声明站点地图位置；
+# 若需对整站生效，需另外建立 cryo-skm.github.io 仓库并在其根目录放置 robots.txt。
+
+Sitemap: https://cryo-skm.github.io/e-times/sitemap.xml
