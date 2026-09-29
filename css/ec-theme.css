@@ -1,0 +1,587 @@
+/* ════════════════════════════════════════════════════════════════════
+   e次元 · 「桃花源」主题层  (css/ec-theme.css)
+   ─────────────────────────────────────────────────────────────────────
+   设计目标
+     1. 银行外壳只做「入口」，一进 e次元 就彻底换气：樱花粉 + 天蓝 + 淡紫
+        的梦幻二次元空间，只保留最低限度的金融语义（额度/积分/分期/购买）。
+     2. 「先挖窗口、再填图」：角色位 / 横幅位 / 商品位都是固定形状的窗口
+        （.ec-win 系列），CSS 决定尺寸与裁切，图片由 JS 填进去。
+     3. 层次、质感、细节一起抓：玻璃拟态、双层阴影、渐变描边、内发光、
+        微交互、飘落花瓣与光斑。
+
+   加载顺序：在 xingegu.css / ec-modules.css 之后加载，靠更晚的顺序与
+   更高的选择器权重覆盖旧配色。
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ══════════════════════════════════════════════════════════════════
+   一、设计令牌（覆盖旧变量，一处改全局变）
+   ══════════════════════════════════════════════════════════════════ */
+#xingegu-slot, .xzg-sheet, #page-xingegu {
+  --red: #ff5c93;
+  --red-deep: #e0407a;
+  --red-grad: linear-gradient(135deg, #ffa6c4 0%, #ff5c93 52%, #e8407f 100%);
+  --sky: #6cbcf2;
+  --sky-grad: linear-gradient(135deg, #a8ddff, #6cbcf2 60%, #3f9fe0);
+  --lav: #a78bfa;
+  --lav-grad: linear-gradient(135deg, #c9b6ff, #a78bfa 60%, #8b63f0);
+  --gold: #f0b45c;
+  --gold-grad: linear-gradient(135deg, #ffe0a3, #f0b45c 60%, #d9922e);
+  --ink: #3b2b39;
+  --ink2: #7b6577;
+  --ink3: #b6a2b0;
+  --bg: #fff6f9;
+  --card: #ffffff;
+  --line: #ffe4ee;
+  --green: #16b98a;
+  --pink: #ff5c93;
+  --purple: #a78bfa;
+  --orange: #ff9147;
+  --r-lg: 20px;
+  --r-md: 16px;
+  --r-sm: 12px;
+  --shadow: 0 10px 26px rgba(255, 92, 147, .13);
+  --shadow-sm: 0 4px 14px rgba(255, 92, 147, .10);
+  --shadow-lg: 0 16px 38px rgba(255, 92, 147, .18);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   二、e次元 浮层外壳：从银行死板红蓝 → 梦幻樱花空间
+   ══════════════════════════════════════════════════════════════════ */
+.overlay-page--xingegu {
+  background:
+    radial-gradient(1100px 520px at 12% -8%, #ffe3ef 0%, rgba(255, 227, 239, 0) 62%),
+    radial-gradient(900px 460px at 92% 6%, #e3f1ff 0%, rgba(227, 241, 255, 0) 60%),
+    radial-gradient(760px 520px at 50% 104%, #f0e8ff 0%, rgba(240, 232, 255, 0) 66%),
+    linear-gradient(180deg, #fff8fb 0%, #fff4f9 46%, #fdf5ff 100%);
+}
+
+#page-xingegu .xg-navbar {
+  background: linear-gradient(135deg, #ff8fb1 0%, #ff6fa0 42%, #b58cf5 100%);
+  border-radius: 0 0 26px 26px;
+  padding: 48px 15px 14px;
+  box-shadow: 0 12px 30px rgba(255, 111, 160, .30);
+  overflow: hidden;
+}
+#page-xingegu .xg-navbar::before {
+  content: ""; position: absolute; inset: 0;
+  background:
+    radial-gradient(320px 130px at 84% -30%, rgba(255, 255, 255, .55), transparent 70%),
+    radial-gradient(220px 120px at 8% 130%, rgba(255, 255, 255, .28), transparent 72%);
+  pointer-events: none;
+}
+#page-xingegu .xg-nav-brand {
+  color: #fff; font-size: 19px; letter-spacing: 3px;
+  text-shadow: 0 2px 10px rgba(150, 30, 80, .35);
+}
+#page-xingegu .xg-nav-brand span {
+  background: linear-gradient(90deg, #fff2c4, #ffe08a);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+#page-xingegu .xg-navbar .op-back { color: #fff; }
+#page-xingegu .xg-navbar .op-more { color: rgba(255, 255, 255, .9); }
+
+#page-xingegu .xg-feature-chips { padding: 12px 12px 6px; gap: 7px; }
+#page-xingegu .xg-chip {
+  background: rgba(255, 255, 255, .82);
+  border: 1px solid rgba(255, 143, 177, .30);
+  color: #8a6f80;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 3px 10px rgba(255, 111, 160, .13);
+  font-weight: 600;
+}
+#page-xingegu .xg-chip.active {
+  background: linear-gradient(135deg, #ff8fb1, #ff5c93 55%, #a78bfa);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 6px 16px rgba(255, 92, 147, .38), inset 0 1px 0 rgba(255, 255, 255, .45);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   三、角色窗口（先挖窗口、再填图）
+   ══════════════════════════════════════════════════════════════════ */
+.ec-head, .ec-char {
+  display: block; width: 100%; height: 100%;
+  object-fit: cover; object-position: center 20%;
+  border-radius: inherit;
+  user-select: none; -webkit-user-drag: none;
+}
+.ec-ava {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: linear-gradient(150deg, #ffe9f1, #e6f1ff);
+  overflow: hidden; flex: none; display: inline-flex;
+  align-items: center; justify-content: center;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .7);
+}
+#xingegu-slot .sb-ava,
+#xingegu-slot .pc-ava,
+#xingegu-slot .pw-ava,
+#xingegu-slot .pb-ava,
+#xingegu-slot .gp-avas span,
+#xingegu-slot .fm-post-ava,
+#xingegu-slot .fm-msg-ava,
+#xingegu-slot .ml-zone-ava,
+#xingegu-slot .br-hero-ava,
+#xingegu-slot .mn-ava,
+#xingegu-slot .mn-gc-ava,
+#xingegu-slot .cx-ava,
+.xzg-sheet .gp-avas span {
+  overflow: hidden;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, .9), 0 4px 12px rgba(255, 92, 147, .20);
+}
+#xingegu-slot .zt-fig .ec-char { object-position: center 12%; }
+#xingegu-slot .mn-hero-mascot .ec-char { width: 84px; height: 98px; border-radius: 16px; }
+#xingegu-slot .zd-hero-mascot .ec-char { width: 62px; height: 74px; border-radius: 14px; }
+
+/* ── 通用图片窗口（横幅 / 商品 / 大图） ── */
+.ec-win {
+  position: relative; overflow: hidden;
+  border-radius: var(--r-md);
+  background: linear-gradient(150deg, #ffe9f1, #eaf3ff);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .6);
+}
+.ec-win > img {
+  display: block; width: 100%; height: 100%;
+  object-fit: cover; object-position: center;
+}
+.ec-win--banner { border-radius: var(--r-lg); }
+.ec-win--banner::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(100deg, rgba(58, 12, 40, .58) 0%, rgba(58, 12, 40, .30) 42%, rgba(58, 12, 40, 0) 74%);
+}
+.ec-win--banner .ec-win-txt {
+  position: absolute; left: 14px; right: 34%; top: 50%;
+  transform: translateY(-50%); z-index: 2; color: #fff;
+}
+.ec-win--banner .ec-win-txt b {
+  display: block; font-size: 15px; line-height: 1.3; letter-spacing: .4px;
+  text-shadow: 0 2px 10px rgba(80, 20, 50, .45);
+}
+.ec-win--banner .ec-win-txt span {
+  display: block; font-size: 10.5px; opacity: .92; margin-top: 4px;
+}
+.ec-win--banner .ec-win-go {
+  display: inline-flex; align-items: center; gap: 4px;
+  margin-top: 8px; font-size: 11px; font-weight: 700;
+  background: rgba(255, 255, 255, .92); color: #e0407a;
+  padding: 5px 12px; border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(80, 20, 50, .22);
+}
+.ec-win--goods { border-radius: 14px; aspect-ratio: 1 / 1; }
+.ec-win--goods > img { transition: transform .45s cubic-bezier(.2, .8, .3, 1); }
+.ec-win--goods:hover > img { transform: scale(1.07); }
+
+/* ══════════════════════════════════════════════════════════════════
+   四、卡片 / 按钮 / 标签：整体提质感
+   ══════════════════════════════════════════════════════════════════ */
+#xingegu-slot .xzg-card,
+.xzg-sheet .xzg-card {
+  border-radius: var(--r-lg);
+  background: linear-gradient(180deg, #ffffff 0%, #fffdfe 100%);
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(255, 143, 177, .16);
+}
+.xzg-sheet {
+  border-radius: 26px 26px 0 0;
+  background: linear-gradient(180deg, #fffafc, #ffffff);
+  box-shadow: 0 -14px 40px rgba(120, 30, 70, .22);
+}
+.xzg-sheet .grab { background: linear-gradient(90deg, #ffc6da, #c9b6ff); }
+
+#xingegu-slot .xzg-btn { box-shadow: 0 6px 16px rgba(255, 92, 147, .32); }
+#xingegu-slot .xzg-btn.plain { border-color: #ffd0e0; color: #e0407a; }
+#xingegu-slot .xzg-btn.ghost { background: #fff4f8; color: #a3809a; }
+#xingegu-slot .xzg-btn.gold { background: var(--gold-grad); color: #6a4405; box-shadow: 0 6px 16px rgba(240, 180, 92, .35); }
+#xingegu-slot .xzg-btn.sky { background: var(--sky-grad); color: #fff; box-shadow: 0 6px 16px rgba(108, 188, 242, .35); }
+#xingegu-slot .xzg-btn.lav { background: var(--lav-grad); color: #fff; box-shadow: 0 6px 16px rgba(167, 139, 250, .35); }
+
+#xingegu-slot .xzg-tag { background: #ffeff5; color: #e0407a; }
+#xingegu-slot .xzg-hr { background: linear-gradient(90deg, transparent, #ffdcea, transparent); }
+
+.xzg-subbar {
+  background: rgba(255, 255, 255, .78);
+  border: 1px solid rgba(255, 143, 177, .22);
+  border-radius: var(--r-md);
+  padding: 10px 12px;
+  backdrop-filter: blur(8px);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+}
+.xzg-subbar::before {
+  content: ""; position: absolute; left: 0; top: 12px; bottom: 12px; width: 3px;
+  border-radius: 3px; background: linear-gradient(180deg, #ffa6c4, #a78bfa);
+}
+.xzg-subbar .sb-txt b { color: #4a3145; }
+
+.xzg-mask { background: rgba(74, 24, 54, .42); backdrop-filter: blur(3px); }
+
+/* ══════════════════════════════════════════════════════════════════
+   五、e次元 入口转场（「桃花源」时刻）
+   ══════════════════════════════════════════════════════════════════ */
+.ec-enter {
+  position: absolute; inset: 0; z-index: 90;
+  display: flex; flex-direction: column;
+  opacity: 0; pointer-events: none;
+  transition: opacity .42s ease;
+  overflow: hidden;
+}
+.ec-enter.on { opacity: 1; pointer-events: auto; }
+.ec-enter-cover {
+  position: absolute; inset: 0;
+  background-size: cover; background-position: center 30%;
+  transform: scale(1.08);
+  transition: transform 1.5s cubic-bezier(.2, .7, .3, 1);
+}
+.ec-enter.on .ec-enter-cover { transform: scale(1); }
+.ec-enter-veil {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(120% 70% at 50% 88%, rgba(255, 255, 255, .96) 0%, rgba(255, 246, 250, .78) 34%, rgba(255, 246, 250, 0) 66%),
+    linear-gradient(180deg, rgba(255, 180, 210, .30) 0%, rgba(255, 255, 255, 0) 40%);
+}
+.ec-enter-veil2 {
+  position: absolute; inset: 0;
+  background: linear-gradient(160deg, rgba(255, 143, 177, .30), rgba(167, 139, 250, .22) 60%, rgba(108, 188, 242, .26));
+  mix-blend-mode: soft-light;
+}
+.ec-enter-word {
+  position: relative; z-index: 3; margin-top: auto;
+  padding: 0 26px 11vh; text-align: center;
+}
+.ec-enter-kicker {
+  font-size: 11px; letter-spacing: 6px; color: #d9417d;
+  font-weight: 700; opacity: 0; transform: translateY(12px);
+}
+.ec-enter-title {
+  font-size: 40px; font-weight: 800; letter-spacing: 4px;
+  color: #b8205e; margin: 8px 0 2px;
+  text-shadow: 0 6px 24px rgba(255, 255, 255, .9), 0 2px 8px rgba(184, 32, 94, .18);
+  opacity: 0; transform: translateY(16px) scale(.94);
+}
+.ec-enter-title em {
+  font-style: italic; font-family: Georgia, "Times New Roman", serif;
+  color: #e8407f;
+}
+.ec-enter-sub {
+  font-size: 12px; color: #8a5a72; letter-spacing: 3px;
+  opacity: 0; transform: translateY(14px);
+}
+.ec-enter-line {
+  width: 0; height: 3px; border-radius: 3px; margin: 16px auto 0;
+  background: linear-gradient(90deg, #ff8fb1, #a78bfa);
+  box-shadow: 0 3px 12px rgba(255, 92, 147, .45);
+}
+.ec-enter-bar {
+  margin: 18px auto 0; width: 132px; height: 3px; border-radius: 3px;
+  background: rgba(255, 255, 255, .55); overflow: hidden;
+  opacity: 0;
+}
+.ec-enter-bar i {
+  display: block; height: 100%; width: 0;
+  background: linear-gradient(90deg, #ff8fb1, #a78bfa);
+}
+.ec-enter.on .ec-enter-kicker { animation: ecRise .6s .10s ease forwards; }
+.ec-enter.on .ec-enter-title { animation: ecRise .7s .22s cubic-bezier(.2, .9, .3, 1.2) forwards; }
+.ec-enter.on .ec-enter-sub { animation: ecRise .6s .42s ease forwards; }
+.ec-enter.on .ec-enter-line { animation: ecGrow .6s .55s ease forwards; }
+.ec-enter.on .ec-enter-bar { animation: ecRise .4s .6s ease forwards; }
+.ec-enter.on .ec-enter-bar i { animation: ecLoad 1.15s .62s cubic-bezier(.4, .1, .3, 1) forwards; }
+@keyframes ecRise { to { opacity: 1; transform: none; } }
+@keyframes ecGrow { to { width: 96px; } }
+@keyframes ecLoad { to { width: 100%; } }
+.ec-enter-petal {
+  position: absolute; top: -40px; z-index: 4;
+  width: 14px; height: 14px; border-radius: 50% 0 50% 50%;
+  background: linear-gradient(150deg, #fff0f5, #ffa6c4 60%, #ff6fa0);
+  box-shadow: 0 3px 10px rgba(255, 122, 170, .45);
+  animation: ecPetalFall linear infinite;
+}
+.ec-enter-petal::after {
+  content: ""; position: absolute; left: 4px; top: 3px;
+  width: 5px; height: 5px; border-radius: 50%; background: rgba(255, 255, 255, .75);
+}
+@keyframes ecPetalFall {
+  0% { transform: translate3d(0, 0, 0) rotate(0); opacity: 0; }
+  10% { opacity: .95; }
+  100% { transform: translate3d(var(--dx, 60px), 118vh, 0) rotate(540deg); opacity: 0; }
+}
+.ec-enter.out { animation: ecOut .52s cubic-bezier(.5, 0, .7, .2) forwards; }
+@keyframes ecOut {
+  0% { opacity: 1; transform: scale(1); filter: blur(0); }
+  100% { opacity: 0; transform: scale(1.14); filter: blur(6px); }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   六、细节增强：卡片入场 / 滚动条 / 工具类
+   ══════════════════════════════════════════════════════════════════ */
+@keyframes ecCardIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+#xingegu-slot .xzg-fpage.on > .xzg-body > * { animation: ecCardIn .42s ease both; }
+#xingegu-slot .xzg-fpage.on > .xzg-body > *:nth-child(2) { animation-delay: .05s; }
+#xingegu-slot .xzg-fpage.on > .xzg-body > *:nth-child(3) { animation-delay: .09s; }
+#xingegu-slot .xzg-fpage.on > .xzg-body > *:nth-child(4) { animation-delay: .13s; }
+@media (prefers-reduced-motion: reduce) {
+  #xingegu-slot .xzg-fpage.on > .xzg-body > * { animation: none; }
+  .ec-enter-petal, .ec-enter-cover { animation: none !important; transition: none !important; }
+}
+#xingegu-slot::-webkit-scrollbar, .xg-slot-body::-webkit-scrollbar { width: 0; }
+
+.ec-row { display: flex; align-items: center; gap: 10px; }
+.ec-grow { flex: 1; min-width: 0; }
+.ec-ellipsis { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ec-ks { font-size: 11.5px; color: #9c86a0; }
+.ec-hero-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10px; font-weight: 700; letter-spacing: .4px;
+  padding: 3px 9px; border-radius: 20px; color: #fff;
+  background: linear-gradient(135deg, #ffa6c4, #ff5c93);
+  box-shadow: 0 3px 10px rgba(255, 92, 147, .35);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   七、e次元 自己的底部导航（进入后就不再是银行的五栏 Tab 了）
+   ══════════════════════════════════════════════════════════════════ */
+.ec-tabbar {
+  flex: none; position: relative; z-index: 6;
+  display: flex; align-items: flex-end; justify-content: space-around;
+  padding: 7px 6px calc(9px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(180deg, rgba(255, 255, 255, .90), rgba(255, 248, 251, .98));
+  backdrop-filter: blur(14px) saturate(1.4);
+  border-top: 1px solid rgba(255, 143, 177, .28);
+  box-shadow: 0 -8px 26px rgba(255, 111, 160, .16);
+}
+.ec-tabbar::before {
+  content: ""; position: absolute; left: 0; right: 0; top: -1px; height: 2px;
+  background: linear-gradient(90deg, transparent, #ffb3cd, #c9b6ff, #a8ddff, transparent);
+  opacity: .9;
+}
+.ec-tab {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 4px 0 2px; color: #bda6b6; font-size: 10px; font-weight: 600;
+  letter-spacing: .5px;
+  transition: transform .28s cubic-bezier(.34, 1.56, .64, 1), color .2s;
+}
+.ec-tab:active { transform: scale(.88); }
+.ec-tab-ic { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; }
+.ec-tab-ic svg { width: 22px; height: 22px; }
+.ec-tab.on { color: #ff4f8b; }
+.ec-tab.on .ec-tab-ic { filter: drop-shadow(0 3px 8px rgba(255, 92, 147, .45)); }
+.ec-tab.on span { font-weight: 800; }
+.ec-tab--c { position: relative; top: -12px; flex: 0 0 62px; }
+.ec-tab--c .ec-tab-ic {
+  width: 50px; height: 50px; border-radius: 50%;
+  background: linear-gradient(135deg, #ffa6c4, #ff5c93 52%, #a78bfa);
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(255, 92, 147, .42), inset 0 1px 0 rgba(255, 255, 255, .5);
+  border: 3px solid #fff;
+}
+.ec-tab--c .ec-tab-ic svg { width: 24px; height: 24px; }
+.ec-tab--c span { margin-top: 2px; color: #ff4f8b; }
+.ec-tab--c:active .ec-tab-ic { transform: scale(.9); }
+
+#page-xingegu .xg-slot-body { padding-bottom: 26px; }
+
+/* ══════════════════════════════════════════════════════════════════
+   八、银行端入口装饰（这些入口本身就是「洞」，通向 e次元）
+   ══════════════════════════════════════════════════════════════════ */
+/* 轮播 banner：带图的 e次元 入口 */
+.banner-slide--img { position: relative; overflow: hidden; }
+.banner-slide--img .bs-img {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; object-position: center 38%;
+}
+.banner-slide--img::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(100deg, rgba(40, 8, 26, .72) 0%, rgba(40, 8, 26, .38) 46%, rgba(40, 8, 26, 0) 78%);
+}
+.banner-slide--img .bs-txt { position: relative; z-index: 2; }
+.banner-slide--img .bs-txt h4 { color: #fff; text-shadow: 0 2px 10px rgba(0, 0, 0, .35); }
+.banner-slide--img .bs-txt p { color: rgba(255, 255, 255, .92); }
+.bs-go {
+  display: inline-flex; align-items: center; gap: 4px; margin-top: 9px;
+  font-size: 11px; font-weight: 700; color: #e0407a;
+  background: rgba(255, 255, 255, .94); padding: 5px 12px; border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .18);
+}
+.bs-txt { padding: 2px 0; }
+
+/* 消息中心的 e次元 入口 */
+.msg-item--ec { position: relative; }
+.msg-go {
+  flex: none; align-self: center; margin-left: 6px; white-space: nowrap;
+  font-size: 10.5px; font-weight: 700; color: #e0407a;
+  background: linear-gradient(135deg, #fff0f5, #ffe0ec);
+  border: 1px solid #ffd0e0;
+  padding: 5px 10px; border-radius: 18px;
+}
+.msg-item--ec:active { background: #fff6fa; }
+
+/* 生活页 / 各页的 e次元 大入口横幅 */
+.ec-door {
+  position: relative; display: block; width: 100%; text-align: left;
+  border-radius: 18px; overflow: hidden; padding: 0; margin-bottom: 14px;
+  box-shadow: 0 10px 26px rgba(255, 92, 147, .22);
+}
+.ec-door img { display: block; width: 100%; height: 116px; object-fit: cover; object-position: center 40%; }
+.ec-door::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(100deg, rgba(48, 10, 32, .74) 0%, rgba(48, 10, 32, .34) 48%, rgba(48, 10, 32, 0) 80%);
+}
+.ec-door > div { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); z-index: 2; }
+.ec-door b { display: block; color: #fff; font-size: 16px; letter-spacing: .5px; text-shadow: 0 2px 10px rgba(0, 0, 0, .4); }
+.ec-door span { display: block; color: rgba(255, 255, 255, .9); font-size: 11px; margin-top: 4px; }
+.ec-door .ec-door-go {
+  display: inline-flex; margin-top: 9px; font-size: 11px; font-weight: 700;
+  background: rgba(255, 255, 255, .94); color: #e0407a;
+  padding: 5px 12px; border-radius: 20px;
+}
+
+/* 工小智 AI 说明卡（识谷页）：头像 + 两行文字，不再挤成一团 */
+.ec-ai-note {
+  display: flex; align-items: center; gap: 10px;
+  margin-top: 11px; padding: 10px 12px;
+  background: linear-gradient(120deg, #eef6ff, #f3f0ff 70%, #fff2f7);
+  border: 1px solid #dfe7ff; border-radius: 14px;
+}
+.ec-ai-ava {
+  flex: none; width: 40px; height: 40px; border-radius: 50%; overflow: hidden;
+  box-shadow: 0 0 0 2px #fff, 0 4px 12px rgba(96, 140, 220, .28);
+}
+.ec-ai-txt { min-width: 0; }
+.ec-ai-txt b { display: block; font-size: 12.5px; color: #3a4a80; letter-spacing: .2px; }
+.ec-ai-txt span { display: block; font-size: 10.5px; color: #7d8bb5; line-height: 1.5; margin-top: 2px; }
+
+/* ══════════════════════════════════════════════════════════════════
+   九、画面填充层（ec-discovery.js 产出的窗口与卡片）
+   ══════════════════════════════════════════════════════════════════ */
+/* 大横幅窗 */
+.ecx-hero {
+  position: relative; display: block; width: 100%; text-align: left;
+  border: none; padding: 0; margin: 0 0 14px;
+  border-radius: var(--r-lg); overflow: hidden;
+  box-shadow: var(--shadow-lg), inset 0 0 0 1px rgba(255, 255, 255, .35);
+  background: #ffd9e6;
+}
+.ecx-hero > img {
+  display: block; width: 100%; height: 132px; object-fit: cover;
+  object-position: center 42%;
+  transition: transform .6s cubic-bezier(.2, .8, .3, 1);
+}
+.ecx-hero--tall > img { height: 148px; }
+.ecx-hero:hover > img { transform: scale(1.04); }
+.ecx-hero::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(96deg, rgba(48, 10, 32, .78) 0%, rgba(48, 10, 32, .40) 44%, rgba(48, 10, 32, .04) 82%);
+}
+.ecx-hero-t {
+  position: absolute; left: 15px; right: 30%; top: 50%;
+  transform: translateY(-50%); z-index: 2; color: #fff;
+}
+.ecx-k {
+  display: inline-block; font-size: 9.5px; font-weight: 700; letter-spacing: 1.6px;
+  background: rgba(255, 255, 255, .24); border: 1px solid rgba(255, 255, 255, .45);
+  padding: 3px 9px; border-radius: 20px; backdrop-filter: blur(4px);
+}
+.ecx-hero-t b {
+  display: block; margin-top: 7px; font-size: 16px; line-height: 1.32;
+  letter-spacing: .4px; text-shadow: 0 2px 12px rgba(0, 0, 0, .42);
+}
+.ecx-hero-t span {
+  display: block; margin-top: 5px; font-size: 10.5px; line-height: 1.55;
+  color: rgba(255, 255, 255, .93);
+}
+.ecx-hero-go {
+  position: absolute; right: 14px; bottom: 13px; z-index: 2;
+  font-size: 11px; font-weight: 700; color: #e0407a;
+  background: rgba(255, 255, 255, .95);
+  padding: 6px 13px; border-radius: 20px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .22);
+}
+
+/* 区块标题 */
+.ecx-sec { margin: 2px 0 14px; }
+.ecx-head {
+  display: flex; align-items: baseline; gap: 8px; margin: 0 2px 9px;
+}
+.ecx-head b {
+  font-size: 14.5px; letter-spacing: .4px; color: #4a3145;
+  position: relative; padding-left: 11px;
+}
+.ecx-head b::before {
+  content: ""; position: absolute; left: 0; top: 50%; width: 3.5px; height: 14px;
+  margin-top: -7px; border-radius: 3px;
+  background: linear-gradient(180deg, #ffa6c4, #a78bfa);
+}
+.ecx-head .ecx-more { margin-left: auto; font-size: 11px; color: #b6a2b0; font-weight: 600; }
+
+/* 周边商品窗 */
+.ecx-goods { display: grid; grid-template-columns: repeat(2, 1fr); gap: 11px; }
+.ecx-g {
+  display: block; width: 100%; text-align: left; border: none; padding: 0;
+  background: #fff; border-radius: 16px; overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: transform .26s cubic-bezier(.34, 1.56, .64, 1), box-shadow .26s;
+}
+.ecx-g:active { transform: scale(.97); }
+.ecx-g .ec-win--goods { border-radius: 0; box-shadow: none; }
+.ecx-g > b {
+  display: block; font-size: 11.5px; line-height: 1.45; color: #4a3145;
+  padding: 8px 10px 0; font-weight: 600;
+  overflow: hidden; text-overflow: ellipsis; display: -webkit-box;
+  -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+}
+.ecx-grow2 { display: flex; align-items: center; gap: 6px; padding: 6px 10px 10px; }
+.ecx-grow2 em { font-style: normal; font-size: 14px; font-weight: 800; color: #ff4f8b; }
+.ecx-grow2 i {
+  font-style: normal; margin-left: auto; font-size: 9.5px; font-weight: 700;
+  color: #e0407a; background: #ffeff5; border-radius: 20px; padding: 2px 7px;
+}
+
+/* 我的 · 谷伴名片 */
+.ecx-cm {
+  position: relative; display: flex; align-items: center; gap: 12px;
+  padding: 14px; margin-bottom: 14px; border-radius: var(--r-lg);
+  background:
+    radial-gradient(120% 140% at 100% 0%, var(--tone2, #ffd6e4) 0%, rgba(255, 255, 255, 0) 62%),
+    linear-gradient(120deg, #fff 0%, #fff6fa 100%);
+  border: 1px solid rgba(255, 143, 177, .26);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.ecx-cm::after {
+  content: ""; position: absolute; right: -26px; bottom: -30px;
+  width: 110px; height: 110px; border-radius: 50%;
+  background: radial-gradient(closest-side, var(--tone, #ff7fa8), transparent);
+  opacity: .16;
+}
+.ecx-cm-ava {
+  flex: none; width: 62px; height: 62px; border-radius: 50%; overflow: hidden;
+  box-shadow: 0 0 0 3px #fff, 0 8px 20px rgba(255, 92, 147, .28);
+  position: relative; z-index: 2;
+}
+.ecx-cm-txt { flex: 1; min-width: 0; position: relative; z-index: 2; }
+.ecx-cm-txt b { display: block; font-size: 15px; color: #4a3145; letter-spacing: .3px; }
+.ecx-cm-txt b i {
+  font-style: normal; font-size: 10px; font-weight: 700; color: #fff;
+  background: linear-gradient(135deg, #ffa6c4, #ff5c93);
+  border-radius: 20px; padding: 2px 8px; margin-left: 5px; vertical-align: 2px;
+}
+.ecx-cm-txt > span { display: block; font-size: 10.5px; color: #b6a2b0; margin-top: 3px; }
+.ecx-cm-txt p {
+  font-size: 11px; color: #8a7285; margin-top: 5px; line-height: 1.5;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.ecx-cm-btn {
+  flex: none; position: relative; z-index: 2;
+  font-size: 11px; font-weight: 700; color: #fff;
+  background: linear-gradient(135deg, #ffa6c4, #ff5c93);
+  padding: 7px 13px; border-radius: 20px; border: none;
+  box-shadow: 0 5px 14px rgba(255, 92, 147, .34);
+}
+.ecx-cm-btn:active { transform: scale(.93); }
+
+/* 商品详情弹窗大图窗 */
+.ecx-detail-img {
+  border-radius: 16px; overflow: hidden; margin-top: 12px;
+  box-shadow: var(--shadow);
+}
+.ecx-detail-img img { display: block; width: 100%; height: 168px; object-fit: cover; }

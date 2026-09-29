@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>中国工商银行 · 手机银行（模拟演示版）</title>
+
+<!-- ═══ PWA：让 iPhone / 安卓「添加到主屏幕」后像原生 App ═══ -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#c7000b">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="工行">
+<meta name="format-detection" content="telephone=no">
+<link rel="apple-touch-icon" sizes="180x180" href="img/icon-180.png">
+<link rel="apple-touch-icon" href="img/icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="img/icon-192.png">
+
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/xingegu.css">
+<link rel="stylesheet" href="css/ec-modules.css">
+<link rel="stylesheet" href="css/ec-theme.css">
+<!--
+═══════════════════════════════════════════════════════════════════
+ 「e次元」程序植入说明（写给负责植入功能的 AI）
+═══════════════════════════════════════════════════════════════════
+ 本项目为「模拟工商银行手机银行APP」外壳，供比赛演示使用。
+ e次元四大功能（识谷 / 攒谷 / 出谷通 / 谷卡）的植入点位如下：
+
+ 1. 首页专属入口卡片   →  #xingegu-home-slot   （首页中部，e次元四大功能入口已渲染好，可替换/增强）
+ 2. 我的页面会员卡片   →  #xingegu-mine-slot   （"我的"Tab 中，谷龄成长信息）
+ 3. e次元功能总容器    →  #page-xingegu        （子页面浮层，头部 + 四功能切换chips + #xingegu-slot 内容区）
+ 4. 工小智AI对话页     →  #xiaozhi-skill-chips （识谷估值/谷子行情 两个技能chip已留位）
+
+ 交互 API（定义在 js/app.js 底部 window.ICBCApp）：
+   ICBCApp.toast(msg)                    弹出提示
+   ICBCApp.openPage(pageId)              打开子页面浮层（如 'page-xingegu'）
+   ICBCApp.closePage(pageId)             关闭子页面
+   ICBCApp.openXingegu(featureId)        打开e次元页面并选中功能 'shigu'|'zangu'|'chugu'|'guka'
+   ICBCApp.setBalance(数字)              更新并刷新余额显示
+   ICBCApp.addRecord({title,cat,amount,icon})   向收支明细插入一笔交易
+ 页面内可直接读取全局模拟数据 DATA（js/data.js）。
+═══════════════════════════════════════════════════════════════════
+-->
+</head>
+<body>
+<div class="stage">
+  <div class="phone-shell">
+    <!-- 侧边实体按键 -->
+    <i class="pb pb-vol1"></i><i class="pb pb-vol2"></i><i class="pb pb-mute"></i><i class="pb pb-pwr"></i>
+    <div class="phone" id="phone">
+
+      <!-- ═══ 启动闪屏（模拟真机打开APP） ═══ -->
+      <div class="splash" id="splash">
+        <div class="splash-logo">工</div>
+        <div class="splash-name">中国工商银行</div>
+        <div class="splash-sub">INDUSTRIAL AND COMMERCIAL BANK OF CHINA</div>
+        <div class="splash-foot">手机银行 · 模拟演示版</div>
+      </div>
+
+      <!-- ═══ 灵动岛 ═══ -->
+      <div class="island"></div>
+
+      <!-- ═══ 状态栏 ═══ -->
+      <div class="statusbar" id="statusbar">
+        <span class="sb-time" id="sbTime">9:41</span>
+        <span class="sb-right">
+          <svg viewBox="0 0 18 12" class="sb-signal"><path d="M1 8h2.4v3H1zM5.2 6h2.4v5H5.2zM9.4 3.5h2.4V11H9.4zM13.6 1H16v10h-2.4z" fill="currentColor"/></svg>
+          <svg viewBox="0 0 17 12" class="sb-wifi"><path d="M8.5 10.8 10.6 8.6a3 3 0 0 0-4.2 0l2.1 2.2z" fill="currentColor"/><path d="M3.8 6.2a6.7 6.7 0 0 1 9.4 0M1.5 3.9a10 10 0 0 1 14 0" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <svg viewBox="0 0 25 12" class="sb-batt"><rect x="0.5" y="0.5" width="21" height="11" rx="2.8" fill="none" stroke="currentColor" opacity=".45"/><rect x="2" y="2" width="17" height="8" rx="1.4" fill="currentColor"/><rect x="23" y="3.8" width="1.8" height="4.4" rx=".9" fill="currentColor" opacity=".45"/></svg>
+        </span>
+      </div>
+
+    <!-- ═══ 五大Tab视图 ═══ -->
+    <main class="views">
+
+      <!-- ────────── ① 首页 ────────── -->
+      <section class="tab-view active" id="view-home" data-status="light">
+        <div class="home-header">
+          <div class="hh-top">
+            <button class="hh-loc" data-toast="演示环境：城市切换暂未开通">上海 <i>▾</i></button>
+            <div class="hh-searchpill" data-toast="演示环境：搜索暂未开通">
+              <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M16 16l4.5 4.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
+              <span>新客专区 · 工小智已上线</span>
+              <svg class="hh-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </div>
+            <div class="hh-actions">
+              <button class="hh-icon" data-toast="演示环境：智能客服暂未开通" title="我的客服">
+                <svg viewBox="0 0 24 24"><path d="M12 3a8 8 0 0 0-8 8v4a3 3 0 0 0 3 3h1v-7H6.5A5.5 5.5 0 0 1 17.5 11H16v7h1a3 3 0 0 0 3-3v-4a8 8 0 0 0-8-8z" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="16" y="11" width="2.6" height="7" rx="1.3" fill="currentColor"/><rect x="5.4" y="11" width="2.6" height="7" rx="1.3" fill="currentColor"/></svg>
+              </button>
+              <button class="hh-icon hh-msg" data-open="page-msgcenter" title="消息中心">
+                <svg viewBox="0 0 24 24"><path d="M12 3a7 7 0 0 0-7 7v3.5L3.5 17h17L19 13.5V10a7 7 0 0 0-7-7z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9.5 19a2.5 2.5 0 0 0 5 0" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+                <i class="badge" id="msgBadge">3</i>
+              </button>
+            </div>
+          </div>
+          <div class="hh-quick" id="quickGrid"><!-- JS渲染：扫一扫/收款/付款/出行/工小智 --></div>
+        </div>
+
+        <div class="home-body">
+          <!-- 促销主 Banner（对标工行「开学特卖季」） -->
+          <div class="card promo-card" data-toast="演示环境：活动会场敬请期待">
+            <div class="promo-inner">
+              <span class="promo-tag">广告</span>
+              <span class="promo-kicker">促消费 · 惠民生</span>
+              <b class="promo-title">e次元开学特卖季<br>超值好物狂欢购</b>
+              <span class="promo-sub">谷子周边 · 生活缴费 · 理财好礼 一站购齐</span>
+              <span class="promo-btn">立即抢购 ›</span>
+              <svg class="promo-art" viewBox="0 0 132 118" aria-hidden="true">
+                <circle cx="96" cy="40" r="30" fill="rgba(255,255,255,.18)"/>
+                <circle cx="96" cy="40" r="20" fill="rgba(255,255,255,.28)"/>
+                <rect x="34" y="58" width="56" height="44" rx="9" fill="rgba(255,255,255,.92)"/>
+                <rect x="34" y="58" width="56" height="13" rx="6" fill="rgba(255,220,150,.95)"/>
+                <rect x="58" y="58" width="9" height="44" fill="#ffd76e"/>
+                <path d="M62 58q-15-4-13-15 1-8 9-6 8 2 4 21zM62 58q15-4 13-15-1-8-9-6-8 2-4 21z" fill="#ffd76e"/>
+                <circle cx="30" cy="26" r="5" fill="rgba(255,255,255,.6)"/>
+                <circle cx="18" cy="52" r="3.5" fill="rgba(255,255,255,.45)"/>
+                <path d="M112 84l3 7 7-3-3 7 7 3-7 3 3 7-7-3-3 7-3-7-7 3 3-7-7-3 7-3-3-7 7 3z" fill="rgba(255,255,255,.55)"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- 账户卡片 -->
+          <div class="card account-card" id="accountCard">
+            <div class="ac-top">
+              <div class="ac-left">
+                <span class="ac-name">储蓄卡（薪金卡）</span>
+                <span class="ac-no" id="acNo">6222 0202 **** 8888</span>
+              </div>
+              <button class="ac-eye" id="eyeBtn" title="显示/隐藏余额">
+                <svg viewBox="0 0 24 24" id="eyeOpen"><path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12z" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="12" r="2.8" fill="currentColor"/></svg>
+                <svg viewBox="0 0 24 24" id="eyeClosed" style="display:none"><path d="M2 12s3.5-6.5 10-6.5c2 0 3.7.6 5.2 1.4M22 12s-3.5 6.5-10 6.5c-2 0-3.7-.6-5.2-1.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M4 20 20 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+              </button>
+            </div>
+            <div class="ac-balance">
+              <span class="ac-amount" id="balanceText">258,463.52</span>
+              <span class="ac-unit">元</span>
+            </div>
+            <div class="ac-sub">可用余额 <b id="acAvail">253,963.52</b> 元 · 活期</div>
+            <div class="ac-actions">
+              <button class="ac-btn ac-btn--main" data-open="page-transfer">转账汇款</button>
+              <button class="ac-btn" data-open="page-records">收支明细</button>
+              <button class="ac-btn" data-toast="演示环境：更多功能敬请期待">更多服务</button>
+            </div>
+          </div>
+
+          <!-- ★★★ e次元 首页专属入口（植入位1：#xingegu-home-slot） ★★★ -->
+          <div class="card xingegu-card" id="xingegu-home-slot">
+            <div class="xg-head">
+              <div class="xg-brand">
+                <span class="xg-logo">e次元</span>
+                <span class="xg-slogan">谷子经济 · 一站式金融服务</span>
+              </div>
+              <span class="xg-hot">HOT</span>
+            </div>
+            <div class="xg-entries" id="xgEntries"><!-- JS渲染：识谷/攒谷/出谷通/谷卡 --></div>
+          </div>
+
+          <!-- 常用功能宫格 -->
+          <div class="card func-card">
+            <div class="grid8" id="funcGrid"><!-- JS渲染：常用功能 --></div>
+            <button class="grid-more" data-open="page-more">全部功能 ∧</button>
+          </div>
+
+          <!-- 轮播Banner -->
+          <div class="card banner-card">
+            <div class="banner-track" id="bannerTrack"><!-- JS渲染 --></div>
+            <div class="banner-dots" id="bannerDots"></div>
+          </div>
+
+          <!-- 品牌特惠（对标工行「品牌特惠」） -->
+          <div class="home-sec">
+            <div class="sec-head">
+              <h3>品牌特惠</h3>
+              <span class="sec-more" data-toast="演示环境：更多品牌敬请期待">更多 ›</span>
+            </div>
+            <div class="brand-row">
+              <button class="brand-item" data-toast="演示环境：京东专区敬请期待">
+                <span class="brand-logo" style="background:linear-gradient(140deg,#ff7a6b,#e2231a)">京</span>
+                <b>京东专区</b><span>正品直营</span>
+              </button>
+              <button class="brand-item" data-ec="brand">
+                <span class="brand-logo" style="background:linear-gradient(140deg,#ffa6c4,#a78bfa)">e</span>
+                <b>e次元甄选</b><span>自主 IP 直供</span>
+              </button>
+              <button class="brand-item" data-ec="forum">
+                <span class="brand-logo" style="background:linear-gradient(140deg,#8fd3ff,#5b8def)">谷</span>
+                <b>谷圈论坛</b><span>同好在这里</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 热兑好物（对标工行「热兑好物」） -->
+          <div class="home-sec">
+            <div class="sec-head">
+              <h3>热兑好物</h3>
+              <span class="sec-more" data-toast="演示环境：更多好物敬请期待">更多 ›</span>
+            </div>
+            <div class="redeem-row">
+              <button class="redeem-item" data-toast="演示环境：兑换详情敬请期待">
+                <span class="redeem-img" style="background:linear-gradient(150deg,#fdeff6,#fbd9e8)">🧴</span>
+                <b>小魔3折便携装</b><span class="redeem-p"><em>1.84</em>万豆</span>
+              </button>
+              <button class="redeem-item" data-toast="演示环境：兑换详情敬请期待">
+                <span class="redeem-img" style="background:linear-gradient(150deg,#eef4ff,#dbe7ff)">🖊️</span>
+                <b>黑金商务签字笔</b><span class="redeem-p"><em>3,06</em>0豆</span>
+              </button>
+              <button class="redeem-item" data-toast="演示环境：兑换详情敬请期待">
+                <span class="redeem-img" style="background:linear-gradient(150deg,#f0fbf5,#dcf3e8)">🍳</span>
+                <b>不粘炒锅 26cm</b><span class="redeem-p"><em>2.7</em>万豆</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 理财推荐 -->
+          <div class="home-sec">
+            <div class="sec-head">
+              <h3>稳健理财</h3>
+              <span class="sec-more" data-open="page-wealth">更多 ›</span>
+            </div>
+            <div class="hscroll" id="homeProducts"><!-- JS渲染 --></div>
+          </div>
+
+          <!-- 生活服务 -->
+          <div class="home-sec">
+            <div class="sec-head">
+              <h3>精选生活</h3>
+              <span class="sec-more" data-tab-jump="view-life">进入生活 ›</span>
+            </div>
+            <div class="card life-mini">
+              <div class="grid8 grid8--tight" id="lifeGridHome"><!-- JS渲染 --></div>
+            </div>
+          </div>
+
+          <div class="home-foot">中国工商银行 模拟演示版 · 仅用于比赛展示<br>工银大厦虚拟营业厅 © 2026 e次元项目组</div>
+        </div>
+
+        <!-- 工小智悬浮球 -->
+        <button class="fab-xiaozhi" id="fabXiaozhi" data-open="page-xiaozhi">
+          <span class="fab-ico"><img src="img/art/char-xiaozhi.jpg" alt=""></span><span>工小智</span>
+        </button>
+      </section>
+
+      <!-- ────────── ② 生活 ────────── -->
+      <section class="tab-view" id="view-life" data-status="light">
+        <div class="home-header home-header--life">
+          <div class="hh-top">
+            <div class="hh-logo"><strong class="hh-city">上海 <i>▾</i></strong></div>
+            <div class="hh-actions"><button class="hh-icon" data-toast="演示环境：签到成功 +10 工银i豆">🎁</button></div>
+          </div>
+          <div class="life-slogan">惠生活 · 精彩每一天</div>
+          <div class="hh-quick hh-quick--life" id="lifeQuick"><!-- JS渲染 --></div>
+        </div>
+        <div class="home-body">
+          <!-- ★ e次元 生活入口（生活页 → 商城，与首页卡片落点不同） -->
+          <button class="ec-door" data-ec="mall">
+            <img src="img/art/banner-mall.jpg" alt="">
+            <div>
+              <b>e次元 甄选 · 谷子好物</b>
+              <span>工行自有 IP 周边 · 谷粒也能兑换</span>
+              <span class="ec-door-go">去逛逛 ›</span>
+            </div>
+          </button>
+          <div class="card">
+            <div class="grid8" id="lifeGrid"><!-- JS渲染：生活服务 --></div>
+          </div>
+          <div class="home-sec">
+            <div class="sec-head"><h3>限时优惠</h3><span class="sec-more" data-toast="演示环境：更多优惠敬请期待">更多 ›</span></div>
+            <div class="coupon-list" id="couponList"><!-- JS渲染 --></div>
+          </div>
+          <div class="home-sec">
+            <div class="sec-head"><h3>缴费专区</h3></div>
+            <div class="card life-mini">
+              <div class="grid8 grid8--tight" id="payGrid"><!-- JS渲染 --></div>
+            </div>
+          </div>
+          <div class="home-foot">生活频道 · 模拟演示数据</div>
+        </div>
+      </section>
+
+      <!-- ────────── ③ 智金融 ────────── -->
+      <section class="tab-view" id="view-wealth" data-status="light">
+        <div class="home-header">
+          <div class="hh-top">
+            <div class="hh-logo"><strong class="hh-city">投资</strong></div>
+            <div class="hh-actions"><button class="hh-icon" data-toast="演示环境：资产报告生成中">📄</button></div>
+          </div>
+        </div>
+        <div class="home-body">
+          <div class="card account-card account-card--wealth">
+            <div class="ac-top"><div class="ac-left"><span class="ac-name">我的总资产（元）</span></div></div>
+            <div class="ac-balance"><span class="ac-amount" id="totalAsset">328,640.18</span><span class="ac-unit">元</span></div>
+            <div class="asset-split">
+              <div><em>昨日收益</em><b class="up">+128.60</b></div>
+              <div><em>本月收益</em><b class="up">+1,586.42</b></div>
+              <div><em>持仓产品</em><b>6个</b></div>
+            </div>
+          </div>
+          <div class="ticker card" id="tickerRow"><!-- JS渲染：行情 --></div>
+          <div class="home-sec">
+            <div class="prod-tabs" id="prodTabs">
+              <button class="pt-item active" data-cat="bank">存款</button>
+              <button class="pt-item" data-cat="fin">理财</button>
+              <button class="pt-item" data-cat="fund">基金</button>
+              <button class="pt-item" data-cat="ins">保险</button>
+            </div>
+            <div class="prod-list" id="prodList"><!-- JS渲染 --></div>
+          </div>
+          <div class="home-foot">投资有风险 · 理财需谨慎（模拟数据）</div>
+        </div>
+      </section>
+
+      <!-- ────────── ④ 信用卡 ────────── -->
+      <section class="tab-view" id="view-credit" data-status="light">
+        <div class="home-header">
+          <div class="hh-top">
+            <div class="hh-logo"><strong class="hh-city">信用卡</strong></div>
+            <div class="hh-actions">
+              <button class="hh-icon" data-toast="演示环境：信用卡客服暂未开通" title="卡片客服">
+                <svg viewBox="0 0 24 24"><path d="M12 3a8 8 0 0 0-8 8v4a3 3 0 0 0 3 3h1v-7H6.5A5.5 5.5 0 0 1 17.5 11H16v7h1a3 3 0 0 0 3-3v-4a8 8 0 0 0-8-8z" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="16" y="11" width="2.6" height="7" rx="1.3" fill="currentColor"/><rect x="5.4" y="11" width="2.6" height="7" rx="1.3" fill="currentColor"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="home-body">
+          <!-- 我的信用卡卡面 + 额度 -->
+          <div class="card credit-hero" id="ccHero">
+            <div class="cc-visual">
+              <div class="cc-deco"></div><div class="cc-deco cc-deco2"></div>
+              <div class="cc-bankrow"><span class="cc-mark">工</span>中国工商银行 <em>· 信用卡</em></div>
+              <div class="cc-no" id="ccNo">6222 2300 **** 1234</div>
+              <div class="cc-foot"><span id="ccName">工银World奋斗信用卡</span><b id="ccHolder">李**</b><i>UnionPay 银联</i></div>
+            </div>
+            <div class="cc-limit">
+              <div class="ab-row"><span>信用额度（元）</span><b>50,000.00</b></div>
+              <div class="limit-bar"><i id="ccLimitBar"></i></div>
+              <div class="ab-row ab-row--sub"><span>已用额度 <b id="ccLimitUsed"></b></span><em id="ccLimitPct"></em></div>
+            </div>
+          </div>
+
+          <!-- 本期账单 -->
+          <div class="card bill-card">
+            <div class="bc-top"><b id="ccBillMonth">09月账单</b><span class="bc-more" data-toast="演示环境：账单明细敬请期待">账单明细 ›</span></div>
+            <div class="bc-amt">¥<b id="ccBillAmt">2,386.40</b><em>本期应还</em></div>
+            <div class="bc-due">到期还款日 <b id="ccDue">10月25日</b> · 最低还款 ¥<b id="ccMin">238.64</b></div>
+            <div class="bc-btns">
+              <button class="ac-btn ac-btn--main" id="ccRepayBtn">一键还款</button>
+              <button class="ac-btn" data-toast="演示：可分期金额 ¥2,150.00，分12期费率0.6%/期">账单分期</button>
+            </div>
+          </div>
+
+          <!-- ★ e次元联名卡推广（谷卡入口） -->
+          <div class="card xingegu-card xg-mini" data-xingegu="guka">
+            <div class="xg-mini-left">
+              <span class="xg-mini-ico">💳</span>
+              <div><b>谷卡 · IP联名信用卡</b><span>本命卡面投票定制中 · 开卡送限定谷</span></div>
+            </div>
+            <span class="xg-mini-go">去定制 ›</span>
+          </div>
+
+          <!-- 卡片权益 -->
+          <div class="home-sec">
+            <div class="sec-head"><h3>卡片权益</h3><span class="sec-more" data-toast="演示环境：更多权益敬请期待">全部 ›</span></div>
+            <div class="card"><div class="grid8" id="creditBenefits"></div></div>
+          </div>
+
+          <div class="card menu-card" id="creditMenu"></div>
+          <div class="home-foot">信用卡频道 · 模拟演示数据<br>工银信用卡 · 品质生活 分期未来</div>
+        </div>
+      </section>
+
+      <!-- ────────── ⑤ 我的 ────────── -->
+      <section class="tab-view" id="view-mine" data-status="light">
+        <div class="mine-header">
+          <div class="mine-top">
+            <div class="mine-user">
+              <div class="avatar" id="mineAvatar">李</div>
+              <div class="mine-info">
+                <div class="mine-name">李** <span class="mine-level">财富级</span></div>
+                <div class="mine-tags">
+                  <span class="mine-tag">星级客户 ★★★★★</span>
+                  <!-- ★ e次元谷龄标签（植入位2的一部分，可由e次元程序接管） -->
+                  <span class="mine-tag mine-tag--xg">e次元 · 谷龄达人 Lv.6</span>
+                </div>
+              </div>
+            </div>
+            <button class="hh-icon" data-toast="演示环境：设置暂未开通">⚙</button>
+          </div>
+          <div class="mine-stats">
+            <div><em>工银i豆</em><b>8,640</b></div>
+            <div><em>优惠券</em><b>6张</b></div>
+            <div><em>勋章</em><b>12枚</b></div>
+          </div>
+        </div>
+
+        <div class="home-body home-body--flat">
+          <!-- ★★★ e次元 会员成长卡（植入位2：#xingegu-mine-slot） ★★★ -->
+          <div class="card xingegu-card xingegu-card--mine" id="xingegu-mine-slot">
+            <div class="xg-mine-row">
+              <div class="xg-mine-info">
+                <span class="xg-mine-title">e次元 · 攒谷成长</span>
+                <span class="xg-mine-sub">谷粒 12,480 · 距离下一级还差 520 谷粒</span>
+                <div class="xg-bar"><i style="width:72%"></i></div>
+              </div>
+              <button class="xg-mine-btn" data-xingegu="zangu">去攒谷</button>
+            </div>
+          </div>
+
+          <div class="card asset-brief" data-open="page-wealth">
+            <div class="ab-row"><span>总资产（元）</span><b>328,640.18</b></div>
+            <div class="ab-row"><span>昨日收益</span><b class="up">+128.60</b></div>
+            <div class="ab-row"><span>负债</span><b>0.00</b></div>
+          </div>
+
+          <div class="card menu-card" id="mineMenu1"><!-- JS渲染 --></div>
+          <div class="card menu-card" id="mineMenu2"><!-- JS渲染 --></div>
+
+          <button class="logout-btn" data-toast="演示环境：无法退出，请尽情浏览">退出登录</button>
+          <div class="home-foot">中国工商银行 模拟演示版 v9.0.0<br>本应用为比赛演示作品，与真实银行无关</div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ═══ 底部导航（真机五栏：首页/信用卡/财富/生活/我的） ═══ -->
+    <nav class="tabbar">
+      <button class="tab-item active" data-tab="view-home">
+        <svg viewBox="0 0 24 24"><path d="M4 11.5 12 4l8 7.5V20a1 1 0 0 1-1 1h-4.5v-5.5h-5V21H5a1 1 0 0 1-1-1v-8.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        <span>首页</span>
+      </button>
+      <button class="tab-item" data-tab="view-credit">
+        <svg viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3 10h18" stroke="currentColor" stroke-width="1.8"/><path d="M6.5 15h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <span>信用卡</span>
+      </button>
+      <button class="tab-item" data-tab="view-wealth">
+        <svg viewBox="0 0 24 24"><path d="M4 20h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M6 16v-4M10.5 16V8M15 16v-6M19 16V5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <span>财富</span>
+      </button>
+      <button class="tab-item" data-tab="view-life">
+        <svg viewBox="0 0 24 24"><path d="M6.5 8h11l1 12.2a1 1 0 0 1-1 1.1H6.5a1 1 0 0 1-1-1.1L6.5 8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 10V6.5a3 3 0 0 1 6 0V10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <span>生活</span>
+      </button>
+      <button class="tab-item" data-tab="view-mine">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="8.2" r="3.8" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4.5 20.5c1.2-3.6 4-5.4 7.5-5.4s6.3 1.8 7.5 5.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <span>我的</span>
+      </button>
+    </nav>
+
+    <!-- iPhone Home 指示条 -->
+    <div class="home-indicator"></div>
+
+    <!-- ═══════════ 子页面浮层（从右滑入） ═══════════ -->
+
+    <!-- 转账汇款 -->
+    <div class="overlay-page" id="page-transfer" data-status="dark">
+      <div class="op-navbar">
+        <button class="op-back" data-close="page-transfer"><svg viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <span>转账汇款</span><i class="op-more">···</i>
+      </div>
+      <div class="op-body">
+        <div class="card form-card">
+          <div class="form-row">
+            <label>收款账户</label>
+            <input type="text" placeholder="请输入卡号/手机号" value="6222 0202 **** 6666">
+          </div>
+          <div class="form-row">
+            <label>收款人</label>
+            <input type="text" placeholder="请输入收款人姓名" value="王**">
+          </div>
+          <div class="form-row">
+            <label>转账金额</label>
+            <div class="amount-input"><span>￥</span><input type="number" id="transferAmount" placeholder="0.00" value="520.00"></div>
+          </div>
+          <div class="form-row">
+            <label>附言</label>
+            <input type="text" placeholder="选填" value="谷子款 · 出谷通托管示例">
+          </div>
+        </div>
+        <div class="card fee-card">
+          <div class="ab-row"><span>手续费</span><b class="up">免费</b></div>
+          <div class="ab-row"><span>预计到账</span><b>实时到账</b></div>
+          <div class="ab-row"><span>付款账户</span><b>储蓄卡（****8888）</b></div>
+        </div>
+        <button class="big-btn" id="transferBtn">下一步</button>
+        <p class="demo-tip">※ 模拟演示环境，不会发生任何真实资金变动</p>
+      </div>
+    </div>
+
+    <!-- 收支明细 -->
+    <div class="overlay-page" id="page-records" data-status="dark">
+      <div class="op-navbar">
+        <button class="op-back" data-close="page-records"><svg viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <span>收支明细</span><i class="op-more">···</i>
+      </div>
+      <div class="op-body">
+        <div class="card month-sum">
+          <div><em>9月收入（元）</em><b class="up" id="sumIn">--</b></div>
+          <div><em>9月支出（元）</em><b id="sumOut">--</b></div>
+        </div>
+        <div class="record-list" id="recordList"><!-- JS渲染 --></div>
+      </div>
+    </div>
+
+    <!-- 工小智 AI对话 -->
+    <div class="overlay-page overlay-page--chat" id="page-xiaozhi" data-status="dark">
+      <div class="op-navbar op-navbar--ai">
+        <button class="op-back" data-close="page-xiaozhi"><svg viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <div class="ai-title"><span class="ai-logo"><img src="img/art/char-xiaozhi.jpg" alt="工小智"></span><div><b>工小智</b><em>领航AI+ · 智能金融服务助手</em></div></div>
+        <i class="op-more">···</i>
+      </div>
+      <div class="chat-body" id="chatList"><!-- JS渲染 --></div>
+      <!-- ★ e次元技能chips（植入位4）：识谷估值/谷子行情 由e次元程序接管 -->
+      <div class="skill-chips" id="xiaozhi-skill-chips">
+        <button data-skill="查余额">查余额</button>
+        <button data-skill="转账汇款">转账汇款</button>
+        <button data-xingegu="shigu" class="chip--slot">识谷估值</button>
+        <button data-xingegu="shigu" class="chip--slot">谷子行情</button>
+      </div>
+      <div class="chat-inputbar">
+        <input type="text" id="chatInput" placeholder="想问什么，尽管问我～">
+        <button id="chatSend">发送</button>
+      </div>
+    </div>
+
+    <!-- 扫一扫 -->
+    <div class="overlay-page overlay-page--scan" id="page-scan" data-status="dark">
+      <div class="op-navbar op-navbar--transparent">
+        <button class="op-back" data-close="page-scan"><svg viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <span>扫一扫</span><i class="op-more">⚡</i>
+      </div>
+      <div class="scan-body">
+        <div class="scan-frame">
+          <div class="scan-line"></div>
+        </div>
+        <p class="scan-tip">对准二维码 / 条码，即可收款付款<br><b>也可以扫谷子上的防伪码验证真伪</b></p>
+        <div class="scan-tools"><span>相册</span><span>闪光灯</span></div>
+      </div>
+    </div>
+
+    <!-- 更多功能 -->
+    <div class="overlay-page" id="page-more" data-status="dark">
+      <div class="op-navbar">
+        <button class="op-back" data-close="page-more"><svg viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <span>全部功能</span><i class="op-more">···</i>
+      </div>
+      <div class="op-body">
+        <div class="card"><div class="grid8" id="moreGrid"><!-- JS渲染 --></div></div>
+        <div class="home-foot">更多功能持续更新中 · 模拟演示</div>
+      </div>
+    </div>
+
+    <!-- 魔法空间 · 勋章墙（攒谷可在此植入勋章） -->
+    <div class="overlay-page" id="page-magic" data-status="light">
+      <div class="op-navbar op-navbar--gold">
+        <button class="op-back" data-close="page-magic"><svg viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <span>魔法空间</span><i class="op-more">···</i>
+      </div>
+      <div class="op-body">
+        <div class="card magic-card">
+          <div class="mg-idou"><em>我的工银i豆</em><b>8,640</b><span>≈ 86.4 元权益</span></div>
+          <div class="mg-tasks" id="magicTasks"><!-- JS渲染 --></div>
+        </div>
+        <div class="home-sec">
+          <div class="sec-head"><h3>我的勋章墙</h3></div>
+          <div class="card"><div class="medal-grid" id="medalGrid"><!-- JS渲染 --></div></div>
+        </div>
+        <div class="home-foot">攒谷勋章由「e次元·攒谷」体系联合发放</div>
+      </div>
+    </div>
+
+    <!-- 消息中心（首页铃铛进入） -->
+    <div class="overlay-page" id="page-msgcenter" data-status="dark">
+      <div class="op-navbar">
+        <button class="op-back" data-close="page-msgcenter"><svg viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <span>消息中心</span><i class="op-more">···</i>
+      </div>
+      <div class="op-body">
+        <div class="msg-list" id="msgListFull"><!-- JS渲染 --></div>
+      </div>
+    </div>
+
+    <!-- ★★★ e次元功能总容器（植入位3：#xingegu-slot 为功能内容区） ★★★ -->
+    <div class="overlay-page overlay-page--xingegu" id="page-xingegu" data-status="light">
+      <div class="xg-navbar">
+        <button class="op-back" data-close="page-xingegu"><svg viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <div class="xg-nav-brand">e<span>次</span>元</div>
+        <i class="op-more">···</i>
+      </div>
+      <div class="xg-feature-chips" id="xingeguChips"><!-- JS渲染：四功能切换 --></div>
+      <div class="xg-slot-body" id="xingegu-slot">
+        <!-- ▼▼▼ e次元四功能（识谷/攒谷/出谷通/谷卡）由 js/xingegu.js
+                监听 xingegu:open 事件自动注入渲染，无需手写内容 ▼▼▼ -->
+        <!-- ▲▲▲ 植入区结束 ▲▲▲ -->
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+    </div><!-- /phone -->
+  </div><!-- /phone-shell -->
+
+  <div class="stage-note">中国工商银行 · 手机银行模拟演示版 —— 「e次元」比赛项目 · 非官方应用</div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/chars.js"></script>
+<script src="js/app.js"></script>
+<script src="js/xingegu.js"></script>
+<script src="js/modules3.js"></script>
+<script src="js/ec-discovery.js"></script>
+<script src="js/ec-entry.js"></script>
+<script>
+/* PWA：注册离线缓存（仅 https / localhost 生效；iPhone 上「添加到主屏幕」靠的是 head 里的 apple 标签） */
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('sw.js').catch(function () {});
+  });
+}
+</script>
+</body>
+</html>
