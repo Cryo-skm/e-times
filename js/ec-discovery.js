@@ -25,12 +25,12 @@
 
   /* ── 周边窗：名称 / 图 / 价 / 标签 ── */
   const GOODS = [
-    { img: 'goods-stand.jpg',  n: '亚克力立牌 · 星熠白昼流光', p: '¥269', t: '现货' },
-    { img: 'goods-figure.jpg', n: '1/7 手办 · 语棠樱色絮语',   p: '¥1,099', t: '预售' },
-    { img: 'goods-badge.jpg',  n: '马口铁吧唧套组 · 三枚装',   p: '¥89',  t: '热卖' },
-    { img: 'goods-strap.jpg',  n: '亚克力挂件 · 墨书夜读',     p: '¥129', t: '现货' },
-    { img: 'goods-box.jpg',    n: '谷子礼盒 · 四季限定',       p: '¥299', t: '限量' },
-    { img: 'goods-blind.jpg',  n: '谷伴盲盒 · 隐藏款随机',     p: '¥69',  t: '上新' }
+    { img: 'goods-stand',  n: '亚克力立牌 · 星熠白昼流光', p: '¥269', t: '现货' },
+    { img: 'goods-figure', n: '1/7 手办 · 语棠樱色絮语',   p: '¥1,099', t: '预售' },
+    { img: 'goods-badge',  n: '马口铁吧唧套组 · 三枚装',   p: '¥89',  t: '热卖' },
+    { img: 'goods-strap',  n: '亚克力挂件 · 墨书夜读',     p: '¥129', t: '现货' },
+    { img: 'goods-box',    n: '谷子礼盒 · 四季限定',       p: '¥299', t: '限量' },
+    { img: 'goods-blind',  n: '谷伴盲盒 · 隐藏款随机',     p: '¥69',  t: '上新' }
   ];
 
   const goodsHTML = () => `
@@ -39,7 +39,7 @@
       <div class="ecx-goods">
         ${GOODS.map(g => `
           <button class="ecx-g" data-ec-goods="${esc(g.n)}">
-            <span class="ec-win ec-win--goods"><img src="${A}${g.img}" alt="${esc(g.n)}" loading="lazy"></span>
+            <span class="ec-win ec-win--goods">${G(g.img, null, esc(g.n))}</span>
             <b>${esc(g.n)}</b>
             <span class="ecx-grow2"><em>${esc(g.p)}</em><i>${esc(g.t)}</i></span>
           </button>`).join('')}

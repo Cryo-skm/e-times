@@ -22,7 +22,10 @@
     'banner-door':'banner2-door.jpg','banner-community':'banner2-community.jpg',
     'banner-ai':'banner2-ai.jpg','banner-credit':'banner2-credit.jpg',
     'banner-trade':'banner2-trade.jpg','banner-ar':'banner2-ar.jpg',
-    'banner-guxiang':'banner2-guxiang.jpg','cover-enter':'cover2-enter.jpg'
+    'banner-guxiang':'banner2-guxiang.jpg','cover-enter':'cover2-enter.jpg',
+    'goods-stand':'goods2-stand.jpg','goods-figure':'goods2-figure.jpg',
+    'goods-badge':'goods2-badge.jpg','goods-strap':'goods2-strap.jpg',
+    'goods-box':'goods2-box.jpg','goods-blind':'goods2-blind.jpg'
   };
   const gArt = base => {
     let g = 'boy';
@@ -242,7 +245,7 @@
         <div class="pnl-t"><span class="ic" style="background:#eef4ff">⬆️</span>上传商品图片
           <span class="sp">支持多角度上传，提升鉴定准确率</span></div>
         ${st.done
-        ? `<div class="win" style="border-radius:12px"><img src="${A}goods-badge.jpg" alt="" style="height:200px"></div>
+        ? `<div class="win" style="border-radius:12px"><img src="${gArt('goods-badge')}" alt="" style="height:200px"></div>
              <div style="margin-top:12px"><button class="btn gray sm" data-pcshigureset>重新上传</button></div>`
         : `<div class="drop" data-pcshiguup>
                <div class="di">⬆️</div><b>点击选择图片，或拖拽到此处</b>
@@ -292,7 +295,7 @@
           <button class="chip" data-pcval="1/7 手办">1/7 手办</button>
         </div>
         <div class="win win-sq" style="margin-top:12px;border-radius:12px">
-          <img src="${A}goods-stand.jpg" alt="">
+          <img src="${gArt('goods-stand')}" alt="">
         </div>
         <div style="text-align:center;margin-top:10px">
           <div class="tiny">当前参考价</div>
@@ -342,7 +345,7 @@
       <div class="grid4">
         ${GOODS.slice(0, 4).map(g => `
           <div class="lrow" style="border:none;padding:6px 2px">
-            <span class="win win-sq" style="width:44px;height:44px;border-radius:10px;flex:none"><img src="${A}${g.img}" alt=""></span>
+            <span class="win win-sq" style="width:44px;height:44px;border-radius:10px;flex:none"><img src="${gArt(g.img.replace(/\.jpg$/,''))}" alt=""></span>
             <div class="lm"><b style="font-size:12px">${g.n}</b><span>¥${money(g.p)}</span></div>
             <span class="tag ${g.p > 300 ? 'tl' : 'bl'}">${g.p > 300 ? '低位中' : '稳定中'}</span>
           </div>`).join('')}
@@ -725,7 +728,7 @@
   function goodCard(g, tags) {
     return `
     <button class="g-card" data-pcgood="${esc(g.n)}">
-      <div class="win win-sq"><img src="${A}${g.img}" alt="${esc(g.n)}" loading="lazy"></div>
+      <div class="win win-sq"><img src="${gArt(g.img.replace(/\.jpg$/,''))}" alt="${esc(g.n)}" loading="lazy"></div>
       <div class="gb">
         <b>${esc(g.n)}</b>
         <div class="chiprow" style="margin-top:6px">${tags.map(t => `<span class="tag bl" style="font-size:10px;padding:2px 7px">${t}</span>`).join('')}</div>
@@ -898,7 +901,7 @@
     if (gd) {
       const g = GOODS.find(x => x.n === gd.dataset.pcgood);
       if (g) modal(`<h3>${esc(g.n)}</h3><div class="sub">e次元甄选 · 工行自有 IP 直供 · 演示商品</div>
-        <div class="win win-sq" style="border-radius:14px"><img src="${A}${g.img}" alt=""></div>
+        <div class="win win-sq" style="border-radius:14px"><img src="${gArt(g.img.replace(/\.jpg$/,''))}" alt=""></div>
         <div style="margin-top:12px;display:flex;gap:10px;align-items:center">
           <b style="font-size:22px;color:var(--pk-d)">¥${money(g.p)}</b>
           <span class="tag ${g.t === '限量' || g.t === '上新' ? 'pk' : 'tl'}">${g.t}</span>

@@ -71,7 +71,14 @@
     'banner-trade': 'banner2-trade.jpg',
     'banner-ar': 'banner2-ar.jpg',
     'banner-guxiang': 'banner2-guxiang.jpg',
-    'cover-enter': 'cover2-enter.jpg'
+    'cover-enter': 'cover2-enter.jpg',
+    /* 周边商品图（立牌/手办/吧唧/挂件/礼盒/盲盒）也换美少年版 */
+    'goods-stand': 'goods2-stand.jpg',
+    'goods-figure': 'goods2-figure.jpg',
+    'goods-badge': 'goods2-badge.jpg',
+    'goods-strap': 'goods2-strap.jpg',
+    'goods-box': 'goods2-box.jpg',
+    'goods-blind': 'goods2-blind.jpg'
   };
   /* 场景插画路径：传入不带扩展名的基名 */
   const artFile = (base, g) => ((g || gender) === 'girl' && GART[base]) ? GART[base] : base + '.jpg';
