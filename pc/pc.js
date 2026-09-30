@@ -35,6 +35,21 @@
     return A + ((g === 'girl' && GART[base]) ? GART[base] : base + '.jpg');
   };
 
+  /* WebP 响应式图片：包一层 <picture class="art-pic">。
+     CSS 里 picture.art-pic{display:contents}，布局与原来直接放 <img> 完全等价；
+     不支持 WebP 的浏览器拿不到 <source type=image/webp>，自动回退 <img src="….jpg">。
+     extra 是额外塞给 <img> 的属性串（如 style），alt 单独传。 */
+  const pic = (jpg, extra, alt) => (window.ART)
+    ? ART.pic(jpg, { alt: alt == null ? '' : alt, extra: extra || '' })
+    : `<img src="${jpg}" alt="${alt == null ? '' : alt}"${extra ? ' ' + extra : ''}>`;
+
+  /* 就地换图：<img> 与它外面的 <source> 一起改（性别切换时用） */
+  const setArtUrl = (el, jpg) => {
+    if (!el) return;
+    if (window.ART) { ART.apply(el, jpg); return; }
+    el.src = jpg;
+  };
+
   /* ══════════ 素材表 ══════════ */
   const CHARS = [
     { id: 'xiaoe', n: '小e', r: '首席谷伴', f: ['综合陪伴', '新手引导'] },
@@ -146,7 +161,7 @@
         <div class="grid4" style="gap:10px">
           ${CHARS.slice(0, 4).map(c => `
             <button class="pref-card${S.pref.includes(c.id) ? ' on' : ''}" data-pcpref="${c.id}">
-              <span class="pc-win"><img src="${A}char-${c.id}.jpg" alt="" loading="lazy"></span>
+              <span class="pc-win">${pic(A + 'char-' + c.id + '.jpg')}</span>
               <b>${c.n}</b><span>${c.r}</span>
             </button>`).join('')}
         </div>
@@ -220,7 +235,7 @@
     return `
     <div class="pg-head"><h1>${TITLE.goods[0]}</h1><p>${TITLE.goods[1]}</p></div>
     <div class="win win-bn" style="margin-bottom:16px">
-      <img src="${gArt('banner-ai')}" alt="">
+      ${pic(gArt('banner-ai'))}
       <div class="wt"><b>自有 IP 直供 · 说一句话就下单</b><span>正版可溯 · 支持谷粒兑换 / 免息分期 / 出谷通托管</span></div>
     </div>
     <div class="chiprow" style="margin-bottom:14px">
@@ -238,7 +253,7 @@
     </div><div class="sp"><button class="btn gray sm" data-pctoast="演示环境：历史记录为示意">🕘 查看历史记录</button></div></div></div>
 
     <div class="win win-bn" style="margin-bottom:16px">
-      <img src="${gArt('banner-ai')}" alt="">
+      ${pic(gArt('banner-ai'))}
       <div class="wt"><b>多模态识别 · 一眼辨真伪</b><span>视觉比对 + 官方图库 + 区块链存证，鉴定报告不可篡改</span></div>
     </div>
 
@@ -247,7 +262,7 @@
         <div class="pnl-t"><span class="ic" style="background:#eef4ff">⬆️</span>上传商品图片
           <span class="sp">支持多角度上传，提升鉴定准确率</span></div>
         ${st.done
-        ? `<div class="win" style="border-radius:12px"><img src="${gArt('goods-badge')}" alt="" style="height:200px"></div>
+        ? `<div class="win" style="border-radius:12px">${pic(gArt('goods-badge'), 'style="height:200px"')}</div>
              <div style="margin-top:12px"><button class="btn gray sm" data-pcshigureset>重新上传</button></div>`
         : `<div class="drop" data-pcshiguup>
                <div class="di">⬆️</div><b>点击选择图片，或拖拽到此处</b>
@@ -297,7 +312,7 @@
           <button class="chip" data-pcval="1/7 手办">1/7 手办</button>
         </div>
         <div class="win win-sq" style="margin-top:12px;border-radius:12px">
-          <img src="${gArt('goods-stand')}" alt="">
+          ${pic(gArt('goods-stand'))}
         </div>
         <div style="text-align:center;margin-top:10px">
           <div class="tiny">当前参考价</div>
@@ -347,7 +362,7 @@
       <div class="grid4">
         ${GOODS.slice(0, 4).map(g => `
           <div class="lrow" style="border:none;padding:6px 2px">
-            <span class="win win-sq" style="width:44px;height:44px;border-radius:10px;flex:none"><img src="${gArt(g.img.replace(/\.jpg$/,''))}" alt=""></span>
+            <span class="win win-sq" style="width:44px;height:44px;border-radius:10px;flex:none">${pic(gArt(g.img.replace(/\.jpg$/,'')))}</span>
             <div class="lm"><b style="font-size:12px">${g.n}</b><span>¥${money(g.p)}</span></div>
             <span class="tag ${g.p > 300 ? 'tl' : 'bl'}">${g.p > 300 ? '低位中' : '稳定中'}</span>
           </div>`).join('')}
@@ -361,7 +376,7 @@
     </div><div class="sp"><button class="btn am sm" data-pctoast="演示环境：协议文本为示意">📄 查看协议</button></div></div></div>
 
     <div class="win win-bn" style="margin-bottom:16px">
-      <img src="${gArt('banner-trade')}" alt="">
+      ${pic(gArt('banner-trade'))}
       <div class="wt"><b>下单前说清楚，收到后有地方核对</b><span>版本 / 品相 / 附件 / 售后约定全部写进订单确认页 · 72 小时验货窗口</span></div>
     </div>
 
@@ -421,7 +436,7 @@
     </div><div class="sp"><span class="tag pk">年化低至 3.45% 起</span> <span class="tag bl">最高 5 万额度</span></div></div></div>
 
     <div class="win win-bn" style="margin-bottom:16px">
-      <img src="${gArt('banner-credit')}" alt="">
+      ${pic(gArt('banner-credit'))}
       <div class="wt"><b>让热爱不被预算限制</b><span>谷卡分期 · 免息券 · 藏品质押授信，一站式解决「想买又差点钱」</span></div>
     </div>
 
@@ -489,7 +504,7 @@
     </div><div class="sp"><span class="tag pk">收藏</span> <span class="tag">展示</span> <span class="tag">创作</span> <span class="tag">分享</span> <span class="tag">遇见同好</span></div></div></div>
 
     <div class="room">
-      <img src="${gArt('banner-gallery')}" alt="">
+      ${pic(gArt('banner-gallery'))}
       <div class="rt"><b>${rooms.find(r => r[0] === S.cangRoom)[1]}</b>
         <span>已建档 6 件 · 展厅浏览量 1,284 · 同好留言 42</span></div>
     </div>
@@ -502,7 +517,7 @@
     <div class="gal">
       ${items.map(([img, n, c, t]) => `
         <div class="gi">
-          <div class="win win-sq"><img src="${A}${img}" alt=""></div>
+          <div class="win win-sq">${pic(A + img)}</div>
           <div class="gb"><b>${n}</b><span class="tag ${t}">${c}</span></div>
         </div>`).join('')}
     </div>
@@ -526,7 +541,7 @@
   P.plaza = () => `
     <div class="pg-head"><h1>${TITLE.plaza[0]}</h1><p>${TITLE.plaza[1]}</p></div>
     <div class="win win-bn" style="margin-bottom:16px">
-      <img src="${gArt('banner-community')}" alt="">
+      ${pic(gArt('banner-community'))}
       <div class="wt"><b>今日广场 · 3 位同好正在晒谷</b><span>发帖、晒谷、出回血，都能攒谷粒</span></div>
     </div>
     <div class="grid-32">
@@ -542,7 +557,7 @@
           </div>
           <div style="font-size:13px">${txt}</div>
           <div class="win" style="margin-top:10px;border-radius:12px">
-            <img src="${A}${gi}" alt="" style="height:190px">
+            ${pic(A + gi, 'style="height:190px"')}
           </div>
           <div class="chiprow" style="margin-top:10px">
             <span class="chip">👍 ${like}</span><span class="chip">💬 ${cmt}</span><span class="chip">收藏</span>
@@ -574,7 +589,7 @@
   P.coop = () => `
     <div class="pg-head"><h1>${TITLE.coop[0]}</h1><p>${TITLE.coop[1]}</p></div>
     <div class="win win-bn" style="margin-bottom:16px">
-      <img src="${gArt('banner-community')}" alt="">
+      ${pic(gArt('banner-community'))}
       <div class="wt"><b>和同好一起，把喜欢的东西摆在一起</b><span>实时语音 · 协同布展 · 云逛展，收藏不再是孤单的事</span></div>
     </div>
     <div class="grid3">
@@ -629,7 +644,7 @@
       </div>
     </div>
     <div class="win win-bn" style="margin-top:16px">
-      <img src="${gArt('banner-ar')}" alt="">
+      ${pic(gArt('banner-ar'))}
       <div class="wt"><b>打破次元壁</b><span>把收藏带到现实，把现实分享给同好</span></div>
     </div>`;
 
@@ -726,11 +741,11 @@
     </div>`;
 
   /* ══════════ 片段 ══════════ */
-  function img(id) { return `<img src="${A}char-${id}.jpg" alt="" loading="lazy">`; }
+  function img(id) { return pic(A + 'char-' + id + '.jpg'); }
   function goodCard(g, tags) {
     return `
     <button class="g-card" data-pcgood="${esc(g.n)}">
-      <div class="win win-sq"><img src="${gArt(g.img.replace(/\.jpg$/,''))}" alt="${esc(g.n)}" loading="lazy"></div>
+      <div class="win win-sq">${pic(gArt(g.img.replace(/\.jpg$/,'')), '', esc(g.n))}</div>
       <div class="gb">
         <b>${esc(g.n)}</b>
         <div class="chiprow" style="margin-top:6px">${tags.map(t => `<span class="tag bl" style="font-size:10px;padding:2px 7px">${t}</span>`).join('')}</div>
@@ -835,7 +850,10 @@
     clearTimeout(petalTimer); clearTimeout(outTimer);
     petalTimer = setTimeout(() => {
       $('#bank').style.visibility = 'hidden';
+      $('#bank').setAttribute('aria-hidden', 'true');
+      $('#pce').setAttribute('aria-hidden', 'true');
       $('#ecapp').classList.add('on');
+      $('#ecapp').removeAttribute('aria-hidden');
       go('home');
     }, 640);
     outTimer = setTimeout(() => {
@@ -891,10 +909,10 @@
       <div class="sub">谷伴与场景插画会按你的性别绘制 · 与手机端实时互通</div>
       <div class="gp2">
         <button class="gp2-c${g === 'boy' ? ' on' : ''}" data-pcgender="boy">
-          <span class="gp2-av"><img src="${A}char-xiaoe.jpg" alt=""><img src="${A}char-yutang.jpg" alt=""></span>
+          <span class="gp2-av">${pic(A + 'char-xiaoe.jpg')}${pic(A + 'char-yutang.jpg')}</span>
           <b>美少女</b><em>我是男生</em></button>
         <button class="gp2-c${g === 'girl' ? ' on' : ''}" data-pcgender="girl">
-          <span class="gp2-av"><img src="${A}char2-xiaoe.jpg" alt=""><img src="${A}char2-yutang.jpg" alt=""></span>
+          <span class="gp2-av">${pic(A + 'char2-xiaoe.jpg')}${pic(A + 'char2-yutang.jpg')}</span>
           <b>美少年</b><em>我是女生</em></button>
       </div>
       <div class="tiny" style="margin-top:10px">当前：${g === 'girl' ? '美少年' : '美少女'}风格 · 在手机端切换后，PC 端也会同步</div>`);
@@ -940,7 +958,7 @@
     if (gd) {
       const g = GOODS.find(x => x.n === gd.dataset.pcgood);
       if (g) modal(`<h3>${esc(g.n)}</h3><div class="sub">e次元甄选 · 工行自有 IP 直供 · 演示商品</div>
-        <div class="win win-sq" style="border-radius:14px"><img src="${gArt(g.img.replace(/\.jpg$/,''))}" alt=""></div>
+        <div class="win win-sq" style="border-radius:14px">${pic(gArt(g.img.replace(/\.jpg$/,'')))}</div>
         <div style="margin-top:12px;display:flex;gap:10px;align-items:center">
           <b style="font-size:22px;color:var(--pk-d)">¥${money(g.p)}</b>
           <span class="tag ${g.t === '限量' || g.t === '上新' ? 'pk' : 'tl'}">${g.t}</span>
@@ -993,8 +1011,9 @@
   const bkDoor = $('#bkDoorImg');
   const ecHero = $('#ecSideHero');
   const paintGenderArt = () => {
-    if (bkDoor) bkDoor.src = gArt('banner-door');
-    if (ecHero) ecHero.src = gArt('banner-gallery');
+    /* 用 ART.apply 而不是改 .src：这样 <source srcset> 里的 WebP 也一起换掉 */
+    if (bkDoor) setArtUrl(bkDoor, gArt('banner-door'));
+    if (ecHero) setArtUrl(ecHero, gArt('banner-gallery'));
   };
   paintGenderArt();
   syncGenderUI();

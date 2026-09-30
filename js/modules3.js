@@ -163,7 +163,7 @@
           <span class="gw-st ${w.state === '已达标' ? 'ok' : ''}">${w.state}</span>
           <button class="gw-del" onclick="XZG.gxDel(${i})" title="移除">✕</button>
         </div>`).join('')}
-        <div class="xzg-muted" style="font-size:11px;margin-top:8px">✦ 监控任务在你明确授权后才建立，可随时删除；不会因一次点击就改变推荐模型</div>
+        <div class="xzg-muted" style="font-size:12px;margin-top:8px">✦ 监控任务在你明确授权后才建立，可随时删除；不会因一次点击就改变推荐模型</div>
       </div>`;
     },
     gxDel(i) { this.GX.watch.splice(i, 1); this.renderGuxiang(); this.toast('已移除该监控任务', '🗑️'); },
@@ -193,7 +193,7 @@
       this.sheet(`<h3>🛒 确认下单</h3><div class="ssub">${pick.ch}</div>
         <div class="xzg-card" style="background:#fafbfd;margin:10px 0;padding:14px">
           <b style="font-size:13.5px;display:block">${c.角色 ? '「' + c.角色 + '」' : ''}${c.品类[0]}</b>
-          <span class="xzg-muted" style="font-size:11.5px">${pick.ship}</span>
+          <span class="xzg-muted" style="font-size:12px">${pick.ship}</span>
           <div class="gx-payrow"><span>商品金额</span><b>¥${pick.price}</b></div>
           <div class="gx-payrow"><span>支付方式</span><b>工行储蓄卡（****8888）</b></div>
           <div class="gx-payrow"><span>资金保障</span><b style="color:#0a9a66">出谷通托管 · 验货后放款</b></div>
@@ -202,7 +202,7 @@
           <b>💳 可享 3 期免息分期</b><span>月供 ¥${(pick.price / 3).toFixed(1)} · 0 手续费 · 去谷卡查看</span>
         </div>
         <button class="xzg-btn big" style="margin-top:12px" onclick="XZG.gxPay(${pick.price},'${(c.角色 || c.品类[0]).replace(/'/g, '')}')">立即支付 ¥${pick.price}</button>
-        <div class="xzg-muted" style="font-size:10.5px;margin-top:8px;text-align:center">* 演示环境 · 不发生真实资金变动</div>`);
+        <div class="xzg-muted" style="font-size:12px;margin-top:8px;text-align:center">* 演示环境 · 不发生真实资金变动</div>`);
     },
     gxPay(price, name) {
       this.sheetClose();
@@ -416,7 +416,7 @@
               <span class="cgi-tag">${it.built ? (it.has3d ? '3D' : '2D') : '待建档'}</span>
             </button>`).join('')}</div>
         </div>
-        <div class="xzg-muted" style="font-size:11px;margin-top:9px">✦ 暂不具备建模条件的商品以多视角图片呈现，页面会区分实际拍摄内容与虚拟叠加效果</div>
+        <div class="xzg-muted" style="font-size:12px;margin-top:9px">✦ 暂不具备建模条件的商品以多视角图片呈现，页面会区分实际拍摄内容与虚拟叠加效果</div>
       </div>`;
 
       h += `<div class="xzg-card"><div class="ct">📁 我的收藏档案<span class="more">${builtCnt} / ${total}</span></div>
@@ -442,7 +442,7 @@
       this.sheet(`<h3>${it.emo} ${it.name}</h3><div class="ssub">${it.cat} · ${it.has3d ? '三维展示模型' : '多视角图片档案'}</div>
         <div class="cgr-viewer" style="background:${it.bg}"><span style="font-size:64px">${it.emo}</span>
           ${it.has3d ? '<i class="cgr-spin">↻ 可旋转 / 放大</i>' : '<i class="cgr-spin">多角度图片</i>'}</div>
-        <div class="xzg-muted" style="font-size:11.5px;line-height:1.9;margin-top:10px">
+        <div class="xzg-muted" style="font-size:12px;line-height:1.9;margin-top:10px">
           档案编号：XEG-CG-${String(1000 + i)}<br>收录时间：2026-09-2${(i % 8) + 1}　品相：S 级<br>
           关联项：识谷估值报告 · 编号收藏卡
         </div>
@@ -460,7 +460,7 @@
         <div class="xzg-upload" style="margin-top:10px"><div class="uic">${ico('camera', 30)}</div>
           <b>按指引拍摄：正面 / 背面 / 细节</b><p>补充作品、角色、画柄、发售版本与收藏备注</p></div>
         <div id="cgProg" class="cg-prog"><i style="width:0%"></i></div>
-        <div class="xzg-muted" id="cgProgTxt" style="font-size:11.5px;margin-top:8px">准备中…</div>`);
+        <div class="xzg-muted" id="cgProgTxt" style="font-size:12px;margin-top:8px">准备中…</div>`);
       let p = 0; const steps = ['校验照片清晰度…', '提取商品轮廓与画柄特征…', '匹配商品资料库版本…', '生成三维展示模型…', '写入收藏档案…'];
       const iv = setInterval(() => {
         p += 20;
@@ -498,7 +498,7 @@
           <button onclick="XZG.toast('已保存 AR 照片到相册（演示）','💾')">保存照片</button>
           <button onclick="XZG.toast('已生成短视频（演示）','🎬')">录短视频</button>
         </div>
-        <div class="xzg-muted" style="font-size:11px;text-align:center">设备或模型暂不支持时，会自动保留普通图片展示入口</div>`);
+        <div class="xzg-muted" style="font-size:12px;text-align:center">设备或模型暂不支持时，会自动保留普通图片展示入口</div>`);
     },
     cangFriends() {
       this.sheet(`<h3>👥 好友共创 · 云逛展</h3><div class="ssub">远程接入同一展厅，可实时语音、一起布展</div>
@@ -508,7 +508,7 @@
             <button class="cgf-btn" onclick="XZG.toast('已邀请 ${f.name} 进入我的展厅','📨')">邀请</button></div>`).join('')}
         </div>
         <div class="xzg-card" style="background:#fafbfd;margin-top:12px">
-          <div class="xzg-muted" style="font-size:11.5px;line-height:2">
+          <div class="xzg-muted" style="font-size:12px;line-height:2">
           ✓ 多人实时语音 · 边看边聊<br>✓ 协同布展 · 一起调整展架位置<br>✓ 画廊归属感强化 · 作品与藏品挂在同一个厅</div>
         </div>
         <button class="xzg-btn big" style="margin-top:12px" onclick="XZG.sheetClose();XZG.toast('已创建共享展厅链接，可发给同好','🔗')">创建共享展厅</button>`);

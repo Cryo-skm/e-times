@@ -40,6 +40,14 @@
 <link rel="stylesheet" href="css/xingegu.css">
 <link rel="stylesheet" href="css/ec-modules.css">
 <link rel="stylesheet" href="css/ec-theme.css">
+<link rel="stylesheet" href="css/ec-auth.css">
+
+<!-- ═══ 首屏关键插画预加载 ═══
+     用 imagesrcset 让浏览器按设备像素比自己选档：手机拿 480w，桌面拿 800w/1200w。
+     type=image/webp —— 不支持 WebP 的老浏览器会跳过这条，照常走 <img> 的 JPEG。 -->
+<link rel="preload" as="image" type="image/webp" href="img/art/banner-door-800.webp"
+      imagesrcset="img/art/banner-door-480.webp 480w, img/art/banner-door-800.webp 800w, img/art/banner-door.webp 1200w"
+      imagesizes="(max-width: 900px) 92vw, 880px">
 <!--
 ═══════════════════════════════════════════════════════════════════
  「e次元」程序植入说明（写给负责植入功能的 AI）
@@ -132,7 +140,7 @@
     <main class="views">
 
       <!-- ────────── ① 首页 ────────── -->
-      <section class="tab-view active" id="view-home" data-status="light">
+      <section class="tab-view active" id="view-home" role="tabpanel" aria-labelledby="tab-view-home" data-status="light">
         <div class="home-header">
           <div class="hh-top">
             <button class="hh-loc" data-open="page-biz" onclick="BANK.open('branch')">上海 <i>▾</i></button>
@@ -184,7 +192,7 @@
                 <span class="ac-name">储蓄卡（薪金卡）</span>
                 <span class="ac-no" id="acNo">6222 0202 **** 8888</span>
               </div>
-              <button class="ac-eye" id="eyeBtn" title="显示/隐藏余额">
+              <button class="ac-eye" id="eyeBtn" title="显示/隐藏余额" aria-label="显示或隐藏余额">
                 <svg viewBox="0 0 24 24" id="eyeOpen"><path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12z" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="12" r="2.8" fill="currentColor"/></svg>
                 <svg viewBox="0 0 24 24" id="eyeClosed" style="display:none"><path d="M2 12s3.5-6.5 10-6.5c2 0 3.7.6 5.2 1.4M22 12s-3.5 6.5-10 6.5c-2 0-3.7-.6-5.2-1.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M4 20 20 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
               </button>
@@ -299,16 +307,16 @@
 
         <!-- 工小智悬浮球 -->
         <button class="fab-xiaozhi" id="fabXiaozhi" data-open="page-xiaozhi">
-          <span class="fab-ico"><img src="img/art/char-xiaozhi.jpg" alt=""></span><span>工小智</span>
+          <span class="fab-ico"><picture class="art-pic"><source type="image/webp" srcset="img/art/char-xiaozhi-240.webp 240w, img/art/char-xiaozhi.webp 420w" sizes="160px"><img src="img/art/char-xiaozhi.jpg" alt="" loading="lazy" decoding="async" draggable="false"></picture></span><span>工小智</span>
         </button>
       </section>
 
       <!-- ────────── ② 生活 ────────── -->
-      <section class="tab-view" id="view-life" data-status="light">
+      <section class="tab-view" id="view-life" role="tabpanel" aria-labelledby="tab-view-life" data-status="light">
         <div class="home-header home-header--life">
           <div class="hh-top">
             <div class="hh-logo"><strong class="hh-city">上海 <i>▾</i></strong></div>
-            <div class="hh-actions"><button class="hh-icon" data-open="page-biz" onclick="BANK.open('points')">🎁</button></div>
+            <div class="hh-actions"><button class="hh-icon" data-open="page-biz" onclick="BANK.open('points')" aria-label="积分好礼" title="积分好礼">🎁</button></div>
           </div>
           <div class="life-slogan">惠生活 · 精彩每一天</div>
           <div class="hh-quick hh-quick--life" id="lifeQuick"><!-- JS渲染 --></div>
@@ -316,7 +324,7 @@
         <div class="home-body">
           <!-- ★ e次元 生活入口（生活页 → 商城，与首页卡片落点不同） -->
           <button class="ec-door" data-ec="mall">
-            <img data-gart="banner-mall" src="img/art/banner-mall.jpg" alt="">
+            <picture class="art-pic"><source type="image/webp" srcset="img/art/banner-mall-480.webp 480w, img/art/banner-mall-800.webp 800w, img/art/banner-mall.webp 1200w" sizes="(max-width: 900px) 92vw, 880px"><img data-gart="banner-mall" src="img/art/banner-mall.jpg" alt="" loading="lazy" decoding="async" draggable="false"></picture>
             <div>
               <b>e次元 甄选 · 谷子好物</b>
               <span>工行自有 IP 周边 · 谷粒也能兑换</span>
@@ -341,11 +349,11 @@
       </section>
 
       <!-- ────────── ③ 智金融 ────────── -->
-      <section class="tab-view" id="view-wealth" data-status="light">
+      <section class="tab-view" id="view-wealth" role="tabpanel" aria-labelledby="tab-view-wealth" data-status="light">
         <div class="home-header">
           <div class="hh-top">
             <div class="hh-logo"><strong class="hh-city">投资</strong></div>
-            <div class="hh-actions"><button class="hh-icon" data-open="page-biz" onclick="BANK.open('spendana')">📄</button></div>
+            <div class="hh-actions"><button class="hh-icon" data-open="page-biz" onclick="BANK.open('spendana')" aria-label="消费分析" title="消费分析">📄</button></div>
           </div>
         </div>
         <div class="home-body">
@@ -373,7 +381,7 @@
       </section>
 
       <!-- ────────── ④ 信用卡 ────────── -->
-      <section class="tab-view" id="view-credit" data-status="light">
+      <section class="tab-view" id="view-credit" role="tabpanel" aria-labelledby="tab-view-credit" data-status="light">
         <div class="home-header">
           <div class="hh-top">
             <div class="hh-logo"><strong class="hh-city">信用卡</strong></div>
@@ -388,7 +396,7 @@
           <!-- 我的信用卡卡面 + 额度 -->
           <div class="card credit-hero" id="ccHero">
             <div class="cc-visual">
-              <img class="cc-face" src="img/art/card-credit.jpg" alt="工银World奋斗信用卡卡面">
+              <picture class="art-pic"><source type="image/webp" srcset="img/art/card-credit-400.webp 400w, img/art/card-credit-800.webp 800w, img/art/card-credit.webp 1200w" sizes="(max-width: 520px) 92vw, 460px"><img class="cc-face" src="img/art/card-credit.jpg" alt="工银World奋斗信用卡卡面" loading="lazy" decoding="async" draggable="false"></picture>
               <div class="cc-deco"></div><div class="cc-deco cc-deco2"></div>
               <div class="cc-bankrow"><span class="cc-mark">工</span>中国工商银行 <em>· 信用卡</em></div>
               <div class="cc-no" id="ccNo">6222 2300 **** 1234</div>
@@ -433,13 +441,13 @@
       </section>
 
       <!-- ────────── ⑤ 我的 ────────── -->
-      <section class="tab-view" id="view-mine" data-status="light">
+      <section class="tab-view" id="view-mine" role="tabpanel" aria-labelledby="tab-view-mine" data-status="light">
         <div class="mine-header">
           <div class="mine-top">
-            <div class="mine-user">
+            <div class="mine-user" id="mineUserCard" role="button" tabindex="0" title="账户与安全">
               <div class="avatar" id="mineAvatar">李</div>
               <div class="mine-info">
-                <div class="mine-name">李** <span class="mine-level">财富级</span></div>
+                <div class="mine-name" id="mineName">李** <span class="mine-level">财富级</span></div>
                 <div class="mine-tags">
                   <span class="mine-tag">星级客户 ★★★★★</span>
                   <!-- ★ e次元谷龄标签（植入位2的一部分，可由e次元程序接管） -->
@@ -447,7 +455,7 @@
                 </div>
               </div>
             </div>
-            <button class="hh-icon" data-open="page-biz" onclick="BANK.open('settings')">⚙</button>
+            <button class="hh-icon" data-open="page-biz" onclick="BANK.open('settings')" aria-label="设置" title="设置">⚙</button>
           </div>
           <div class="mine-stats">
             <div><em>工银i豆</em><b>8,640</b></div>
@@ -478,31 +486,31 @@
           <div class="card menu-card" id="mineMenu1"><!-- JS渲染 --></div>
           <div class="card menu-card" id="mineMenu2"><!-- JS渲染 --></div>
 
-          <button class="logout-btn" data-toast="演示环境：无法退出，请尽情浏览">退出登录</button>
+          <button class="logout-btn" id="eaMineLogout">退出登录</button>
           <div class="home-foot">中国工商银行 模拟演示版 v9.0.0<br>本应用为比赛演示作品，与真实银行无关</div>
         </div>
       </section>
     </main>
 
     <!-- ═══ 底部导航（真机五栏：首页/信用卡/财富/生活/我的） ═══ -->
-    <nav class="tabbar">
-      <button class="tab-item active" data-tab="view-home">
+    <nav class="tabbar" role="tablist" aria-label="主导航">
+      <button class="tab-item active" data-tab="view-home" id="tab-view-home" role="tab" aria-selected="true" aria-controls="view-home">
         <svg viewBox="0 0 24 24"><path d="M4 11.5 12 4l8 7.5V20a1 1 0 0 1-1 1h-4.5v-5.5h-5V21H5a1 1 0 0 1-1-1v-8.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
         <span>首页</span>
       </button>
-      <button class="tab-item" data-tab="view-credit">
+      <button class="tab-item" data-tab="view-credit" id="tab-view-credit" role="tab" aria-selected="false" aria-controls="view-credit">
         <svg viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3 10h18" stroke="currentColor" stroke-width="1.8"/><path d="M6.5 15h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
         <span>信用卡</span>
       </button>
-      <button class="tab-item" data-tab="view-wealth">
+      <button class="tab-item" data-tab="view-wealth" id="tab-view-wealth" role="tab" aria-selected="false" aria-controls="view-wealth">
         <svg viewBox="0 0 24 24"><path d="M4 20h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M6 16v-4M10.5 16V8M15 16v-6M19 16V5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
         <span>财富</span>
       </button>
-      <button class="tab-item" data-tab="view-life">
+      <button class="tab-item" data-tab="view-life" id="tab-view-life" role="tab" aria-selected="false" aria-controls="view-life">
         <svg viewBox="0 0 24 24"><path d="M6.5 8h11l1 12.2a1 1 0 0 1-1 1.1H6.5a1 1 0 0 1-1-1.1L6.5 8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 10V6.5a3 3 0 0 1 6 0V10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
         <span>生活</span>
       </button>
-      <button class="tab-item" data-tab="view-mine">
+      <button class="tab-item" data-tab="view-mine" id="tab-view-mine" role="tab" aria-selected="false" aria-controls="view-mine">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="8.2" r="3.8" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4.5 20.5c1.2-3.6 4-5.4 7.5-5.4s6.3 1.8 7.5 5.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
         <span>我的</span>
       </button>
@@ -514,9 +522,9 @@
     <!-- ═══════════ 子页面浮层（从右滑入） ═══════════ -->
 
     <!-- 转账汇款 -->
-    <div class="overlay-page" id="page-transfer" data-status="dark">
+    <div class="overlay-page" id="page-transfer" data-status="dark" role="dialog" aria-modal="true" aria-label="转账汇款" aria-hidden="true">
       <div class="op-navbar">
-        <button class="op-back" data-close="page-transfer"><svg viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button class="op-back" data-close="page-transfer" aria-label="返回"><svg viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         <span>转账汇款</span><i class="op-more">···</i>
       </div>
       <div class="op-body">
@@ -549,9 +557,9 @@
     </div>
 
     <!-- 收支明细 -->
-    <div class="overlay-page" id="page-records" data-status="dark">
+    <div class="overlay-page" id="page-records" data-status="dark" role="dialog" aria-modal="true" aria-label="收支明细" aria-hidden="true">
       <div class="op-navbar">
-        <button class="op-back" data-close="page-records"><svg viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button class="op-back" data-close="page-records" aria-label="返回"><svg viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         <span>收支明细</span><i class="op-more">···</i>
       </div>
       <div class="op-body">
@@ -564,10 +572,10 @@
     </div>
 
     <!-- 工小智 AI对话 -->
-    <div class="overlay-page overlay-page--chat" id="page-xiaozhi" data-status="dark">
+    <div class="overlay-page overlay-page--chat" id="page-xiaozhi" data-status="dark" role="dialog" aria-modal="true" aria-label="工小智 AI 对话" aria-hidden="true">
       <div class="op-navbar op-navbar--ai">
-        <button class="op-back" data-close="page-xiaozhi"><svg viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-        <div class="ai-title"><span class="ai-logo"><img src="img/art/char-xiaozhi.jpg" alt="工小智"></span><div><b>工小智</b><em>领航AI+ · 智能金融服务助手</em></div></div>
+        <button class="op-back" data-close="page-xiaozhi" aria-label="返回"><svg viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <div class="ai-title"><span class="ai-logo"><picture class="art-pic"><source type="image/webp" srcset="img/art/char-xiaozhi-240.webp 240w, img/art/char-xiaozhi.webp 420w" sizes="160px"><img src="img/art/char-xiaozhi.jpg" alt="工小智" loading="lazy" decoding="async" draggable="false"></picture></span><div><b>工小智</b><em>领航AI+ · 智能金融服务助手</em></div></div>
         <i class="op-more">···</i>
       </div>
       <div class="chat-body" id="chatList"><!-- JS渲染 --></div>
@@ -585,9 +593,9 @@
     </div>
 
     <!-- 扫一扫 -->
-    <div class="overlay-page overlay-page--scan" id="page-scan" data-status="dark">
+    <div class="overlay-page overlay-page--scan" id="page-scan" data-status="dark" role="dialog" aria-modal="true" aria-label="扫一扫" aria-hidden="true">
       <div class="op-navbar op-navbar--transparent">
-        <button class="op-back" data-close="page-scan"><svg viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button class="op-back" data-close="page-scan" aria-label="返回"><svg viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         <span>扫一扫</span><i class="op-more">⚡</i>
       </div>
       <div class="scan-body">
@@ -611,18 +619,18 @@
 
     <!-- 通用业务页：绑卡 / 限额 / 挂失 / 缴费 / 充值 / 理财 / 存款 / 贷款 /
          信用卡申请 / 结售汇 / 网点 / 安全中心 / 设置 / 回单…由 js/bank-biz.js 渲染 -->
-    <div class="overlay-page" id="page-biz" data-status="dark">
+    <div class="overlay-page" id="page-biz" data-status="dark" role="dialog" aria-modal="true" aria-label="业务办理" aria-hidden="true">
       <div class="op-navbar">
-        <button class="op-back" onclick="BANK.back()"><svg viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button class="op-back" onclick="BANK.back()" aria-label="返回"><svg viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         <span id="bizTitle">业务办理</span><i class="op-more" onclick="BANK.home()">···</i>
       </div>
       <div class="op-body" id="bizBody"><!-- JS渲染 --></div>
     </div>
 
     <!-- 更多功能 -->
-    <div class="overlay-page" id="page-more" data-status="dark">
+    <div class="overlay-page" id="page-more" data-status="dark" role="dialog" aria-modal="true" aria-label="更多服务" aria-hidden="true">
       <div class="op-navbar">
-        <button class="op-back" data-close="page-more"><svg viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button class="op-back" data-close="page-more" aria-label="返回"><svg viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         <span>全部功能</span><i class="op-more">···</i>
       </div>
       <div class="op-body">
@@ -632,9 +640,9 @@
     </div>
 
     <!-- 魔法空间 · 勋章墙（攒谷可在此植入勋章） -->
-    <div class="overlay-page" id="page-magic" data-status="light">
+    <div class="overlay-page" id="page-magic" data-status="light" role="dialog" aria-modal="true" aria-label="魔法空间" aria-hidden="true">
       <div class="op-navbar op-navbar--gold">
-        <button class="op-back" data-close="page-magic"><svg viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button class="op-back" data-close="page-magic" aria-label="返回"><svg viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         <span>魔法空间</span><i class="op-more">···</i>
       </div>
       <div class="op-body">
@@ -651,9 +659,9 @@
     </div>
 
     <!-- 消息中心（首页铃铛进入） -->
-    <div class="overlay-page" id="page-msgcenter" data-status="dark">
+    <div class="overlay-page" id="page-msgcenter" data-status="dark" role="dialog" aria-modal="true" aria-label="消息中心" aria-hidden="true">
       <div class="op-navbar">
-        <button class="op-back" data-close="page-msgcenter"><svg viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button class="op-back" data-close="page-msgcenter" aria-label="返回"><svg viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         <span>消息中心</span><i class="op-more">···</i>
       </div>
       <div class="op-body">
@@ -662,9 +670,9 @@
     </div>
 
     <!-- ★★★ e次元功能总容器（植入位3：#xingegu-slot 为功能内容区） ★★★ -->
-    <div class="overlay-page overlay-page--xingegu" id="page-xingegu" data-status="light">
+    <div class="overlay-page overlay-page--xingegu" id="page-xingegu" data-status="light" role="dialog" aria-modal="true" aria-label="e次元" aria-hidden="true">
       <div class="xg-navbar">
-        <button class="op-back" data-close="page-xingegu"><svg viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button class="op-back" data-close="page-xingegu" aria-label="返回"><svg viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         <div class="xg-nav-brand">e<span>次</span>元</div>
         <button class="xg-setbtn" type="button" aria-label="e次元设置" title="e次元设置">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.1"/><path d="M19.5 14.2a1.7 1.7 0 0 0 .34 1.87l.06.06a2.05 2.05 0 1 1-2.9 2.9l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.55V20.4a2.05 2.05 0 1 1-4.1 0v-.1a1.7 1.7 0 0 0-1.1-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2.05 2.05 0 1 1-2.9-2.9l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1.03H3.6a2.05 2.05 0 1 1 0-4.1h.1A1.7 1.7 0 0 0 5.25 8.1a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2.05 2.05 0 1 1 2.9-2.9l.06.06a1.7 1.7 0 0 0 1.87.34h.08A1.7 1.7 0 0 0 10.79 2.1V2a2.05 2.05 0 1 1 4.1 0v.1a1.7 1.7 0 0 0 1.03 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2.05 2.05 0 1 1 2.9 2.9l-.06.06a1.7 1.7 0 0 0-.34 1.87v.08a1.7 1.7 0 0 0 1.55 1.03h.1a2.05 2.05 0 1 1 0 4.1h-.1a1.7 1.7 0 0 0-1.55 1.03z"/></svg>
@@ -680,7 +688,7 @@
     </div>
 
     <!-- Toast -->
-    <div class="toast" id="toast"></div>
+    <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
     </div><!-- /phone -->
   </div><!-- /phone-shell -->
 
@@ -688,6 +696,7 @@
 </div>
 
 <script src="js/data.js"></script>
+<script src="js/art.js"></script>
 <script src="js/chars.js"></script>
 <script src="js/app.js"></script>
 <script src="js/bank-biz.js"></script>
@@ -695,13 +704,10 @@
 <script src="js/modules3.js"></script>
 <script src="js/ec-discovery.js"></script>
 <script src="js/ec-entry.js"></script>
-<script>
-/* PWA：注册离线缓存（仅 https / localhost 生效；iPhone 上「添加到主屏幕」靠的是 head 里的 apple 标签） */
-if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-  window.addEventListener('load', function () {
-    navigator.serviceWorker.register('sw.js').catch(function () {});
-  });
-}
-</script>
+<script src="js/pwa.js"></script>
+<script src="js/a11y.js"></script>
+<script src="js/router.js"></script>
+<!-- ★ 统一登录系统（注册 / 密码登录 / 验证码登录 / 找回密码 / 账户与安全） -->
+<script src="js/auth.js"></script>
 </body>
 </html>

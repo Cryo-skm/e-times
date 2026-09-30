@@ -140,7 +140,8 @@
   background: linear-gradient(150deg, #ffe9f1, #eaf3ff);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .6);
 }
-.ec-win > img {
+.ec-win > img,
+.ec-win > picture.art-pic > img {
   display: block; width: 100%; height: 100%;
   object-fit: cover; object-position: center;
 }
@@ -158,18 +159,20 @@
   text-shadow: 0 2px 10px rgba(80, 20, 50, .45);
 }
 .ec-win--banner .ec-win-txt span {
-  display: block; font-size: 10.5px; opacity: .92; margin-top: 4px;
+  display: block; font-size: 12px; opacity: .92; margin-top: 4px;
 }
 .ec-win--banner .ec-win-go {
   display: inline-flex; align-items: center; gap: 4px;
-  margin-top: 8px; font-size: 11px; font-weight: 700;
+  margin-top: 8px; font-size: 12px; font-weight: 700;
   background: rgba(255, 255, 255, .92); color: #e0407a;
   padding: 5px 12px; border-radius: 20px;
   box-shadow: 0 4px 12px rgba(80, 20, 50, .22);
 }
 .ec-win--goods { border-radius: 14px; aspect-ratio: 1 / 1; }
-.ec-win--goods > img { transition: transform .45s cubic-bezier(.2, .8, .3, 1); }
-.ec-win--goods:hover > img { transform: scale(1.07); }
+.ec-win--goods > img,
+.ec-win--goods > picture.art-pic > img { transition: transform .45s cubic-bezier(.2, .8, .3, 1); }
+.ec-win--goods:hover > img,
+.ec-win--goods:hover > picture.art-pic > img { transform: scale(1.07); }
 
 /* ══════════════════════════════════════════════════════════════════
    四、卡片 / 按钮 / 标签：整体提质感
@@ -249,7 +252,7 @@
   padding: 0 26px 11vh; text-align: center;
 }
 .ec-enter-kicker {
-  font-size: 11px; letter-spacing: 6px; color: #d9417d;
+  font-size: 12px; letter-spacing: 6px; color: #d9417d;
   font-weight: 700; opacity: 0; transform: translateY(12px);
 }
 .ec-enter-title {
@@ -328,10 +331,10 @@
 .ec-row { display: flex; align-items: center; gap: 10px; }
 .ec-grow { flex: 1; min-width: 0; }
 .ec-ellipsis { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ec-ks { font-size: 11.5px; color: #9c86a0; }
+.ec-ks { font-size: 12px; color: #9c86a0; }
 .ec-hero-tag {
   display: inline-flex; align-items: center; gap: 4px;
-  font-size: 10px; font-weight: 700; letter-spacing: .4px;
+  font-size: 12px; font-weight: 700; letter-spacing: .4px;
   padding: 3px 9px; border-radius: 20px; color: #fff;
   background: linear-gradient(135deg, #ffa6c4, #ff5c93);
   box-shadow: 0 3px 10px rgba(255, 92, 147, .35);
@@ -356,7 +359,7 @@
 }
 .ec-tab {
   flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
-  padding: 4px 0 2px; color: #bda6b6; font-size: 10px; font-weight: 600;
+  padding: 4px 0 2px; color: #bda6b6; font-size: 12px; font-weight: 600;
   letter-spacing: .5px;
   transition: transform .28s cubic-bezier(.34, 1.56, .64, 1), color .2s;
 }
@@ -398,7 +401,7 @@
 .banner-slide--img .bs-txt p { color: rgba(255, 255, 255, .92); }
 .bs-go {
   display: inline-flex; align-items: center; gap: 4px; margin-top: 9px;
-  font-size: 11px; font-weight: 700; color: #e0407a;
+  font-size: 12px; font-weight: 700; color: #e0407a;
   background: rgba(255, 255, 255, .94); padding: 5px 12px; border-radius: 20px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, .18);
 }
@@ -408,7 +411,7 @@
 .msg-item--ec { position: relative; }
 .msg-go {
   flex: none; align-self: center; margin-left: 6px; white-space: nowrap;
-  font-size: 10.5px; font-weight: 700; color: #e0407a;
+  font-size: 12px; font-weight: 700; color: #e0407a;
   background: linear-gradient(135deg, #fff0f5, #ffe0ec);
   border: 1px solid #ffd0e0;
   padding: 5px 10px; border-radius: 18px;
@@ -428,9 +431,9 @@
 }
 .ec-door > div { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); z-index: 2; }
 .ec-door b { display: block; color: #fff; font-size: 16px; letter-spacing: .5px; text-shadow: 0 2px 10px rgba(0, 0, 0, .4); }
-.ec-door span { display: block; color: rgba(255, 255, 255, .9); font-size: 11px; margin-top: 4px; }
+.ec-door span { display: block; color: rgba(255, 255, 255, .9); font-size: 12px; margin-top: 4px; }
 .ec-door .ec-door-go {
-  display: inline-flex; margin-top: 9px; font-size: 11px; font-weight: 700;
+  display: inline-flex; margin-top: 9px; font-size: 12px; font-weight: 700;
   background: rgba(255, 255, 255, .94); color: #e0407a;
   padding: 5px 12px; border-radius: 20px;
 }
@@ -448,7 +451,7 @@
 }
 .ec-ai-txt { min-width: 0; }
 .ec-ai-txt b { display: block; font-size: 12.5px; color: #3a4a80; letter-spacing: .2px; }
-.ec-ai-txt span { display: block; font-size: 10.5px; color: #7d8bb5; line-height: 1.5; margin-top: 2px; }
+.ec-ai-txt span { display: block; font-size: 12px; color: #7d8bb5; line-height: 1.5; margin-top: 2px; }
 
 /* ══════════════════════════════════════════════════════════════════
    九、画面填充层（ec-discovery.js 产出的窗口与卡片）
@@ -461,13 +464,16 @@
   box-shadow: var(--shadow-lg), inset 0 0 0 1px rgba(255, 255, 255, .35);
   background: #ffd9e6;
 }
-.ecx-hero > img {
+.ecx-hero > img,
+.ecx-hero > picture.art-pic > img {
   display: block; width: 100%; height: 132px; object-fit: cover;
   object-position: center 42%;
   transition: transform .6s cubic-bezier(.2, .8, .3, 1);
 }
-.ecx-hero--tall > img { height: 148px; }
-.ecx-hero:hover > img { transform: scale(1.04); }
+.ecx-hero--tall > img,
+.ecx-hero--tall > picture.art-pic > img { height: 148px; }
+.ecx-hero:hover > img,
+.ecx-hero:hover > picture.art-pic > img { transform: scale(1.04); }
 .ecx-hero::after {
   content: ""; position: absolute; inset: 0;
   background: linear-gradient(96deg, rgba(48, 10, 32, .78) 0%, rgba(48, 10, 32, .40) 44%, rgba(48, 10, 32, .04) 82%);
@@ -477,7 +483,7 @@
   transform: translateY(-50%); z-index: 2; color: #fff;
 }
 .ecx-k {
-  display: inline-block; font-size: 9.5px; font-weight: 700; letter-spacing: 1.6px;
+  display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 1.6px;
   background: rgba(255, 255, 255, .24); border: 1px solid rgba(255, 255, 255, .45);
   padding: 3px 9px; border-radius: 20px; backdrop-filter: blur(4px);
 }
@@ -486,12 +492,12 @@
   letter-spacing: .4px; text-shadow: 0 2px 12px rgba(0, 0, 0, .42);
 }
 .ecx-hero-t span {
-  display: block; margin-top: 5px; font-size: 10.5px; line-height: 1.55;
+  display: block; margin-top: 5px; font-size: 12px; line-height: 1.55;
   color: rgba(255, 255, 255, .93);
 }
 .ecx-hero-go {
   position: absolute; right: 14px; bottom: 13px; z-index: 2;
-  font-size: 11px; font-weight: 700; color: #e0407a;
+  font-size: 12px; font-weight: 700; color: #e0407a;
   background: rgba(255, 255, 255, .95);
   padding: 6px 13px; border-radius: 20px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, .22);
@@ -511,7 +517,7 @@
   margin-top: -7px; border-radius: 3px;
   background: linear-gradient(180deg, #ffa6c4, #a78bfa);
 }
-.ecx-head .ecx-more { margin-left: auto; font-size: 11px; color: #b6a2b0; font-weight: 600; }
+.ecx-head .ecx-more { margin-left: auto; font-size: 12px; color: #b6a2b0; font-weight: 600; }
 
 /* 周边商品窗 */
 .ecx-goods { display: grid; grid-template-columns: repeat(2, 1fr); gap: 11px; }
@@ -524,7 +530,7 @@
 .ecx-g:active { transform: scale(.97); }
 .ecx-g .ec-win--goods { border-radius: 0; box-shadow: none; }
 .ecx-g > b {
-  display: block; font-size: 11.5px; line-height: 1.45; color: #4a3145;
+  display: block; font-size: 12px; line-height: 1.45; color: #4a3145;
   padding: 8px 10px 0; font-weight: 600;
   overflow: hidden; text-overflow: ellipsis; display: -webkit-box;
   -webkit-line-clamp: 2; -webkit-box-orient: vertical;
@@ -532,7 +538,7 @@
 .ecx-grow2 { display: flex; align-items: center; gap: 6px; padding: 6px 10px 10px; }
 .ecx-grow2 em { font-style: normal; font-size: 14px; font-weight: 800; color: #ff4f8b; }
 .ecx-grow2 i {
-  font-style: normal; margin-left: auto; font-size: 9.5px; font-weight: 700;
+  font-style: normal; margin-left: auto; font-size: 12px; font-weight: 700;
   color: #e0407a; background: #ffeff5; border-radius: 20px; padding: 2px 7px;
 }
 
@@ -561,18 +567,18 @@
 .ecx-cm-txt { flex: 1; min-width: 0; position: relative; z-index: 2; }
 .ecx-cm-txt b { display: block; font-size: 15px; color: #4a3145; letter-spacing: .3px; }
 .ecx-cm-txt b i {
-  font-style: normal; font-size: 10px; font-weight: 700; color: #fff;
+  font-style: normal; font-size: 12px; font-weight: 700; color: #fff;
   background: linear-gradient(135deg, #ffa6c4, #ff5c93);
   border-radius: 20px; padding: 2px 8px; margin-left: 5px; vertical-align: 2px;
 }
-.ecx-cm-txt > span { display: block; font-size: 10.5px; color: #b6a2b0; margin-top: 3px; }
+.ecx-cm-txt > span { display: block; font-size: 12px; color: #b6a2b0; margin-top: 3px; }
 .ecx-cm-txt p {
-  font-size: 11px; color: #8a7285; margin-top: 5px; line-height: 1.5;
+  font-size: 12px; color: #8a7285; margin-top: 5px; line-height: 1.5;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .ecx-cm-btn {
   flex: none; position: relative; z-index: 2;
-  font-size: 11px; font-weight: 700; color: #fff;
+  font-size: 12px; font-weight: 700; color: #fff;
   background: linear-gradient(135deg, #ffa6c4, #ff5c93);
   padding: 7px 13px; border-radius: 20px; border: none;
   box-shadow: 0 5px 14px rgba(255, 92, 147, .34);
@@ -585,3 +591,48 @@
   box-shadow: var(--shadow);
 }
 .ecx-detail-img img { display: block; width: 100%; height: 168px; object-fit: cover; }
+
+/* ══════════════════════════════════════════════════════════════════
+   触控目标：可点元素的实际命中尺寸 ≥ 44 × 44 CSS px
+   ──────────────────────────────────────────────────────────────────
+   评审实测有 33+ 个可点区域小于 40px（「卡片管理 ›」56×16、「全部功能 ∧」60×16、
+   铃铛图标 38×38、购物车按钮 30px 高、「识谷/商城」导航 chip 只有 34px 高…），
+   手指根本点不准。
+
+   做法：
+     ① 纯文字「更多 ›」链接 —— 先转成 inline-flex 才能吃到 min-height，再撑到 44；
+     ② 正方形图标按钮 —— min-width + min-height 一起补到 44×44；
+     ③ 其余偏矮的可点元素 —— 统一补 min-height: 44px。
+
+   本文件在 <head> 中最后加载，因此这里的规则能稳定覆盖前面几个样式表。
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ① 纯文字「更多 ›」类 */
+.sec-more, .bc-more, .ecx-more, .xzg-sbadge {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 44px; min-width: 44px;
+}
+.grid-more {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 44px; min-width: 44px;
+}
+
+/* ② 正方形图标按钮 */
+.hh-icon, .ac-eye, .ml-search-ref { min-width: 44px; min-height: 44px; }
+
+/* ③ 其余偏矮的可点元素 */
+.ac-btn, .cp-btn, .pi-btn, .pt-item, .hh-loc, .hh-searchpill,
+.xg-mine-btn, .pw-sign, .pn-style, .mn-tab, .mn-stats button,
+.xg-chip, .ml-buy, .ml-cart, .ml-qb, .ml-search-bar,
+.fm-tab, .fm-new, .xg-setbtn, .xzg-btn.mini, .ecx-cm-btn { min-height: 44px; }
+.pt-item { min-width: 44px; }
+
+/* 手机端「我的」页统计条：格子里的数字块也要够高 */
+.mn-stats button { min-height: 44px; }
+
+/* ④ 浮层导航栏右上角的「··· / ⚡」：原来只有 25×21，其中「业务办理」那枚是
+     真按钮（onclick=BANK.home()）。撑到 44×40 并左移一点，标题仍保持视觉居中。 */
+.op-navbar .op-more {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 44px; min-height: 40px; margin-right: -6px;
+}

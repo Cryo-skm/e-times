@@ -28,7 +28,13 @@
 <link rel="apple-touch-icon" href="../img/icon-192.png">
 <meta name="theme-color" content="#c7000d">
 <link rel="stylesheet" href="pc.css">
+<link rel="stylesheet" href="../css/ec-auth.css">
   <meta name="google-site-verification" content="uTqId6SRNmGXvKSbrXiXW8jveNwHj3v3Wo9zQKKiJJE">
+
+<!-- 首屏关键插画预加载：工行首页那扇「推门」横幅（PC 首屏最大的一张图） -->
+<link rel="preload" as="image" type="image/webp" href="../img/art/banner-door-800.webp"
+      imagesrcset="../img/art/banner-door-480.webp 480w, ../img/art/banner-door-800.webp 800w, ../img/art/banner-door.webp 1200w"
+      imagesizes="(max-width: 900px) 92vw, 880px">
 </head>
 <body>
 
@@ -42,7 +48,7 @@
       <span class="bk-mark">工</span>
       <div><b>中国工商银行</b> <i>个人网上银行 · 模拟演示版</i></div>
     </div>
-    <nav class="bk-nav">
+    <nav class="bk-nav" aria-label="个人网上银行导航">
       <button class="on">我的账户</button>
       <button>转账汇款</button>
       <button>信用卡</button>
@@ -54,11 +60,11 @@
       <span>服务热线 95588</span>
       <span class="sep"></span>
       <div class="bk-user">
-        <span class="bk-ava"><img src="../img/art/char-xiaozhi.jpg" alt=""></span>
+        <span class="bk-ava"><picture class="art-pic"><source type="image/webp" srcset="../img/art/char-xiaozhi-240.webp 240w, ../img/art/char-xiaozhi.webp 420w" sizes="160px"><img src="../img/art/char-xiaozhi.jpg" alt="" loading="lazy" decoding="async" draggable="false"></picture></span>
         <span>李** · 财富级</span>
       </div>
       <span class="sep"></span>
-      <a href="javascript:;" data-pctoast="演示环境：不做真实登出">退出</a>
+      <a href="javascript:;" id="eaPcLogout">退出</a>
     </div>
   </header>
 
@@ -100,7 +106,7 @@
 
     <div class="bk-sec-t">推荐专区</div>
     <button class="bk-door" data-ecd>
-      <img id="bkDoorImg" src="../img/art/banner-door.jpg" alt="e次元">
+      <picture class="art-pic"><source type="image/webp" srcset="../img/art/banner-door-480.webp 480w, ../img/art/banner-door-800.webp 800w, ../img/art/banner-door.webp 1200w" sizes="(max-width: 900px) 92vw, 880px"><img id="bkDoorImg" src="../img/art/banner-door.jpg" alt="e次元" loading="eager" decoding="sync" fetchpriority="high" draggable="false"></picture>
       <div class="bk-door-in">
         <div class="dk">ICBC × e次元</div>
         <h2>e<em>次元</em></h2>
@@ -128,7 +134,7 @@
 <!-- ══════════════════════════════════════════════════════════════
      二、转场（PC 版「桃花源」）
      ══════════════════════════════════════════════════════════════ -->
-<div class="pce" id="pce">
+<div class="pce" id="pce" aria-hidden="true">
   <div class="pce-cover" id="pceCover"></div>
   <div class="pce-veil"></div>
   <div id="pcePetals"></div>
@@ -144,13 +150,13 @@
 <!-- ══════════════════════════════════════════════════════════════
      三、e次元 PC 工作台
      ══════════════════════════════════════════════════════════════ -->
-<div class="ecapp" id="ecapp">
+<div class="ecapp" id="ecapp" aria-hidden="true" aria-label="e次元 PC 工作台">
   <aside class="ec-side">
     <div class="ec-side-hero">
-      <img id="ecSideHero" src="../img/art/banner-gallery.jpg" alt="">
+      <picture class="art-pic"><source type="image/webp" srcset="../img/art/banner-gallery-480.webp 480w, ../img/art/banner-gallery-800.webp 800w, ../img/art/banner-gallery.webp 1200w" sizes="(max-width: 900px) 92vw, 880px"><img id="ecSideHero" src="../img/art/banner-gallery.jpg" alt="" loading="lazy" decoding="async" draggable="false"></picture>
       <div class="sh"><b>e<em>次元</em></b><span>WORKSPACE · PC</span></div>
     </div>
-    <nav class="ec-menu" id="ecMenu"></nav>
+    <nav class="ec-menu" id="ecMenu" aria-label="e次元功能菜单"></nav>
     <button class="ec-side-gender" data-pcgender-open>
       <i>🎨</i>
       <span><b>插画风格</b><em id="ecGenderLabel">美少女</em></span>
@@ -166,7 +172,7 @@
       <div class="ec-search">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5" stroke-linecap="round"/></svg>
-        <input id="ecQuery" placeholder="告诉 e谷推 你的需求，例如：帮我盯「星熠」的亚克力立牌，预算 300 以内">
+        <input id="ecQuery" aria-label="告诉 e谷推 你的需求" placeholder="告诉 e谷推 你的需求，例如：帮我盯「星熠」的亚克力立牌，预算 300 以内">
         <button class="go" id="ecGo">开始盯梢</button>
       </div>
       <div class="ec-hot">
@@ -174,26 +180,32 @@
         <b>#亚克力立牌</b><b>#限量吧唧</b><b>#手办补款</b><b>#低价回血</b><b>#同好交换</b>
       </div>
       <div class="ec-top-right">
-        <button class="ec-bell" data-pcpage="msg"><i></i>
+        <button class="ec-bell" data-pcpage="msg" aria-label="消息中心" title="消息中心"><i></i>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
             <path d="M12 3a7 7 0 0 0-7 7v3.5L3.5 17h17L19 13.5V10a7 7 0 0 0-7-7z"/>
             <path d="M9.5 19a2.5 2.5 0 0 0 5 0"/></svg>
         </button>
         <div class="ec-me">
-          <span class="av"><img src="../img/art/char-xiaoe.jpg" alt=""></span>
+          <span class="av"><picture class="art-pic"><source type="image/webp" srcset="../img/art/char-xiaoe-240.webp 240w, ../img/art/char-xiaoe.webp 420w" sizes="160px"><img src="../img/art/char-xiaoe.jpg" alt="谷伴 小e" loading="lazy" decoding="async" draggable="false"></picture></span>
           <span class="nm">李** <i>谷神 Lv.4 · 12,480 谷粒</i></span>
         </div>
         <button class="btn gray sm" id="ecExit">离开 e次元</button>
       </div>
     </header>
 
-    <div class="ec-pages" id="ecPages"></div>
+    <div class="ec-pages" id="ecPages" role="region" aria-label="e次元内容区" aria-live="polite"></div>
   </section>
 </div>
 
-<div class="pc-toast" id="pcToast"></div>
-<div class="pc-mask" id="pcMask"><div class="pc-modal" id="pcModal"></div></div>
+<div class="pc-toast" id="pcToast" role="status" aria-live="polite" aria-atomic="true"></div>
+<div class="pc-mask" id="pcMask" aria-hidden="true"><div class="pc-modal" id="pcModal" role="dialog" aria-modal="true" aria-label="对话框"></div></div>
 
+<script src="../js/art.js"></script>
 <script src="pc.js"></script>
+<script src="../js/pwa.js"></script>
+<script src="../js/a11y.js"></script>
+<script src="../js/router.js"></script>
+<!-- ★ 统一登录系统（与移动端共用同一套账号体系） -->
+<script src="../js/auth.js"></script>
 </body>
 </html>

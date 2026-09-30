@@ -42,6 +42,10 @@
   const nav = (t, s) => `<div class="bz-head"><b>${t}</b>${s ? `<span>${s}</span>` : ''}</div>`;
   const steps = (n, cur) => `<div class="bz-steps">${Array.from({ length: n }, (_, i) =>
     `<i class="${i < cur ? 'done' : i === cur ? 'on' : ''}">${i + 1}</i>`).join('')}</div>`;
+  /* 卡面 / 插画统一出口：有 ART 就出 WebP <picture>（带 srcset），否则退回普通 <img> */
+  const cardImg = (jpg, cls, alt) => (window.ART && ART.pic)
+    ? ART.pic(jpg, { cls: cls || undefined, alt: alt || '' })
+    : `<img${cls ? ` class="${cls}"` : ''} src="${jpg}" alt="${alt || ''}" loading="lazy" decoding="async" draggable="false">`;
 
   /* ═══════════ 业务注册表 ═══════════ */
   const BIZ = {};
@@ -96,7 +100,7 @@
     if (!box) return;
     box.innerHTML = CARDS.map(c => `
       <button class="cs-card" onclick="BANK.open('carddetail','${c.id}')">
-        <img src="${c.img}" alt="${c.name}">
+        ${cardImg(c.img, null, c.name)}
         <span class="cs-t"><b>${c.name}</b><i>${c.type} · ${c.no.slice(-4)}</i></span>
       </button>`).join('') + `
       <button class="cs-card cs-add" onclick="BANK.open('bindcard')">
@@ -130,7 +134,7 @@
     render: p => {
       const c = CARDS.find(x => x.id === p) || CARDS[0];
       return `
-        <div class="bz-cshow"><img src="${c.img}" alt=""></div>
+        <div class="bz-cshow">${cardImg(c.img, null, c.name + ' 卡面')}</div>
         ${card(
           kv('卡种', c.type) + kv('卡号', c.no) + kv('开户行', c.bank) +
           kv(c.type === '信用卡' ? '可用额度' : '可用余额', c.bal, 'up') + kv('状态', '正常')
@@ -697,7 +701,7 @@
     yieldcurve: {
       t: '收益走势',
       mid: `<div class="bz-card" style="padding:14px"><canvas id="bzCurve" style="width:100%;height:170px;display:block"></canvas>
-        <div style="display:flex;justify-content:space-between;font-size:10.5px;color:#98a0ad;margin-top:8px"><span>08-31</span><span>09-15</span><span>09-30</span></div></div>`,
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:#98a0ad;margin-top:8px"><span>08-31</span><span>09-15</span><span>09-30</span></div></div>`,
       tiles: [
         { ico: 'list', bg: '#eef9ef', name: '近 1 月', act: "BANK.tip('已切换：近 1 月')" },
         { ico: 'list', bg: '#eef9ef', name: '近 3 月', act: "BANK.tip('已切换：近 3 月')" },
@@ -1148,9 +1152,9 @@
       note: '向对方出示下方收款码，或复制账号让对方转账。',
       mid: `<div class="bz-card" style="padding:18px;text-align:center">
         <div style="width:170px;height:170px;margin:0 auto 12px;background:#fff;border-radius:14px;box-shadow:0 4px 16px rgba(31,41,61,.12);display:flex;align-items:center;justify-content:center">
-          <div style="font-size:11px;color:#98a0ad;line-height:1.6">收款码<br>Demo QR</div></div>
+          <div style="font-size:12px;color:#98a0ad;line-height:1.6">收款码<br>Demo QR</div></div>
         <b style="font-size:14px">李** · 尾号 8888</b>
-        <div style="font-size:11px;color:#98a0ad;margin-top:5px">中国工商银行 · 模拟演示</div></div>`,
+        <div style="font-size:12px;color:#98a0ad;margin-top:5px">中国工商银行 · 模拟演示</div></div>`,
       tiles: [
         { ico: 'list', bg: '#eef9ef', name: '设置金额', act: "BANK.tip('演示环境：设置收款金额')" },
         { ico: 'receipt', bg: '#eaf3fd', name: '保存到相册', act: "BANK.tip('收款码已保存（演示）')" },
@@ -1168,7 +1172,7 @@
           background:repeating-linear-gradient(90deg,#1c1c22 0 2px,transparent 2px 4px, #1c1c22 4px 7px,transparent 7px 9px)">
         </div>
         <div style="font-family:monospace;font-size:19px;font-weight:800;letter-spacing:2px">6284 9173 5520</div>
-        <div style="font-size:11px;color:#98a0ad;margin-top:8px">60 秒后自动刷新</div></div>`,
+        <div style="font-size:12px;color:#98a0ad;margin-top:8px">60 秒后自动刷新</div></div>`,
       tiles: [
         { ico: 'credit', bg: '#eaf3fd', name: '切换付款卡', act: "BANK.open('mycards')" },
         { ico: 'gear', bg: '#f0f0f2', name: '设置免密', act: "BANK.open('smallpay')" },

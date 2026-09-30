@@ -113,27 +113,33 @@
       document.dispatchEvent(new CustomEvent('chars:gender', { detail: { gender: gender } }));
       return gender;
     },
-    /* 全站换装：角色窗口改 src、场景插画改 src，都不重建 DOM，滚动位置与状态不丢 */
+    /* 全站换装：角色窗口改 src、场景插画改 src，都不重建 DOM，滚动位置与状态不丢。
+       走 ART.apply() —— 它会连 <picture> 里 <source srcset> 的 WebP 一起换掉。 */
     repaint() {
+      const put = (img, jpg) => { if (window.ART) ART.apply(img, jpg); else img.src = jpg; };
       document.querySelectorAll('img[data-cid]').forEach(img => {
         const k = img.dataset.cid;
-        if (k in C) img.src = artOf(k);
+        if (k in C) put(img, artOf(k));
       });
       document.querySelectorAll('img[data-gart]').forEach(img => {
-        img.src = 'img/art/' + artFile(img.dataset.gart);
+        put(img, 'img/art/' + artFile(img.dataset.gart));
       });
     },
 
     /* 立绘窗口：填满父容器（父容器决定尺寸与裁切形状） */
     svg(id) {
       const k = id in C ? id : 'xiaoe';
-      return `<img class="ec-char" data-cid="${k}" src="${artOf(k)}" alt="${C[k].name}" loading="lazy" draggable="false">`;
+      const jpg = artOf(k);
+      if (!window.ART) return `<img class="ec-char" data-cid="${k}" src="${jpg}" alt="${C[k].name}" loading="lazy" draggable="false">`;
+      return ART.pic(jpg, { cls: 'ec-char', cid: k, alt: C[k].name });
     },
 
     /* 头像窗口：同样填满父容器，但构图对准面部 */
     head(id) {
       const k = id in C ? id : 'xiaoe';
-      return `<img class="ec-head" data-cid="${k}" src="${artOf(k)}" alt="${C[k].name}" loading="lazy" draggable="false">`;
+      const jpg = artOf(k);
+      if (!window.ART) return `<img class="ec-head" data-cid="${k}" src="${jpg}" alt="${C[k].name}" loading="lazy" draggable="false">`;
+      return ART.pic(jpg, { cls: 'ec-head', cid: k, alt: C[k].name });
     },
 
     /* 自带圆形窗口的头像：可直接指定直径 */

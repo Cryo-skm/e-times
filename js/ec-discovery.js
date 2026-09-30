@@ -260,9 +260,13 @@
     if (g) {
       e.preventDefault();
       const name = g.dataset.ecGoods;
+      const _src = (g.querySelector('img') || {}).getAttribute ? g.querySelector('img').getAttribute('src') : '';
+      const _pic = window.ART
+        ? ART.pic(_src, { alt: name })
+        : `<img src="${_src}" alt="${esc(name)}">`;
       XZG.sheet(`<h3>🛍️ ${esc(name)}</h3>
         <div class="ssub">e次元甄选 · 工行自有 IP 直供 · 演示商品</div>
-        <div class="ecx-detail-img"><img src="${g.querySelector('img').getAttribute('src')}" alt=""></div>
+        <div class="ecx-detail-img">${_pic}</div>
         <div class="xzg-muted" style="margin-top:10px;line-height:1.9">
           同步支持：<b>谷粒兑换</b>（权益星球）/ <b>分期购买</b>（谷卡免息期数）/
           <b>出谷通托管</b>（验货后放款）。本页为演示环境，不产生真实交易。

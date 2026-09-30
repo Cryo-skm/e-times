@@ -161,7 +161,7 @@ const XZG = {
     if(pg)pg.dataset.gender=CHARS.gender();
     this.fillAvatars();
   },
-  _headG(id,g){return `<img class="ec-head" src="${CHARS.art(id,g)}" alt="">`},
+  _headG(id,g){const j=CHARS.art(id,g);return window.ART?ART.pic(j,{cls:'ec-head',alt:CHARS.get(id).name}):`<img class="ec-head" src="${j}" alt="">`},
   askGender(){
     this.sheet(`<h3>欢迎来到 e次元</h3>
       <div class="ssub">先告诉小e你的性别 —— 谷伴们会用你喜欢的样子陪你逛</div>
@@ -177,7 +177,7 @@ const XZG = {
           <i class="gp-tag">小e · 星熠 · 语棠…</i>
         </button>
       </div>
-      <div class="xzg-muted" style="font-size:10.5px;margin-top:11px;text-align:center">之后可随时在「我的」页或右上角「⚙ 设置」里切换</div>`,{nomore:true});
+      <div class="xzg-muted" style="font-size:12px;margin-top:11px;text-align:center">之后可随时在「我的」页或右上角「⚙ 设置」里切换</div>`,{nomore:true});
   },
   /* 首次进入 e次元 的性别选择：选完关掉面板并回到内容页 */
   setGender(g){
@@ -490,7 +490,7 @@ Object.assign(XZG,{
         <canvas class="xzg-canvas" id="sgChart" style="height:104px"></canvas>
         <div class="xzg-flex" style="justify-content:space-around;text-align:center;margin-top:8px"><div><b style="font-size:14px">¥${this.money(g.lo)}~${this.money(g.hi)}</b><div class="xzg-muted">成交区间</div></div><div><b style="font-size:14px">${g.vol}</b><div class="xzg-muted">月成交量</div></div><div><b style="font-size:14px">${r.cond>=90?'95新':r.cond>=80?'85新':'80新'}</b><div class="xzg-muted">品相评级</div></div></div>
         <div class="xzg-verdict"><div class="vring" style="background:conic-gradient(#0aa870 ${g.auth*3.6}deg,#e6f7ef 0)"><span style="width:48px;height:48px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center">${g.auth}%</span></div>
-        <div><b style="font-size:13.5px;color:#0a9a66">${g.auth>=98?'高度疑似正版':'疑似正版 · 建议复核'}</b><div class="xzg-muted" style="margin-top:3px;line-height:1.6">${g.auth>=98?'已比对官方版权图库，微观做工特征符合正版':'检测到 1 处细节存疑：印刷网点间距偏差，建议官方渠道复核'}<br>🛡 鉴定结果已生成区块链存证<br><span style="color:#98a0ad;font-size:10px">HASH 0x${r.hash}</span></div></div></div>
+        <div><b style="font-size:13.5px;color:#0a9a66">${g.auth>=98?'高度疑似正版':'疑似正版 · 建议复核'}</b><div class="xzg-muted" style="margin-top:3px;line-height:1.6">${g.auth>=98?'已比对官方版权图库，微观做工特征符合正版':'检测到 1 处细节存疑：印刷网点间距偏差，建议官方渠道复核'}<br>🛡 鉴定结果已生成区块链存证<br><span style="color:#98a0ad;font-size:12px">HASH 0x${r.hash}</span></div></div></div>
         ${g.auth<98?`<div class="xzg-spark-tip" style="background:#fff4f4;border-color:#ffd9d9;color:#c92c3a">⚠️ 仿冒风险提示：该款在二手平台仿冒率约 ${Math.round(100-g.auth)}%，出谷时建议走「出谷通」托管并附鉴定报告</div>`:''}
         <div class="xzg-acts">
           <div class="xzg-act" onclick="XZG.ledgerAdd()"><div class="aic">📒</div><div class="an">记进账本</div></div>
@@ -543,15 +543,15 @@ Object.assign(XZG,{
     h+=`<div class="xzg-card"><div class="xzg-level"><div class="ring" style="background:conic-gradient(#e0503c ${pct*3.6}deg,#f0f1f5 0)"><div class="in"><b>${S.lvName}</b><span>Lv.${S.lv}</span></div></div>
       <div class="lm"><div class="xzg-flex" style="justify-content:space-between"><b style="font-size:15px">成长值 ${this.money(S.exp)}</b><span class="xzg-muted">下一级 ${this.money(nxt)}</span></div><div class="bar"><i style="width:${pct}%"></i></div>
       <div class="xzg-flex" style="margin-top:9px;gap:16px"><div><span class="xzg-tag gold">🌾 谷粒 ${this.money(S.grains)}</span></div><div><span class="xzg-tag">🫘 i豆 ${this.money(S.beans)}</span></div></div></div></div>
-      <div class="xzg-muted" style="margin-top:11px;font-size:11px">✦ 吃谷消费、攒钱、二手成交、逛展都会自动转化为成长值</div></div>`;
+      <div class="xzg-muted" style="margin-top:11px;font-size:12px">✦ 吃谷消费、攒钱、二手成交、逛展都会自动转化为成长值</div></div>`;
     h+=`<div class="xzg-card"><div class="ct">📅 每日签到<span class="more">已连签 ${S.signDays} 天</span></div><div class="xzg-checkin">${Array.from({length:7},(_,i)=>{const hit=i<Math.min(S.signDays,7);return`<div class="xzg-cday${hit?' hit':''}${i===Math.min(S.signDays,7)&&!S.signed?' today':''}" ${!S.signed&&i===Math.min(S.signDays,7)?`onclick="XZG.signin()"`:''}><span class="cd">${hit?'🌱':i+1}</span>${i===6?'第7天':'D'+(i+1)}</div>`}).join('')}</div>
-      <div class="xzg-muted" style="margin-top:9px;font-size:11px">${S.signed?'今日已签到 ✓ 明天再来～':'点击今日格子签到 +20 谷粒'}</div></div>`;
+      <div class="xzg-muted" style="margin-top:9px;font-size:12px">${S.signed?'今日已签到 ✓ 明天再来～':'点击今日格子签到 +20 谷粒'}</div></div>`;
     h+=`<div class="xzg-card"><div class="ct">⚡ 攒谷任务<span class="more">做任务得谷粒</span></div>${this.DB.tasks.map(t=>`<div class="xzg-task"><div class="tic" style="background:${t.icb}">${t.emo}</div><div class="tm"><b>${t.name}</b><span>${t.desc}</span></div><span class="trw">+${t.rw}</span>${t.done?`<button class="xzg-btn ghost mini dis">已完成</button>`:`<button class="xzg-btn mini" onclick="XZG.go('${t.go}')">去完成</button>`}</div>`).join('')}</div>`;
     h+=`<div class="xzg-card"><div class="ct">🏅 勋章墙<span class="more">${Object.keys(S.medals).length}/${this.DB.badges.length}</span></div><div class="xzg-medal-grid">${this.DB.badges.map(bd=>`<div class="xzg-medal${S.medals[bd.id]?'':' lock'}" title="${bd.desc}"><div class="mic">${bd.emo}</div><div class="mn">${bd.name}</div></div>`).join('')}</div></div>`;
-    h+=`<div class="xzg-card" style="background:linear-gradient(135deg,#fff0f6,#ffe0ec)"><div class="ct">🎁 谷子盲盒<span class="more">100谷粒/抽 · 必中</span></div><div class="xzg-flex" style="gap:10px;margin-top:10px">${['🥏','🧸','🎀','🎟️','💫'].map(e=>`<div style="flex:1;aspect-ratio:1;border-radius:14px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 3px 12px rgba(255,111,161,.18)">${e}</div>`).join('')}</div><div class="xzg-flex" style="justify-content:space-between;align-items:center;margin-top:12px"><span class="xzg-muted" style="font-size:11px">有机会开出谷粒翻倍 / i豆 / 限定谷</span><button class="xzg-btn gold mini" onclick="XZG.blindBox()">抽一次 🌾100</button></div></div>`;
+    h+=`<div class="xzg-card" style="background:linear-gradient(135deg,#fff0f6,#ffe0ec)"><div class="ct">🎁 谷子盲盒<span class="more">100谷粒/抽 · 必中</span></div><div class="xzg-flex" style="gap:10px;margin-top:10px">${['🥏','🧸','🎀','🎟️','💫'].map(e=>`<div style="flex:1;aspect-ratio:1;border-radius:14px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 3px 12px rgba(255,111,161,.18)">${e}</div>`).join('')}</div><div class="xzg-flex" style="justify-content:space-between;align-items:center;margin-top:12px"><span class="xzg-muted" style="font-size:12px">有机会开出谷粒翻倍 / i豆 / 限定谷</span><button class="xzg-btn gold mini" onclick="XZG.blindBox()">抽一次 🌾100</button></div></div>`;
     const cats={all:'全部',ticket:'🎫 票务',gift:'🎁 礼物',goods:'🛍 好物'};const shopCat=S.shopCat||'all';
     h+=`<div class="xzg-card"><div class="ct">🪐 权益星球<span class="more">谷粒兑换</span></div><div class="zk-tabs">${Object.keys(cats).map(k=>`<button class="zk-tab${shopCat===k?' on':''}" onclick="XZG.setShopCat('${k}')">${cats[k]}</button>`).join('')}</div>${this.DB.shop.filter(s=>shopCat==='all'||s.cat===shopCat).map(s=>{const owned=(S.owned||[]).includes(s.id);return`<div class="xzg-shop-item"><div class="sic" style="background:${s.icb}">${s.emo}</div><div class="sm"><b>${s.name}</b><span>${s.desc}</span><span class="cost">🌾 ${s.cost} ${s.unit}</span></div>${owned?`<button class="xzg-btn ghost mini dis">✓ 已兑换</button>`:`<button class="xzg-btn gold mini ${S.grains<s.cost?'dis':''}" onclick="XZG.redeem('${s.id}')">兑换</button>`}</div>`}).join('')}`;
-    if(S.redeemed&&S.redeemed.length)h+=`<div class="xzg-hr"></div><div class="xzg-muted" style="margin-bottom:6px">兑换记录</div>${S.redeemed.slice(0,3).map(r=>`<div class="xzg-muted" style="padding:3px 0;font-size:11px">✓ ${r.name} <span style="color:#98a0ad">（-${r.cost} 谷粒）</span></div>`).join('')}`;
+    if(S.redeemed&&S.redeemed.length)h+=`<div class="xzg-hr"></div><div class="xzg-muted" style="margin-bottom:6px">兑换记录</div>${S.redeemed.slice(0,3).map(r=>`<div class="xzg-muted" style="padding:3px 0;font-size:12px">✓ ${r.name} <span style="color:#98a0ad">（-${r.cost} 谷粒）</span></div>`).join('')}`;
     b.innerHTML=h;
     if(!S.shopVisit){S.shopVisit=true;this.save();setTimeout(()=>this.taskDone('t6'),800)}
   },
@@ -585,11 +585,11 @@ Object.assign(XZG,{
   renderChugu(){const S=this.S,b=this.$('#chuguBody');
     const escrowAmt=S.orders.filter(o=>o.role==='buy'&&o.step>=1&&o.step<4).reduce((s,o)=>s+o.price,0);
     const doneSell=S.orders.filter(o=>o.role==='sell'&&o.step===4);
-    let h=`<div class="xzg-escrow-banner"><div class="eic">🏦</div><div style="flex:1"><b style="font-size:14px">工行托管账户 · 资金安全隔离</b><div style="font-size:11px;opacity:.8;margin-top:2px">当前托管中 <b style="font-size:15px">¥${this.money(escrowAmt)}</b>${doneSell.length?` ｜ 已回款 <b>¥${doneSell.reduce((s,o)=>s+o.price,0)}</b>`:''}</div></div><span style="font-size:10px;background:rgba(255,255,255,.14);padding:4px 9px;border-radius:12px">🛡 融安e信</span></div>`;
+    let h=`<div class="xzg-escrow-banner"><div class="eic">🏦</div><div style="flex:1"><b style="font-size:14px">工行托管账户 · 资金安全隔离</b><div style="font-size:12px;opacity:.8;margin-top:2px">当前托管中 <b style="font-size:15px">¥${this.money(escrowAmt)}</b>${doneSell.length?` ｜ 已回款 <b>¥${doneSell.reduce((s,o)=>s+o.price,0)}</b>`:''}</div></div><span style="font-size:12px;background:rgba(255,255,255,.14);padding:4px 9px;border-radius:12px">🛡 融安e信</span></div>`;
     const cf=this.DB.creditF;
     h+=`<div class="xzg-credit"><div class="cring" style="background:conic-gradient(#0aa870 ${S.credit/10}deg,#e6f7ef 0)"><div class="cin"><b>${S.credit}</b><span>谷圈信用分</span></div></div>
       <div class="cf">${cf.map(([n,v])=>`<div class="fr"><span style="width:76px;flex-shrink:0">${n}</span><div class="fbar"><i style="width:${v}%"></i></div><span style="width:30px;text-align:right;color:${v>=90?'#0aa870':'#5b6472'}">${v}</span></div>`).join('')}</div></div>
-      <div class="xzg-muted" style="font-size:11px;margin:-4px 0 14px 4px">✦ 每完成 1 单托管交易 信用分 +2 ｜ 信用分越高，挂售曝光越多、可申请额度越高</div>`;
+      <div class="xzg-muted" style="font-size:12px;margin:-4px 0 14px 4px">✦ 每完成 1 单托管交易 信用分 +2 ｜ 信用分越高，挂售曝光越多、可申请额度越高</div>`;
     h+=`<div class="xzg-seg">${[['all','全部'],['buy','我买入'],['sell','我卖出']].map(([k,n])=>`<div class="sg${this._cgSeg===k?' on':''}" onclick="XZG._cgSeg='${k}';XZG.renderChugu()">${n}</div>`).join('')}</div>`;
     h+=`<button class="xzg-btn big" style="margin-bottom:14px" onclick="XZG.orderCreate()">➕ 新建托管订单</button>`;
     const list=S.orders.filter(o=>this._cgSeg==='all'||o.role===this._cgSeg);
@@ -603,7 +603,7 @@ Object.assign(XZG,{
       return`<div class="xzg-order"><div class="oh"><div class="oic">${o.emo}</div><div class="ot"><b>${o.item}</b><span>${isBuy?'向':'卖给'} ${o.peer} · ${o.t}</span></div><div class="op">¥${this.money(o.price)}</div></div>
       <div class="xzg-steps">${this._steps.map((s,i)=>`<div class="xzg-step${i<o.step?' done':i===o.step&&o.step<4?' cur':o.step===4?' done':''}"><div class="sd">${i<o.step||o.step===4?'✓':i+1}</div>${s}</div>`).join('')}</div>
       <div class="xzg-ofoot"><span class="otip">${o.step===1&&isBuy?'🔒 资金由工商银行托管，确认验货前卖家无法动用':o.step===4?'🎉 双向好评 +2 信用分':'⏱ '+tip}</span>${btn}</div></div>`}).join(''):`<div class="xzg-card"><div class="xzg-null"><span class="nic">🗂️</span>暂无订单 · 从识谷「挂出售卖」或点击上方新建</div></div>`;
-    h+=`<div class="xzg-card" style="background:linear-gradient(135deg,#eefaf4,#f4fbff)"><div class="ct" style="margin-bottom:6px">🛡️ 出谷通三重保障</div><div class="xzg-muted" style="font-size:11.5px;line-height:2">① 资金托管：货款先进工行托管账户，杜绝跑路<br>② 融安e信：下单前自动扫描对方交易风险<br>③ 72h 验货期：确认无误才放款，纠纷可申诉</div></div>`;
+    h+=`<div class="xzg-card" style="background:linear-gradient(135deg,#eefaf4,#f4fbff)"><div class="ct" style="margin-bottom:6px">🛡️ 出谷通三重保障</div><div class="xzg-muted" style="font-size:12px;line-height:2">① 资金托管：货款先进工行托管账户，杜绝跑路<br>② 融安e信：下单前自动扫描对方交易风险<br>③ 72h 验货期：确认无误才放款，纠纷可申诉</div></div>`;
     b.innerHTML=h},
   orderPay(id){const o=this.S.orders.find(x=>x.id===id);if(!o)return;o.step=1;this.save();this.renderChugu();this.toast(`¥${o.price} 已存入工行托管账户`,'🔒')},
   orderShip(id){const o=this.S.orders.find(x=>x.id===id);if(!o)return;o.step=2;this.save();this.renderChugu();this.toast('已发货 · 等待买家验货','📦')},
@@ -640,12 +640,12 @@ Object.assign(XZG,{
     } else {
       h+=`<div class="xzg-banner" style="background:linear-gradient(120deg,#c7000b,#8e0008);padding:17px 16px" onclick="XZG.cardApply()"><div class="bic">💳</div><div style="flex:1"><b style="font-size:15px">e次元 IP 联名卡</b><span>卡面投票定制 · 开卡送限定谷 · 在线申卡</span></div><div class="go" style="font-size:20px">›</div></div>`;
     }
-    h+=`<div class="xzg-card"><div class="ct">🗳️ 本季卡面投票<span class="more">${S.myVote?'已投 ✓':'每人1票'}</span></div><div class="xzg-cardvote">${this.DB.cards.map(c=>`<div class="xzg-vcard${S.myVote===c.id?' sel':''}" onclick="XZG.vote('${c.id}')"><div class="xzg-bankcard" style="background:${c.grad}"><div class="cdeco"></div><div class="cbank" style="font-size:10px"><div class="clogo" style="width:17px;height:17px;font-size:9px">工</div>工商银行</div><div style="font-size:19px">${c.emo}</div><div class="cfoot"><span style="font-size:9px">${c.name}</span><span style="font-size:12px;font-style:italic">UnionPay</span></div></div><div class="vn">${c.ip}·${c.name}<span class="vk${S.myVote===c.id?' voted':''}">${this.money(votes(c))}票</span></div></div>`).join('')}</div><div class="xzg-muted" style="font-size:11px">得票第一的卡面将进入下季正式发行，投票可得谷粒奖励</div></div>`;
+    h+=`<div class="xzg-card"><div class="ct">🗳️ 本季卡面投票<span class="more">${S.myVote?'已投 ✓':'每人1票'}</span></div><div class="xzg-cardvote">${this.DB.cards.map(c=>`<div class="xzg-vcard${S.myVote===c.id?' sel':''}" onclick="XZG.vote('${c.id}')"><div class="xzg-bankcard" style="background:${c.grad}"><div class="cdeco"></div><div class="cbank" style="font-size:12px"><div class="clogo" style="width:17px;height:17px;font-size:12px">工</div>工商银行</div><div style="font-size:19px">${c.emo}</div><div class="cfoot"><span style="font-size:12px">${c.name}</span><span style="font-size:12px;font-style:italic">UnionPay</span></div></div><div class="vn">${c.ip}·${c.name}<span class="vk${S.myVote===c.id?' voted':''}">${this.money(votes(c))}票</span></div></div>`).join('')}</div><div class="xzg-muted" style="font-size:12px">得票第一的卡面将进入下季正式发行，投票可得谷粒奖励</div></div>`;
     h+=`<div class="xzg-card xzg-calc"><div class="ct">🧮 大额藏品分期计算器<span class="xzg-tag r" style="margin-left:4px">e次元专属12期免息</span></div>
       <div class="crow"><label>藏品金额</label><input type="text" id="cgAmt" value="600" oninput="XZG.calc()"></div>
       <div class="crow"><label>分期期数</label><div class="chips" id="cgChips">${[3,6,12,24].map(n=>`<div class="chip${n===12?' on':''}" onclick="XZG._cgN=${n};document.querySelectorAll('#cgChips .chip').forEach(x=>x.classList.remove('on'));this.classList.add('on');XZG.calc()">${n}期</div>`).join('')}</div></div>
       <div class="cres"><div class="c"><b id="cgM">¥50.0</b><span>每期月供</span></div><div class="c"><b id="cgF">¥0</b><span>总手续费</span></div><div class="c"><b id="cgT">¥600</b><span>总应还</span></div></div>
-      <div class="xzg-muted" style="font-size:10.5px;margin-top:9px">* 演示数据。e次元联名卡 12 期内免手续费，超12期费率 0.6%/期，具体以审批为准</div>
+      <div class="xzg-muted" style="font-size:12px;margin-top:9px">* 演示数据。e次元联名卡 12 期内免手续费，超12期费率 0.6%/期，具体以审批为准</div>
       <button class="xzg-btn plain big" style="margin-top:11px" onclick="XZG.calcPlan()">生成还款计划</button></div>`;
     h+=`<div class="xzg-card"><div class="ct">✨ 谷卡专属权益</div><div class="xzg-muted" style="font-size:12px;line-height:2.1">🏷️ 谷店/漫展商户消费 95 折<br>🌾 消费得双倍谷粒，加速攒谷升级<br>🥏 限定谷子优先购权 + 开卡礼<br>📈 大额藏品专项分期额度（最高 ¥20000）</div></div>`;
     b.innerHTML=h;this.calc()},
@@ -658,7 +658,7 @@ Object.assign(XZG,{
   vote(id){const S=this.S;if(S.myVote)return this.toast('本季已投过票啦，下季再来','🗳️');S.myVote=id;S.votes[id]=(S.votes[id]||0)+1;this.save();this.award('b7');this.taskDone('t4');this.renderGuka();this.toast('投票成功！感谢为谷圈发电','🗳️')},
   cardApply(){this._cardStep=1;
     this.sheet(`<h3>💳 申领e次元联名卡</h3><div class="ssub">第 1 步 / 共 3 步 · 选择你的本命卡面</div>
-    <div class="xzg-cardvote" style="flex-wrap:wrap">${this.DB.cards.map(c=>`<div class="xzg-vcard${this._cardSel===c.id?' sel':''}" onclick="XZG._cardSel='${c.id}';XZG.cardApply()" style="width:calc(50% - 6px)"><div class="xzg-bankcard" style="background:${c.grad};min-height:92px"><div class="cdeco"></div><div class="cbank" style="font-size:10px"><div class="clogo" style="width:16px;height:16px;font-size:9px">工</div>工商银行</div><div style="font-size:18px">${c.emo}</div><div class="cfoot"><span style="font-size:9px">${c.name}</span></div></div></div>`).join('')}</div>
+    <div class="xzg-cardvote" style="flex-wrap:wrap">${this.DB.cards.map(c=>`<div class="xzg-vcard${this._cardSel===c.id?' sel':''}" onclick="XZG._cardSel='${c.id}';XZG.cardApply()" style="width:calc(50% - 6px)"><div class="xzg-bankcard" style="background:${c.grad};min-height:92px"><div class="cdeco"></div><div class="cbank" style="font-size:12px"><div class="clogo" style="width:16px;height:16px;font-size:12px">工</div>工商银行</div><div style="font-size:18px">${c.emo}</div><div class="cfoot"><span style="font-size:12px">${c.name}</span></div></div></div>`).join('')}</div>
     <button class="xzg-btn big" style="margin-top:12px" onclick="XZG._cardStep=2;XZG.cardForm()">下一步</button>`)},
   cardForm(){this.sheet(`<h3>💳 填写申卡信息</h3><div class="ssub">第 2 步 / 共 3 步 · 演示环境已自动填充</div>
     <div class="xzg-form"><div class="fi"><label>姓名</label><input type="text" value="谷友_8437" disabled style="color:#98a0ad"></div>
@@ -740,7 +740,7 @@ Object.assign(XZG,{
       <circle cx="330" cy="52" r="13" fill="#f5e3d7"/>
       <path d="M318 48q2-12 12-12t12 12q-5-5-12-5t-12 5z" fill="#2a2f3c"/>
       <text x="34" y="52" font-family="'PingFang SC','Microsoft YaHei',sans-serif" font-size="26" font-weight="900" fill="#fff" letter-spacing="4">周边上新</text>
-      <text x="34" y="76" font-family="sans-serif" font-size="11" fill="#8a93a8" letter-spacing="1">WELCOME TO NEW ERRL 2026</text>
+      <text x="34" y="76" font-family="sans-serif" font-size="12" fill="#8a93a8" letter-spacing="1">WELCOME TO NEW ERRL 2026</text>
       <text x="34" y="100" font-family="'PingFang SC','Microsoft YaHei',sans-serif" font-size="12" font-weight="700" fill="#ff9d6e">9/03 20:00 - 9/23 23:59 · 限时上架</text>
       <path d="M196 26l4 8 8-4-4 8 8 4-8 4 4 8-8-4-4 8-4-8-8 4 4-8-8-4 8-4-4-8z" fill="#ffd76e" opacity=".7"/>
     </svg>`;
@@ -923,7 +923,7 @@ Object.assign(XZG,{
       <div style="display:flex;gap:12px;align-items:center;background:#fafbfd;border-radius:14px;padding:12px;margin:10px 0">
         <span style="width:72px;height:72px;border-radius:12px;overflow:hidden;flex-shrink:0;display:block">${this.artSVG(g.art)}</span>
         <div style="flex:1;min-width:0"><b style="font-size:13px;display:block;line-height:1.5">${g.name}</b>
-        <span style="font-size:16px;font-weight:800;color:#e03a5e;margin-top:6px;display:block">¥${g.price}<i style="font-style:normal;font-size:10.5px;color:#98a0ad;font-weight:400;margin-left:6px">谷粒可抵 ¥${Math.min(30,Math.round(g.price*0.1))}</i></span></div>
+        <span style="font-size:16px;font-weight:800;color:#e03a5e;margin-top:6px;display:block">¥${g.price}<i style="font-style:normal;font-size:12px;color:#98a0ad;font-weight:400;margin-left:6px">谷粒可抵 ¥${Math.min(30,Math.round(g.price*0.1))}</i></span></div>
       </div>
       <div class="xzg-form">
         <div class="fi"><label>收货人</label><input type="text" value="李**" readonly></div>
@@ -931,7 +931,7 @@ Object.assign(XZG,{
         <div class="fi"><label>地址</label><input type="text" value="上海市黄浦区 工银大厦 20F" readonly></div>
       </div>
       <button class="xzg-btn big" onclick="XZG.buyOk('${g.id}','${(g.name||'').replace(/'/g,'')}','${g.price}')">立即支付 ¥${g.price}</button>
-      <div class="xzg-muted" style="font-size:10.5px;margin-top:9px;text-align:center">* 演示环境 · 支付通过模拟工行储蓄卡完成</div>`);
+      <div class="xzg-muted" style="font-size:12px;margin-top:9px;text-align:center">* 演示环境 · 支付通过模拟工行储蓄卡完成</div>`);
   },
   buyOk(id,name,price){
     const p=+price||0;
@@ -1007,7 +1007,7 @@ Object.assign(XZG,{
     this.sheet(`<h3>🛡 融安e信 · 风险扫描报告</h3><div class="ssub">e次元交易安全引擎 · 实时风控</div>
       <div class="xzg-card" style="background:linear-gradient(135deg,#f0fbf6,#e2f7ee);box-shadow:none">
         <div class="ct" style="color:#0aa870">本次扫描通过 ✅</div>
-        <div class="xzg-muted" style="font-size:11.5px;line-height:1.9">交易对手信用分 712 · 无黑名单命中<br>资金流向正常 · 无高频异常操作</div></div>
+        <div class="xzg-muted" style="font-size:12px;line-height:1.9">交易对手信用分 712 · 无黑名单命中<br>资金流向正常 · 无高频异常操作</div></div>
       <div class="xzg-kvrow"><span>对手方信用等级</span><b>优秀（712 分）</b></div>
       <div class="xzg-kvrow"><span>历史纠纷率</span><b>0.8%</b></div>
       <div class="xzg-kvrow"><span>建议托管金额上限</span><b>¥5,000.00</b></div>
@@ -1079,7 +1079,7 @@ Object.assign(XZG,{
         <div class="ar-m"><b>${a.name} <i>${a.phone}</i>${a.def?'<em>默认</em>':''}</b><span>${a.city} ${a.detail}</span></div>
         <span class="ar-tag">${a.tag||'家'}</span></div>`).join('')}
       <button class="xzg-btn plain big" style="margin-top:6px" onclick="XZG.addrNew()">＋ 新增收货地址</button>
-      <div class="xzg-muted" style="font-size:10.5px;margin-top:9px;text-align:center">* 演示环境，请勿填写真实个人信息</div>`);
+      <div class="xzg-muted" style="font-size:12px;margin-top:9px;text-align:center">* 演示环境，请勿填写真实个人信息</div>`);
   },
   pickAddr(id){
     const a=(this.S.addrList||[]).find(x=>x.id===id); if(!a)return;
@@ -1132,7 +1132,7 @@ Object.assign(XZG,{
         <div class="c"><b>🌾${Math.max(5,Math.round(total/10))}</b><span>返谷粒</span></div>
       </div></div>
       <button class="xzg-btn big" onclick="XZG.payNow()">工商银行储蓄卡支付 ¥${this.money(total)}</button>
-      <div class="xzg-muted" style="font-size:10.5px;margin-top:9px;text-align:center">* 演示环境 · 不会产生任何真实扣款</div>`);
+      <div class="xzg-muted" style="font-size:12px;margin-top:9px;text-align:center">* 演示环境 · 不会产生任何真实扣款</div>`);
   },
   payNow(){
     const list=this._cartList(); if(!list.length) return;
@@ -1176,7 +1176,7 @@ Object.assign(XZG,{
           ${o.items.map(it=>`<div class="xzg-cartrow"><span class="cc-img">${this.artSVG(it.art)}</span>
             <div class="cc-main"><b>${it.name}</b><span class="cc-p">¥${this.money(it.price)} × ${it.qty}</span></div>
             <span class="cc-sum">¥${this.money(it.price*it.qty)}</span></div>`).join('')}
-          <div class="mo-f"><span class="xzg-muted" style="font-size:11px">${st[2]}</span>
+          <div class="mo-f"><span class="xzg-muted" style="font-size:12px">${st[2]}</span>
             <b style="font-size:14px">合计 ¥${this.money(o.total)}</b></div>
           <div class="mo-ops">
             ${o.step===1?`<button class="xzg-btn plain mini" onclick="event.stopPropagation();XZG.orderCancel('${o.id}')">取消订单</button>
@@ -1197,7 +1197,7 @@ Object.assign(XZG,{
     this.sheet(`<h3>📦 订单详情</h3><div class="ssub">订单号 ${o.no} · 下单时间 ${o.t}</div>
       <div class="xzg-card" style="background:linear-gradient(135deg,#fff4f7,#ffe9f1)">
         <div class="ct" style="color:${st[1]}">${st[0]}<span class="more" onclick="XZG.openLogistics('${o.id}')">查看物流 ›</span></div>
-        <div class="xzg-muted" style="font-size:11.5px">${st[2]}</div></div>
+        <div class="xzg-muted" style="font-size:12px">${st[2]}</div></div>
       ${o.items.map(it=>`<div class="xzg-cartrow"><span class="cc-img">${this.artSVG(it.art)}</span>
         <div class="cc-main"><b>${it.name}</b><span class="cc-p">¥${this.money(it.price)} × ${it.qty}</span></div>
         <span class="cc-sum">¥${this.money(it.price*it.qty)}</span></div>`).join('')}
@@ -1353,10 +1353,10 @@ Object.assign(XZG,{
     if(t==='follow')return E.mine.follows.map(f=>`
       <div class="xzg-card" style="display:flex;align-items:center;gap:12px;padding:13px 16px">
         <span class="fm-post-ava" style="width:44px;height:44px">${CHARS.head(f.char)}</span>
-        <span style="flex:1;min-width:0"><b style="font-size:13.5px;display:block">${f.name}</b><span style="font-size:11px;color:#98a0ad">${f.sub}</span></span>
+        <span style="flex:1;min-width:0"><b style="font-size:13.5px;display:block">${f.name}</b><span style="font-size:12px;color:#98a0ad">${f.sub}</span></span>
         <button class="xzg-btn mini plain" onclick="ICBCApp.toast('已取消关注（演示）','😢')">已关注</button>
       </div>`).join('');
-    return `<div class="xzg-null"><span class="nic">⭐</span>收藏功能演示中<br><span style="font-size:11px">在帖子详情点「收藏」即可加入</span></div>`;
+    return `<div class="xzg-null"><span class="nic">⭐</span>收藏功能演示中<br><span style="font-size:12px">在帖子详情点「收藏」即可加入</span></div>`;
   },
   mineTab(t){
     document.querySelectorAll('.mn-tab').forEach(x=>x.classList.toggle('on',x.dataset.t===t));
@@ -1367,10 +1367,10 @@ Object.assign(XZG,{
       ${[['chengxi','蹲低价的小满','互相关注 · 2小时前访问'],['xiaoe','风与自由','新粉丝 · 昨天关注'],['yufeng','夜航船','互相关注 · 3天前访问'],['yutang','吃谷十年的阿棠','新粉丝 · 3天前关注']].map(f=>`
       <div class="xzg-card" style="display:flex;align-items:center;gap:12px;padding:12px 14px;margin-bottom:10px">
         <span class="fm-post-ava" style="width:42px;height:42px">${CHARS.head(f[0])}</span>
-        <span style="flex:1;min-width:0"><b style="font-size:13px;display:block">${f[1]}</b><span style="font-size:10.5px;color:#98a0ad">${f[2]}</span></span>
+        <span style="flex:1;min-width:0"><b style="font-size:13px;display:block">${f[1]}</b><span style="font-size:12px;color:#98a0ad">${f[2]}</span></span>
         <button class="xzg-btn mini" onclick="ICBCApp.toast('已回关','🤝')">回关</button>
       </div>`).join('')}
-      <div class="xzg-muted" style="text-align:center;font-size:11px">仅展示部分粉丝（演示）</div>`);
+      <div class="xzg-muted" style="text-align:center;font-size:12px">仅展示部分粉丝（演示）</div>`);
   },
   mineMedal(){
     const S=this.S;
@@ -1429,7 +1429,7 @@ Object.assign(XZG,{
         <span class="cx-album-cover" style="background:${a[2]}">📚</span>
         <div class="cx-item-m"><b>${a[0]}</b><span>${a[1]}</span></div><i class="cx-arrow">›</i>
       </div>`).join('');
-    return `<div class="xzg-null"><span class="nic">⭐</span>还没有收藏内容<br><span style="font-size:11px">在帖子详情点「收藏」即可加入</span></div>`;
+    return `<div class="xzg-null"><span class="nic">⭐</span>还没有收藏内容<br><span style="font-size:12px">在帖子详情点「收藏」即可加入</span></div>`;
   },
 
   /* ═══ 兑换中心（独立页：谷粒当钱花 · 分类瓷片 + 好物货架） ═══ */

@@ -89,7 +89,17 @@
 
     const d = dest(to);
     const _cover = (window.CHARS && CHARS.artFile) ? CHARS.artFile('cover-enter') : 'cover-enter.jpg';
-    document.getElementById('ecEnterCover').style.backgroundImage = 'url(img/art/' + _cover + ')';
+    /* 转场封面是 820×1230 的大图（原 JPEG 344KB）。支持 WebP 就走向 WebP，
+       否则退回 JPEG；两条都写一遍，不被支持的那条会被浏览器直接忽略。 */
+    const _cJpg = 'img/art/' + _cover;
+    const _cWebp = _cJpg.replace(/\.jpg$/i, '.webp');
+    const _cEl = document.getElementById('ecEnterCover');
+    _cEl.style.backgroundImage = 'url("' + _cJpg + '")';
+    if (window.ART && ART.webpOk) {
+      const _set = 'url("' + _cWebp + '") 1x, url("' + _cJpg + '") 2x';
+      _cEl.style.backgroundImage = '-webkit-image-set(' + _set + ')';
+      _cEl.style.backgroundImage = 'image-set(url("' + _cWebp + '") type("image/webp"), url("' + _cJpg + '"))';
+    }
     document.getElementById('ecEK').textContent = d.kicker;
     document.getElementById('ecET').innerHTML = d.title;
     document.getElementById('ecES').textContent = d.sub;

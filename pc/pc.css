@@ -113,7 +113,8 @@ img { display: block; }
   border-radius: 18px; overflow: hidden; box-shadow: 0 12px 34px rgba(255, 92, 147, .26);
   margin-bottom: 20px; border: none; padding: 0;
 }
-.bk-door > img { width: 100%; height: 220px; object-fit: cover; object-position: center 34%; }
+.bk-door > img,
+.bk-door > picture.art-pic > img { width: 100%; height: 220px; object-fit: cover; object-position: center 34%; }
 .bk-door::after {
   content: ""; position: absolute; inset: 0;
   background: linear-gradient(96deg, rgba(46, 8, 30, .84) 0%, rgba(46, 8, 30, .46) 42%, rgba(46, 8, 30, .02) 78%);
@@ -314,10 +315,12 @@ img { display: block; }
 
 /* 图片窗口 */
 .win { position: relative; overflow: hidden; border-radius: 12px; background: linear-gradient(150deg, #ffe9f1, #eaf3ff); }
-.win > img { width: 100%; height: 100%; object-fit: cover; }
+.win > img,
+.win > picture.art-pic > img { width: 100%; height: 100%; object-fit: cover; }
 .win-sq { aspect-ratio: 1 / 1; }
 .win-bn { border-radius: 14px; }
-.win-bn > img { height: 146px; object-position: center 30%; }
+.win-bn > img,
+.win-bn > picture.art-pic > img { height: 146px; object-position: center 30%; }
 .win-bn::after { content: ""; position: absolute; inset: 0; background: linear-gradient(96deg, rgba(40, 10, 28, .7), rgba(40, 10, 28, .18) 56%, transparent 84%); }
 .win-bn .wt { position: absolute; left: 16px; right: 32%; top: 50%; transform: translateY(-50%); z-index: 2; color: #fff; }
 .win-bn .wt b { display: block; font-size: 15px; }
@@ -511,11 +514,34 @@ img { display: block; }
 .gp2-c:active { transform: scale(.96); }
 .gp2-c.on { border-color: #7a5cff; background: linear-gradient(160deg, #f4f0ff, #fff); box-shadow: 0 6px 18px rgba(122, 92, 255, .18); }
 .gp2-av { display: flex; }
-.gp2-av img {
+.gp2-av img,
+.gp2-av > picture.art-pic > img {
   width: 42px; height: 42px; border-radius: 50%; object-fit: cover; object-position: center top;
   border: 2px solid #fff; box-shadow: 0 2px 8px rgba(31, 41, 61, .14); margin: 0 -7px;
 }
-.gp2-av img + img { margin-left: 14px; }
+.gp2-av img + img,
+.gp2-av > picture.art-pic + picture.art-pic > img { margin-left: 14px; }
 .gp2-c b { font-size: 14px; color: var(--ink); }
 .gp2-c em { font-style: normal; font-size: 11px; color: #98a0ad; }
 .gp2-c.on b { color: #5b3fe0; }
+
+/* ── WebP 响应式图片：<picture> 包裹层不参与布局 ──
+   插画统一为 <picture class="art-pic"><source type="image/webp"><img …></picture>，
+   让 picture 走 display:contents，内部 <img> 等价于直接挂在原父容器下，
+   百分比宽高 / object-fit / flex 布局全部原样生效。 */
+picture.art-pic { display: contents; }
+
+/* ── 键盘焦点可见（无障碍）：只有键盘操作时才显示，鼠标点击不受影响 ── */
+:focus-visible {
+  outline: 3px solid #2f6bff;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+input:focus-visible, textarea:focus-visible, select:focus-visible {
+  outline: 3px solid #2f6bff;
+  outline-offset: 1px;
+}
+.bk-top :focus-visible, .ec-side :focus-visible, .ec-topbar :focus-visible,
+.ec-menu :focus-visible, .pce :focus-visible {
+  outline-color: #ffd76e;
+}

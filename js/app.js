@@ -113,20 +113,28 @@
     const p = document.getElementById(id);
     if (!p) return;
     p.classList.add('open');
+    p.removeAttribute('aria-hidden');
     syncStatusbar();
+    if (window.A11Y) A11Y.syncOverlayAria();
   }
   function closePage(id) {
     const p = document.getElementById(id);
     if (!p) return;
     p.classList.remove('open');
+    p.setAttribute('aria-hidden', 'true');
     syncStatusbar();
+    if (window.A11Y) A11Y.syncOverlayAria();
   }
 
   /* ─────────── Tab 切换 ─────────── */
   $$('.tab-item').forEach(btn => {
     btn.addEventListener('click', () => {
       const id = btn.dataset.tab;
-      $$('.tab-item').forEach(b => b.classList.toggle('active', b === btn));
+      $$('.tab-item').forEach(b => {
+        const on = b === btn;
+        b.classList.toggle('active', on);
+        b.setAttribute('aria-selected', on ? 'true' : 'false');   /* 读屏器要知道当前在哪个 Tab */
+      });
       $$('.tab-view').forEach(v => v.classList.toggle('active', v.id === id));
       syncStatusbar();
     });
@@ -222,7 +230,7 @@
   /* 轮播 */
   $('#bannerTrack').innerHTML = DATA.banners.map(b => `
     <div class="banner-slide${b.img ? ' banner-slide--img' : ''}" style="background:${b.bg}"
-      ${b.ec ? `data-ec="${b.ec}"` : ''}>${b.img ? (b.gart && window.CHARS ? CHARS.artImg(b.img, 'bs-img', b.t) : `<img class="bs-img" src="${b.img}" alt="">`) : ''}
+      ${b.ec ? `data-ec="${b.ec}"` : ''}>${b.img ? (b.gart && window.CHARS ? CHARS.artImg(b.img, 'bs-img', b.t, { eager: true }) : `<img class="bs-img" src="${b.img}" alt="${b.t || ''}">`) : ''}
       <div class="bs-txt"><h4>${b.t}</h4><p>${b.d}</p>${b.go ? `<span class="bs-go">${b.go}</span>` : ''}</div>
     </div>`).join('');
   $('#bannerDots').innerHTML = DATA.banners.map((_, i) =>
