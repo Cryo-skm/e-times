@@ -889,3 +889,56 @@
 .xzg-kvrow+.xzg-kvrow{border-top:1px solid var(--line)}
 .xzg-kvrow span{font-size:12px;color:var(--ink3);flex-shrink:0}
 .xzg-kvrow b{font-size:12.5px;font-weight:600;text-align:right}
+
+/* ════════════════════════════════════════════════════════════════
+   性别入口可视性升级：右上角「⚙ 设置」按钮 + 通用性别切换控件 .xsb
+   ════════════════════════════════════════════════════════════════ */
+/* e次元 导航栏右上角设置按钮（替代原先只有 15px 的「···」） */
+.xg-navbar .xg-setbtn{
+  display:flex;align-items:center;gap:4px;
+  padding:6px 11px;border-radius:999px;
+  background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.34);
+  color:#fff;font-size:11.5px;font-weight:600;line-height:1;
+  cursor:pointer;transition:transform .16s cubic-bezier(.34,1.56,.64,1),background .18s;
+}
+.xg-navbar .xg-setbtn:active{transform:scale(.93);background:rgba(255,255,255,.28)}
+.xg-navbar .xg-setbtn svg{width:15px;height:15px;flex-shrink:0}
+
+/* 通用「性别切换」卡片：左图标 + 文案 + 右侧分段控件 */
+.xsb{
+  background:#fff;border-radius:16px;padding:13px 14px;margin-bottom:16px;
+  box-shadow:0 6px 18px rgba(31,41,61,.08);border:1px solid rgba(255,255,255,.9);
+  display:flex;align-items:center;gap:11px;
+}
+.xsb-ic{font-style:normal;font-size:20px;width:40px;height:40px;border-radius:13px;
+  background:#f4f0ff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.xsb-t{flex:1;min-width:0}
+.xsb-t b{font-size:13px;font-weight:700;display:block;color:var(--ink)}
+.xsb-t span{font-size:10.5px;color:var(--ink3);display:block;margin-top:2px;line-height:1.45}
+.xsb-t i{font-style:normal;font-weight:700;color:#7a5cff}
+/* 分段控件 */
+.xsb-seg{display:flex;gap:6px;flex-shrink:0}
+.xsb-seg button{
+  border:1.5px solid #e6e2f5;background:#faf9ff;border-radius:11px;
+  padding:7px 10px;text-align:center;min-width:64px;
+  transition:transform .16s cubic-bezier(.34,1.56,.64,1),border-color .18s,box-shadow .18s;
+}
+.xsb-seg button:active{transform:scale(.95)}
+.xsb-seg button b{display:block;font-size:11.5px;font-weight:700;color:#5b5f6e}
+.xsb-seg button span{display:block;font-size:9px;color:#a3a8b6;margin-top:1px}
+.xsb-seg button.on{
+  border-color:#7a5cff;background:linear-gradient(160deg,#efeaff,#fff);
+  box-shadow:0 3px 10px rgba(122,92,255,.22);
+}
+.xsb-seg button.on b{color:#6a48f0}
+.xsb-seg button.on span{color:#8a7ad8}
+.xsb-seg--sm button{min-width:56px;padding:6px 8px}
+/* 设置面板里的竖排变体 */
+.xsb--panel{flex-direction:column;align-items:stretch;gap:10px}
+.xsb--panel .xsb-t b{font-size:13.5px}
+.xsb--panel .xsb-seg{width:100%}
+.xsb--panel .xsb-seg button{flex:1;min-width:0;padding:9px 10px}
+.xsb--panel .xsb-seg button b{font-size:12.5px}
+.xsb--panel .xsb-seg button span{font-size:9.5px}
+/* 「我的」页里的那一条：与 mn-acts 视觉对齐 */
+.mn-xsb{margin-bottom:16px}

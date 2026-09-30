@@ -474,3 +474,48 @@ img { display: block; }
 /* 顶栏用户区：避免与下一行文字叠字 */
 .ec-me .nm { line-height: 1.25; }
 .ec-me .nm i { line-height: 1.3; }
+
+/* ══════════════════════════════════════════════════════════════
+   插画风格（性别）：侧栏常驻入口 + 设置面板
+   ══════════════════════════════════════════════════════════════ */
+.ec-side-gender {
+  flex: none; display: flex; align-items: center; gap: 10px;
+  margin: 0 12px 10px; padding: 10px 12px; border-radius: 12px;
+  background: rgba(255, 255, 255, .09); border: 1px solid rgba(255, 255, 255, .16);
+  color: #fff; cursor: pointer; text-align: left;
+  transition: background .18s, transform .16s cubic-bezier(.34, 1.56, .64, 1);
+}
+.ec-side-gender:hover { background: rgba(255, 255, 255, .16); }
+.ec-side-gender:active { transform: scale(.97); }
+.ec-side-gender > i {
+  font-style: normal; font-size: 16px; width: 30px; height: 30px; border-radius: 9px;
+  background: rgba(255, 255, 255, .16); display: flex; align-items: center;
+  justify-content: center; flex: none;
+}
+.ec-side-gender > span { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.ec-side-gender b { font-size: 12.5px; font-weight: 700; }
+.ec-side-gender em {
+  font-style: normal; font-size: 10.5px; font-weight: 700; padding: 2px 9px;
+  border-radius: 999px; color: #4a2a12;
+  background: linear-gradient(135deg, #ffd76e, #ff9db0);
+}
+
+/* 设置面板里的两个形象卡片 */
+.gp2 { display: flex; gap: 12px; margin: 14px 0 4px; }
+.gp2-c {
+  flex: 1; border: 2px solid #e9ecf3; border-radius: 14px; padding: 14px 10px;
+  background: #fff; display: flex; flex-direction: column; align-items: center; gap: 6px;
+  transition: border-color .18s, box-shadow .18s, transform .16s cubic-bezier(.34, 1.56, .64, 1);
+}
+.gp2-c:hover { border-color: #cdd5e6; }
+.gp2-c:active { transform: scale(.96); }
+.gp2-c.on { border-color: #7a5cff; background: linear-gradient(160deg, #f4f0ff, #fff); box-shadow: 0 6px 18px rgba(122, 92, 255, .18); }
+.gp2-av { display: flex; }
+.gp2-av img {
+  width: 42px; height: 42px; border-radius: 50%; object-fit: cover; object-position: center top;
+  border: 2px solid #fff; box-shadow: 0 2px 8px rgba(31, 41, 61, .14); margin: 0 -7px;
+}
+.gp2-av img + img { margin-left: 14px; }
+.gp2-c b { font-size: 14px; color: var(--ink); }
+.gp2-c em { font-style: normal; font-size: 11px; color: #98a0ad; }
+.gp2-c.on b { color: #5b3fe0; }

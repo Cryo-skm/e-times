@@ -126,10 +126,10 @@ const XZG = {
     if(!this._mounted){
       this.buildSkeleton();this._mounted=true;
       this.bindRipple(document.querySelector('#xingegu-slot'));
-      /* 右上角「···」→ e次元设置 */
-      const more=document.querySelector('#page-xingegu .op-more');
+      /* 右上角「⚙ 设置」按钮 → e次元设置 */
+      const more=document.querySelector('#page-xingegu .xg-setbtn');
       if(more&&!more.__bound){
-        more.__bound=true;more.style.cursor='pointer';more.title='e次元设置';
+        more.__bound=true;
         more.addEventListener('click',()=>this.openSettings());
       }
     }
@@ -160,8 +160,9 @@ const XZG = {
           <i class="gp-tag">小e · 星熠 · 语棠…</i>
         </button>
       </div>
-      <div class="xzg-muted" style="font-size:10.5px;margin-top:11px;text-align:center">之后可以在右上角「···」设置里随时切换</div>`);
+      <div class="xzg-muted" style="font-size:10.5px;margin-top:11px;text-align:center">之后可随时在「我的」页或右上角「⚙ 设置」里切换</div>`);
   },
+  /* 首次进入 e次元 的性别选择：选完关掉面板并回到内容页 */
   setGender(g){
     CHARS.setGender(g);
     this.S.gender=g;this.save();
@@ -170,11 +171,40 @@ const XZG = {
     this.go(this._lastPg||'plaza');
     this.toast(g==='girl'?'已切换为美少年风格':'已切换为美少女风格','🎨');
   },
+  /* 常驻开关（「我的」页 / 设置面板内）：就地切换，不关面板、不跳页 */
+  switchGender(g){
+    const next=(g==='girl')?'girl':'boy';
+    if(CHARS.gender()===next){this.refreshGenderUI();return next;}
+    CHARS.setGender(next);                 /* 全站 repaint：角色窗口 + 场景插画就地换 src */
+    this.S.gender=next;this.save();
+    this.applyGender();
+    this.refreshGenderUI();
+    this.toast(next==='girl'?'已切换为美少年风格':'已切换为美少女风格','🎨');
+    return next;
+  },
+  /* 把所有性别控件的选中态同步到当前性别（页面内 + 弹层内通吃） */
+  refreshGenderUI(){
+    const g=CHARS.gender();
+    document.querySelectorAll('[data-gsw]').forEach(b=>b.classList.toggle('on',b.dataset.gsw===g));
+    const lab=document.getElementById('xzgSetGenderLab');
+    if(lab)lab.textContent=(g==='girl'?'美少年':'美少女');
+  },
+  /* 性别切换控件（可复用片段）：俩按钮 + 选中态 */
+  genderSeg(cls){
+    const g=CHARS.gender();
+    return `<div class="xsb-seg${cls?' '+cls:''}">
+        <button data-gsw="boy" class="${g==='boy'?'on':''}" onclick="XZG.switchGender('boy')"><b>美少女</b><span>我是男生</span></button>
+        <button data-gsw="girl" class="${g==='girl'?'on':''}" onclick="XZG.switchGender('girl')"><b>美少年</b><span>我是女生</span></button>
+      </div>`;
+  },
   openSettings(){
     const g=CHARS.gender();
     this.sheet(`<h3>⚙️ e次元设置</h3><div class="ssub">形象风格 · 谷伴 · 演示数据</div>
+      <div class="xsb xsb--panel">
+        <div class="xsb-t"><b>🎨 插画风格</b><span>谷伴与场景插画按你的性别绘制 · 当前 <i id="xzgSetGenderLab">${g==='girl'?'美少年':'美少女'}</i></span></div>
+        ${this.genderSeg()}
+      </div>
       <div class="xzg-form">
-        <button class="xzg-btn" onclick="XZG.askGender()">🎨 插画风格：${g==='girl'?'美少年':'美少女'} · 点此切换</button>
         <button class="xzg-btn" onclick="XZG.pickCompanionOpen()">🐾 更换谷伴（当前：${CHARS.get(CHARS.current()).name}）</button>
         <button class="xzg-btn" onclick="XZG.openAbout()">ℹ️ 关于 e次元</button>
         <button class="xzg-btn gold" onclick="XZG.resetData()">♻️ 重置演示数据</button>
@@ -1239,6 +1269,11 @@ Object.assign(XZG,{
         <button onclick="XZG.go('create')"><i>✏️</i><span>创作中心</span><em>作品收益管理</em></button>
         <button onclick="XZG.go('exchange')"><i>🎁</i><span>兑换中心</span><em>谷粒当钱花</em></button>
         <button onclick="XZG.mineMedal()"><i>🏅</i><span>成就勋章</span><em>${medalCnt}/${this.DB.badges.length} 枚</em></button>
+      </div>
+      <div class="xsb mn-xsb">
+        <span class="xsb-ic">🎨</span>
+        <div class="xsb-t"><b>插画风格</b><span>谷伴与场景插画按你的性别绘制</span></div>
+        ${this.genderSeg('xsb-seg--sm')}
       </div>
       <button class="mn-companion" onclick="XZG.pickCompanionOpen()">
         <span class="mc-ava">${CHARS.head(CHARS.current())}</span>

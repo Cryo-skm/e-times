@@ -868,10 +868,47 @@
   function modal(html) { $('#pcModal').innerHTML = html + '<div style="text-align:right;margin-top:16px"><button class="btn gray sm" data-pcmaskclose>关闭</button></div>'; $('#pcMask').classList.add('on'); }
   function closeModal() { $('#pcMask').classList.remove('on'); }
 
+  /* ══════════ 插画风格（性别）：PC 端设置面板 ══════════ */
+  function curGender() { try { return localStorage.getItem('ec_char_gender') === 'girl' ? 'girl' : 'boy'; } catch (e) { return 'boy'; } }
+  /* 同步侧栏标签 + 面板里按钮的选中态 */
+  function syncGenderUI() {
+    const g = curGender();
+    const lab = $('#ecGenderLabel'); if (lab) lab.textContent = (g === 'girl' ? '美少年' : '美少女');
+    $$('[data-pcgender]').forEach(b => b.classList.toggle('on', b.dataset.pcgender === g));
+  }
+  /* 切换性别：写同一 origin 的 localStorage → 重渲染当前页让所有按性别取图的模板刷新 */
+  function setGender(g) {
+    const next = (g === 'girl') ? 'girl' : 'boy';
+    try { localStorage.setItem('ec_char_gender', next); } catch (e) {}
+    paintGenderArt();
+    syncGenderUI();
+    go(S.page || 'home');
+    toast(next === 'girl' ? '已切换为美少年风格 🎨' : '已切换为美少女风格 🎨');
+  }
+  function genderModal() {
+    const g = curGender();
+    modal(`<h3>🎨 插画风格</h3>
+      <div class="sub">谷伴与场景插画会按你的性别绘制 · 与手机端实时互通</div>
+      <div class="gp2">
+        <button class="gp2-c${g === 'boy' ? ' on' : ''}" data-pcgender="boy">
+          <span class="gp2-av"><img src="${A}char-xiaoe.jpg" alt=""><img src="${A}char-yutang.jpg" alt=""></span>
+          <b>美少女</b><em>我是男生</em></button>
+        <button class="gp2-c${g === 'girl' ? ' on' : ''}" data-pcgender="girl">
+          <span class="gp2-av"><img src="${A}char2-xiaoe.jpg" alt=""><img src="${A}char2-yutang.jpg" alt=""></span>
+          <b>美少年</b><em>我是女生</em></button>
+      </div>
+      <div class="tiny" style="margin-top:10px">当前：${g === 'girl' ? '美少年' : '美少女'}风格 · 在手机端切换后，PC 端也会同步</div>`);
+  }
+
   document.addEventListener('click', e => {
     /* 入口 */
     const d = e.target.closest('[data-ecd]');
     if (d) { e.preventDefault(); enterEC(); return; }
+
+    /* 插画风格（性别）：打开面板 / 面板内选择 */
+    if (e.target.closest('[data-pcgender-open]')) { e.preventDefault(); genderModal(); return; }
+    const gsel = e.target.closest('[data-pcgender]');
+    if (gsel) { e.preventDefault(); setGender(gsel.dataset.pcgender); return; }
 
     if (e.target.closest('[data-pcmaskclose]') || e.target.id === 'pcMask') { closeModal(); return; }
 
@@ -960,12 +997,14 @@
     if (ecHero) ecHero.src = gArt('banner-gallery');
   };
   paintGenderArt();
+  syncGenderUI();
   /* 手机端改了性别后，PC 端切回来自动同步 */
   window.addEventListener('storage', e => {
     if (e.key === 'ec_char_gender') {
       paintGenderArt();
+      syncGenderUI();
       go(S.page || 'home');
     }
   });
-  window.PCAPP = { go, toast, modal, S };
+  window.PCAPP = { go, toast, modal, S, setGender, genderModal, syncGenderUI, curGender };
 })();
