@@ -947,5 +947,15 @@
   $$('.bk-nav button').forEach(b => b.addEventListener('click', () => {
     $$('.bk-nav button').forEach(x => x.classList.toggle('on', x === b));
   }));
+  /* 银行首页「推门」横幅：跟随手机端选的性别（同一 origin 的 localStorage） */
+  const bkDoor = $('#bkDoorImg');
+  if (bkDoor) bkDoor.src = gArt('banner-door');
+  /* 手机端改了性别后，PC 端切回来自动同步 */
+  window.addEventListener('storage', e => {
+    if (e.key === 'ec_char_gender') {
+      if (bkDoor) bkDoor.src = gArt('banner-door');
+      go(S.page || 'home');
+    }
+  });
   window.PCAPP = { go, toast, modal, S };
 })();
