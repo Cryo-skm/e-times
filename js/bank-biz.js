@@ -1626,4 +1626,1024 @@
       BANK.open('cardtxn');
     }
   });
+
+  /* ═══════════════════════════════════════════════════════════════════
+     深度扩展层 · v2 ——「每一次点击都能继续往下挖 5~10 层」
+     ─────────────────────────────────────────────────────────────────
+     ① BANK.tip(msg)：原先是**未定义函数**（点一下直接 JS 报错），现改为
+        打开「操作结果」真实页面 tipresult，并按 msg 关键词给出定制内容。
+     ② 每个业务页渲染完自动追加「继续办理」区块 —— 默认 8 个新入口，
+        每个入口本身又是一个完整业务页，于是层级可以无限往下挖。
+     ③ 新增 38 个业务页作为落点（基金 / 黄金 / 保险 / 公积金 / 征信 /
+        卡面商城 / 智能客服 / 城市服务 …），把「继续办理」落到实处。
+     ═══════════════════════════════════════════════════════════════════ */
+
+  /* ══════ ③-1 新增业务页（与 PAGES 同构，数据驱动） ══════ */
+  const NEWPAGES = {
+    /* ─── 账户与卡片 ─── */
+    acctdetail: {
+      t: '账户详情', note: '主账户 · 尾号 8888 · 中国工商银行',
+      list: [
+        { ico: 'bank', bg: '#eef4ff', name: '账户类型', desc: '个人结算账户（I 类户）', act: "BANK.tip('账户类型：个人结算账户（I 类户）')" },
+        { ico: 'list', bg: '#eef9ef', name: '账户状态', desc: '正常 · 已绑定手机银行', act: "BANK.tip('账户状态：正常')" },
+        { ico: 'building', bg: '#eaf3fd', name: '开户网点', desc: '工商银行 · 上海黄浦支行', act: "BANK.open('branch')" },
+        { ico: 'gold', bg: '#fff6e6', name: '可用余额', desc: '￥258,463.52', act: "BANK.open('cardtxn')", right: '明细 ›' }
+      ],
+      tiles: [
+        { ico: 'receipt', bg: '#eef9ef', name: '账户流水', act: "BANK.open('cardtxn')" },
+        { ico: 'list', bg: '#eaf3fd', name: '账户限额', act: "BANK.open('limits')" },
+        { ico: 'shield', bg: '#e9f7f5', name: '冻结 / 解冻', act: "BANK.open('accfreeze')" },
+        { ico: 'gear', bg: '#f0f0f2', name: '账户设置', act: "BANK.open('settings')" },
+        { ico: 'credit', bg: '#f0ecfd', name: '绑定卡片', act: "BANK.open('bindcard')" },
+        { ico: 'headset', bg: '#eaf3fd', name: '账户问题', act: "BANK.open('faq')" }
+      ]
+    },
+    accfreeze: {
+      t: '账户冻结 / 解冻', note: '冻结后账户资金只进不出，可随时自助解冻。',
+      list: [
+        { ico: 'shield', bg: '#fdecec', name: '临时冻结', desc: '即时生效 · 有效期 7 天', act: "BANK.tip('账户临时冻结：已开启')" },
+        { ico: 'vault', bg: '#eaf3fd', name: '解冻账户', desc: '需验证支付密码', act: "BANK.tip('账户解冻：已关闭')" },
+        { ico: 'list', bg: '#eef9ef', name: '冻结记录', desc: '查看历史冻结与解冻', act: "BANK.open('locklog')" }
+      ],
+      tiles: [
+        { ico: 'headset', bg: '#eaf3fd', name: '联系客服', act: "BANK.open('chat')" },
+        { ico: 'list', bg: '#eef9ef', name: '常见问题', act: "BANK.open('faq')" },
+        { ico: 'building', bg: '#eef4ff', name: '就近网点', act: "BANK.open('branch')" },
+        { ico: 'shield', bg: '#e9f7f5', name: '安全中心', act: "BANK.open('security')" }
+      ]
+    },
+    txnreceipt: {
+      t: '回单开具', note: '近 30 天可自助开具，支持下载 PDF 与发送邮箱。',
+      list: [
+        { ico: 'receipt', bg: '#eef9ef', name: '转账回单', desc: '09-26 向王**转账 ￥520.00', act: "BANK.tip('回单已生成（演示）')" },
+        { ico: 'receipt', bg: '#eaf3fd', name: '缴费回单', desc: '09-25 水费 ￥86.00', act: "BANK.tip('回单已生成（演示）')" },
+        { ico: 'receipt', bg: '#fff6e6', name: '存款证明', desc: '可用于签证 / 贷款', act: "BANK.tip('存款证明已开具（演示）')" }
+      ],
+      tiles: [
+        { ico: 'mail', bg: '#f0ecfd', name: '发送到邮箱', act: "BANK.tip('回单已发送至邮箱（演示）')" },
+        { ico: 'list', bg: '#eef9ef', name: '全部流水', act: "BANK.open('statement')" },
+        { ico: 'receipt', bg: '#eaf3fd', name: '电子账单', act: "BANK.open('ebill')" },
+        { ico: 'gear', bg: '#f0f0f2', name: '开票设置', act: "BANK.open('invoice')" }
+      ]
+    },
+    billdetail: {
+      t: '账单详情', note: '09 月账单 · 应还 ￥3,286.40 · 到期日 10-08',
+      list: [
+        { ico: 'receipt', bg: '#fff6e6', name: '本期账单金额', desc: '￥3,286.40', act: "BANK.open('repay')", right: '去还款 ›' },
+        { ico: 'list', bg: '#eef9ef', name: '本期笔数', desc: '共 26 笔消费', act: "BANK.open('cardtxn')" },
+        { ico: 'chart', bg: '#fdeff7', name: '账单分析', desc: '看看钱花在哪了', act: "BANK.open('spendana')" },
+        { ico: 'bolt', bg: '#f0ecfd', name: '可分期金额', desc: '￥3,286.40 · 3/6/12 期', act: "BANK.open('installment')" }
+      ],
+      tiles: [
+        { ico: 'pay', bg: '#eaf3fd', name: '立即还款', act: "BANK.open('repay')" },
+        { ico: 'chart', bg: '#fdeff7', name: '历史账单', act: "BANK.open('billhist')" },
+        { ico: 'gear', bg: '#f0f0f2', name: '自动还款', act: "BANK.open('autorepay')" },
+        { ico: 'receipt', bg: '#eef9ef', name: '电子账单', act: "BANK.open('ebill')" }
+      ]
+    },
+    ebill: {
+      t: '电子账单', note: '已开启电子账单，每月 5 日推送到手机银行与邮箱。',
+      list: [
+        { ico: 'mail', bg: '#eaf3fd', name: '接收方式', desc: '手机银行 + 邮箱', act: "BANK.tip('接收方式：手机银行 + 邮箱')" },
+        { ico: 'list', bg: '#eef9ef', name: '账单周期', desc: '每月 5 日生成', act: "BANK.tip('账单周期：每月 5 日')" },
+        { ico: 'receipt', bg: '#fff6e6', name: '近 6 期账单', desc: '可查看与下载', act: "BANK.open('billhist')" }
+      ],
+      tiles: [
+        { ico: 'gear', bg: '#f0f0f2', name: '修改接收方式', act: "BANK.open('settings')" },
+        { ico: 'receipt', bg: '#eef9ef', name: '电子回单', act: "BANK.open('txnreceipt')" },
+        { ico: 'chart', bg: '#fdeff7', name: '账单分析', act: "BANK.open('billdetail')" },
+        { ico: 'headset', bg: '#eaf3fd', name: '账单有疑问', act: "BANK.open('chat')" }
+      ]
+    },
+    budgetedit: {
+      t: '预算设置', note: '给每一类消费设一个月度上限，超支会提醒你。',
+      list: [
+        { ico: 'bear', bg: '#fdeff7', name: '谷子周边', desc: '当前 ￥4,000 / 月', act: "BANK.tip('谷子周边预算：已调整（演示）')" },
+        { ico: 'noodle', bg: '#fdecec', name: '餐饮外卖', desc: '当前 ￥2,000 / 月', act: "BANK.tip('餐饮外卖预算：已调整（演示）')" },
+        { ico: 'car', bg: '#e9f7f5', name: '交通出行', desc: '当前 ￥800 / 月', act: "BANK.tip('交通出行预算：已调整（演示）')" },
+        { ico: 'receipt', bg: '#fff6e6', name: '生活缴费', desc: '当前 ￥600 / 月', act: "BANK.tip('生活缴费预算：已调整（演示）')" }
+      ],
+      tiles: [
+        { ico: 'chart', bg: '#fdeff7', name: '预算报表', act: "BANK.open('budget')" },
+        { ico: 'list', bg: '#eef9ef', name: '本月明细', act: "BANK.open('catdetail')" },
+        { ico: 'gear', bg: '#f0f0f2', name: '提醒设置', act: "BANK.open('settings')" },
+        { ico: 'chart', bg: '#fff6e6', name: '支出分析', act: "BANK.open('spendana')" }
+      ]
+    },
+    catdetail: {
+      t: '分类消费明细', note: '09 月 · 谷子周边共 14 笔 · 合计 ￥3,976.20',
+      list: [
+        { ico: 'bear', bg: '#fdeff7', name: '谷谷屋（吧唧 x3）', desc: '09-26 19:44', act: "BANK.open('txndetail')", right: '-286.00' },
+        { ico: 'bear', bg: '#fdeff7', name: '星熠立牌 · 预售尾款', desc: '09-22 12:08', act: "BANK.open('txndetail')", right: '-468.00' },
+        { ico: 'bear', bg: '#fdeff7', name: '藏馆 · 数字分身年费', desc: '09-15 09:30', act: "BANK.open('txndetail')", right: '-199.00' },
+        { ico: 'bear', bg: '#fdeff7', name: '谷卡 · 免息分期首期', desc: '09-08 20:15', act: "BANK.open('txndetail')", right: '-1,020.00' }
+      ],
+      tiles: [
+        { ico: 'list', bg: '#eef9ef', name: '全部交易', act: "BANK.open('cardtxn')" },
+        { ico: 'list', bg: '#eaf3fd', name: '换分类看', act: "BANK.open('txnfilter')" },
+        { ico: 'chart', bg: '#fdeff7', name: '支出分析', act: "BANK.open('spendana')" },
+        { ico: 'gear', bg: '#f0f0f2', name: '设置预算', act: "BANK.open('budgetedit')" }
+      ]
+    },
+    cardface: {
+      t: '卡面商城', note: '用谷粒兑换限定卡面，随时可换回来。',
+      list: [
+        { ico: 'sparkle', bg: '#fdeff7', name: '白昼流光 · 星熠', desc: '限定 · 需 1,200 谷粒', act: "BANK.open('cardfacepick')", right: '兑换 ›' },
+        { ico: 'sparkle', bg: '#f0ecfd', name: '夜色绮想 · 云间', desc: '限定 · 需 1,500 谷粒', act: "BANK.open('cardfacepick')", right: '兑换 ›' },
+        { ico: 'guka', bg: '#eaf3fd', name: '工银经典红', desc: '默认卡面 · 免费', act: "BANK.open('cardfacepick')", right: '使用 ›' }
+      ],
+      tiles: [
+        { ico: 'medal', bg: '#fff6e6', name: '我的谷粒', act: "BANK.open('points')" },
+        { ico: 'credit', bg: '#eaf3fd', name: '我的卡片', act: "BANK.open('mycards')" },
+        { ico: 'gift', bg: '#fdeff7', name: '谷卡专区', act: "BANK.open('creditapply')" },
+        { ico: 'headset', bg: '#f0ecfd', name: '卡面规则', act: "BANK.open('faq')" }
+      ]
+    },
+    cardfacepick: {
+      t: '卡面定制', note: '选择一张卡面应用到你的工银卡上（演示环境不改变真实卡面）。',
+      list: [
+        { ico: 'credit', bg: '#eaf3fd', name: '白昼流光 · 星熠', desc: '竖版 · 立牌主题', act: "BANK.tip('卡面已应用：白昼流光 · 星熠')" },
+        { ico: 'credit', bg: '#f0ecfd', name: '夜色绮想 · 云间', desc: '竖版 · 藏馆主题', act: "BANK.tip('卡面已应用：夜色绮想 · 云间')" },
+        { ico: 'credit', bg: '#fdeff7', name: '樱花谷子屋', desc: '横版 · 商城主题', act: "BANK.tip('卡面已应用：樱花谷子屋')" },
+        { ico: 'credit', bg: '#fff6e6', name: '工银经典红', desc: '默认卡面', act: "BANK.tip('卡面已应用：工银经典红')" }
+      ],
+      tiles: [
+        { ico: 'sparkle', bg: '#fdeff7', name: '更多卡面', act: "BANK.open('cardface')" },
+        { ico: 'medal', bg: '#fff6e6', name: '谷粒兑换', act: "BANK.open('points')" },
+        { ico: 'credit', bg: '#eaf3fd', name: '卡片管理', act: "BANK.open('cardmgr')" },
+        { ico: 'guka', bg: '#f0ecfd', name: '申请谷卡', act: "BANK.open('creditapply')" }
+      ]
+    },
+    /* ─── 安全与防护 ─── */
+    swcenter: {
+      t: '安全开关中心', note: '一屏管住所有交易开关，关掉的那类交易会被直接拦截。',
+      list: [
+        { ico: 'watch', bg: '#f0ecfd', name: '境外交易锁', desc: '当前：已开启', act: "BANK.tip('境外交易锁：已切换')" },
+        { ico: 'wifi', bg: '#eaf3fd', name: '线上支付锁', desc: '当前：已关闭', act: "BANK.tip('线上支付锁：已切换')" },
+        { ico: 'flame', bg: '#fdecec', name: '夜间交易锁', desc: '23:00 - 06:00 拦截', act: "BANK.tip('夜间交易锁：已切换')" },
+        { ico: 'finger', bg: '#eef9ef', name: '指纹支付', desc: '当前：已开启', act: "BANK.tip('指纹支付：已切换')" },
+        { ico: 'camera', bg: '#fff6e6', name: '刷脸支付', desc: '当前：已开启', act: "BANK.tip('刷脸支付：已切换')" },
+        { ico: 'bolt', bg: '#fdeff7', name: '小额免密', desc: '￥1,000 以下免密', act: "BANK.tip('小额免密：额度可调')" }
+      ],
+      tiles: [
+        { ico: 'shield', bg: '#e9f7f5', name: '安全体检', act: "BANK.tip('安全体检完成：账户状态良好（演示）')" },
+        { ico: 'vault', bg: '#eaf3fd', name: '一键锁卡', act: "BANK.open('cardlock')" },
+        { ico: 'cube', bg: '#f0ecfd', name: '设备管理', act: "BANK.open('devmgr')" },
+        { ico: 'list', bg: '#eef9ef', name: '登录记录', act: "BANK.open('loginrec')" }
+      ]
+    },
+    safecourse: {
+      t: '安全课堂', note: '每节课 3 分钟，看完能多得 50 谷粒。',
+      list: [
+        { ico: 'film', bg: '#fdeff7', name: '第 1 课 · 识别假客服', desc: '3 分钟 · 已看 1.2 万次', act: "BANK.tip('演示环境：视频播放')" },
+        { ico: 'film', bg: '#eaf3fd', name: '第 2 课 · 陌生链接别点', desc: '2 分钟 · 已看 9,860 次', act: "BANK.tip('演示环境：视频播放')" },
+        { ico: 'film', bg: '#fff6e6', name: '第 3 课 · 谷圈交易防骗', desc: '4 分钟 · 已看 2.4 万次', act: "BANK.tip('演示环境：视频播放')" }
+      ],
+      tiles: [
+        { ico: 'shield', bg: '#e9f7f5', name: '反诈案例库', act: "BANK.open('fraudcase')" },
+        { ico: 'medal', bg: '#fff6e6', name: '答题得谷粒', act: "BANK.open('points')" },
+        { ico: 'headset', bg: '#eaf3fd', name: '我要举报', act: "BANK.open('feedback')" },
+        { ico: 'shield', bg: '#fdecec', name: '安全中心', act: "BANK.open('security')" }
+      ]
+    },
+    fraudcase: {
+      t: '反诈案例库', note: '真实案例改编，看看别人是怎么被骗的。',
+      list: [
+        { ico: 'flame', bg: '#fdecec', name: '「谷子低价出」骗局', desc: '诱导离开平台交易 → 收钱拉黑', act: "BANK.tip('案例详情：已阅读（演示）')" },
+        { ico: 'flame', bg: '#fdecec', name: '「代抢预售」骗局', desc: '先付定金 → 再也联系不上', act: "BANK.tip('案例详情：已阅读（演示）')" },
+        { ico: 'flame', bg: '#fdecec', name: '「客服退款」骗局', desc: '索要验证码 → 账户被清空', act: "BANK.tip('案例详情：已阅读（演示）')" }
+      ],
+      tiles: [
+        { ico: 'film', bg: '#fdeff7', name: '安全课堂', act: "BANK.open('safecourse')" },
+        { ico: 'shield', bg: '#e9f7f5', name: '交易申诉', act: "BANK.open('security')" },
+        { ico: 'headset', bg: '#eaf3fd', name: '举报线索', act: "BANK.open('feedback')" },
+        { ico: 'list', bg: '#eef9ef', name: '常见问题', act: "BANK.open('faq')" }
+      ]
+    },
+    devmgr: {
+      t: '登录设备管理', note: '当前登录 3 台设备，可随时下线不认识的。',
+      list: [
+        { ico: 'watch', bg: '#eef9ef', name: 'iPhone 16 Pro', desc: '本次登录设备 · 上海', act: "BANK.tip('这是当前设备')" },
+        { ico: 'watch', bg: '#eaf3fd', name: 'iPad Air', desc: '09-24 登录 · 上海', act: "BANK.tip('已下线该设备（演示）')" },
+        { ico: 'watch', bg: '#fff6e6', name: 'Windows 工作台', desc: '09-18 登录 · 上海', act: "BANK.tip('已下线该设备（演示）')" }
+      ],
+      tiles: [
+        { ico: 'list', bg: '#eef9ef', name: '登录记录', act: "BANK.open('loginrec')" },
+        { ico: 'gear', bg: '#f0f0f2', name: '改密码', act: "BANK.open('chpwd')" },
+        { ico: 'vault', bg: '#eaf3fd', name: '安全开关', act: "BANK.open('swcenter')" },
+        { ico: 'shield', bg: '#e9f7f5', name: '安全中心', act: "BANK.open('security')" }
+      ]
+    },
+    loginrec: {
+      t: '登录日志', note: '近 30 天共 18 次登录，未发现异常。',
+      list: [
+        { ico: 'list', bg: '#eef9ef', name: '本机 · 手机银行', desc: '今天 09:12 · 上海', act: "BANK.tip('本次登录正常')" },
+        { ico: 'list', bg: '#eaf3fd', name: 'PC 工作台', desc: '昨天 21:40 · 上海', act: "BANK.tip('登录正常')" },
+        { ico: 'list', bg: '#fff6e6', name: 'web 网银', desc: '09-24 11:05 · 上海', act: "BANK.tip('登录正常')" }
+      ],
+      tiles: [
+        { ico: 'watch', bg: '#eef9ef', name: '设备管理', act: "BANK.open('devmgr')" },
+        { ico: 'gear', bg: '#f0f0f2', name: '修改密码', act: "BANK.open('chpwd')" },
+        { ico: 'vault', bg: '#eaf3fd', name: '安全开关', act: "BANK.open('swcenter')" },
+        { ico: 'headset', bg: '#f0ecfd', name: '不是我登录的', act: "BANK.open('chat')" }
+      ]
+    },
+    riskdetail: {
+      t: '风险评估报告', note: '你的风险承受能力：稳健型（R2）· 有效期至 2027-09',
+      list: [
+        { ico: 'chart', bg: '#eaf3fd', name: '风险等级', desc: '稳健型 R2', act: "BANK.tip('风险等级：稳健型 R2')" },
+        { ico: 'list', bg: '#eef9ef', name: '可投产品', desc: '货币基金 / 债券 / 低波理财', act: "BANK.open('wealthbuy')" },
+        { ico: 'medal', bg: '#fff6e6', name: '测评记录', desc: '2026-09-12 完成 · 共 12 题', act: "BANK.open('riskquiz')" }
+      ],
+      tiles: [
+        { ico: 'chart', bg: '#fdeff7', name: '重新测评', act: "BANK.open('riskquiz')" },
+        { ico: 'chart', bg: '#eaf3fd', name: '我的持仓', act: "BANK.open('holdings')" },
+        { ico: 'film', bg: '#f0ecfd', name: '理财课堂', act: "BANK.open('wealthclass')" },
+        { ico: 'headset', bg: '#eef9ef', name: '咨询顾问', act: "BANK.open('chat')" }
+      ]
+    },
+    /* ─── 财富与投资 ─── */
+    fund: {
+      t: '基金超市', note: '近一年涨幅前 3 的基金（演示数据，不构成投资建议）',
+      list: [
+        { ico: 'chart', bg: '#fdeff7', name: '谷讯科技混合 A', desc: '近 1 年 +18.6% · 中高风险', act: "BANK.open('fundbuy')", right: '申购 ›' },
+        { ico: 'chart', bg: '#eaf3fd', name: '工银货币宝', desc: '七日年化 1.86% · 低风险', act: "BANK.open('fundbuy')", right: '申购 ›' },
+        { ico: 'chart', bg: '#fff6e6', name: '稳健债券 C', desc: '近 1 年 +4.2% · 中低风险', act: "BANK.open('fundbuy')", right: '申购 ›' }
+      ],
+      tiles: [
+        { ico: 'chart', bg: '#eaf3fd', name: '我的持仓', act: "BANK.open('holdings')" },
+        { ico: 'chart', bg: '#fdeff7', name: '收益曲线', act: "BANK.open('yieldcurve')" },
+        { ico: 'gold', bg: '#fff6e6', name: '黄金积存', act: "BANK.open('gold')" },
+        { ico: 'medal', bg: '#f0ecfd', name: '风险测评', act: "BANK.open('riskquiz')" }
+      ]
+    },
+    fundbuy: {
+      t: '基金申购', note: '演示环境：不会真实扣款，份额仅做展示。',
+      list: [
+        { ico: 'chart', bg: '#fdeff7', name: '申购金额', desc: '￥1,000.00', act: "BANK.tip('申购金额：￥1,000.00')" },
+        { ico: 'list', bg: '#eef9ef', name: '扣款账户', desc: '薪金卡 ****8888', act: "BANK.open('mycards')" },
+        { ico: 'receipt', bg: '#eaf3fd', name: '费率', desc: '0.15%（1 折）', act: "BANK.tip('申购费率：0.15%')" }
+      ],
+      tiles: [
+        { ico: 'chart', bg: '#eaf3fd', name: '我的持仓', act: "BANK.open('holdings')" },
+        { ico: 'list', bg: '#eef9ef', name: '交易记录', act: "BANK.open('cardtxn')" },
+        { ico: 'chart', bg: '#fdeff7', name: '收益曲线', act: "BANK.open('yieldcurve')" },
+        { ico: 'medal', bg: '#fff6e6', name: '风险测评', act: "BANK.open('riskquiz')" },
+        { ico: 'film', bg: '#f0ecfd', name: '基金小课堂', act: "BANK.open('wealthclass')" },
+        { ico: 'headset', bg: '#eaf3fd', name: '问客服', act: "BANK.open('chat')" }
+      ]
+    },
+    gold: {
+      t: '黄金积存', note: '按克积存，1 克起买，可随时赎回。',
+      list: [
+        { ico: 'gold', bg: '#fff6e6', name: '今日金价', desc: '￥612.40 / 克', act: "BANK.tip('今日金价：￥612.40 / 克')" },
+        { ico: 'gold', bg: '#fdeff7', name: '我的积存', desc: '12.68 克 · 市值 ￥7,765', act: "BANK.tip('我的积存：12.68 克')" },
+        { ico: 'list', bg: '#eef9ef', name: '积存计划', desc: '每月 8 日定投 ￥500', act: "BANK.tip('积存计划：每月 8 日定投 ￥500')" }
+      ],
+      tiles: [
+        { ico: 'gold', bg: '#fff6e6', name: '买入 / 赎回', act: "BANK.tip('黄金买入：已提交（演示）')" },
+        { ico: 'chart', bg: '#fdeff7', name: '金价走势', act: "BANK.open('fxboard')" },
+        { ico: 'chart', bg: '#eaf3fd', name: '我的持仓', act: "BANK.open('holdings')" },
+        { ico: 'list', bg: '#eef9ef', name: '利率看板', act: "BANK.open('rateboard')" }
+      ]
+    },
+    insurance: {
+      t: '保险保障', note: '工银安盛精选 · 演示产品',
+      list: [
+        { ico: 'shield', bg: '#e9f7f5', name: '百万医疗险', desc: '￥198 / 年 · 最高 400 万', act: "BANK.tip('百万医疗险：已加入对比')" },
+        { ico: 'shield', bg: '#eaf3fd', name: '谷子意外险', desc: '￥68 / 年 · 快递破损也能赔', act: "BANK.tip('谷子意外险：已加入对比')" },
+        { ico: 'shield', bg: '#fdeff7', name: '交通出行险', desc: '￥12 / 次 · 飞机高铁都能保', act: "BANK.tip('交通出行险：已加入对比')" }
+      ],
+      tiles: [
+        { ico: 'list', bg: '#eef9ef', name: '我的保单', act: "BANK.tip('我的保单：共 2 份（演示）')" },
+        { ico: 'headset', bg: '#eaf3fd', name: '理赔申请', act: "BANK.open('chat')" },
+        { ico: 'medal', bg: '#fff6e6', name: '积分抵扣', act: "BANK.open('points')" },
+        { ico: 'chart', bg: '#f0ecfd', name: '利率看板', act: "BANK.open('rateboard')" }
+      ]
+    },
+    bond: {
+      t: '债券专区', note: '国债 / 金融债 / 企业债（演示数据）',
+      list: [
+        { ico: 'vault', bg: '#eef9ef', name: '26 储蓄国债（电子式）', desc: '3 年期 · 票面 2.85%', act: "BANK.tip('已加入关注（演示）')" },
+        { ico: 'vault', bg: '#eaf3fd', name: '工银金融债 12 期', desc: '2 年期 · 票面 2.60%', act: "BANK.tip('已加入关注（演示）')" },
+        { ico: 'vault', bg: '#fff6e6', name: '城投债优选组合', desc: '1 年期 · 业绩基准 3.10%', act: "BANK.tip('已加入关注（演示）')" }
+      ],
+      tiles: [
+        { ico: 'list', bg: '#eef9ef', name: '我的持仓', act: "BANK.open('holdings')" },
+        { ico: 'chart', bg: '#eaf3fd', name: '收益曲线', act: "BANK.open('yieldcurve')" },
+        { ico: 'bank', bg: '#fdeff7', name: '定期存款', act: "BANK.open('deposit')" },
+        { ico: 'list', bg: '#f0ecfd', name: '利率看板', act: "BANK.open('rateboard')" }
+      ]
+    },
+    fxboard: {
+      t: '汇率行情', note: '演示牌价 · 更新时间 10:30',
+      list: [
+        { ico: 'fx', bg: '#eaf3fd', name: '美元 / 人民币', desc: '现汇卖出价 7.1820', act: "BANK.tip('美元：现汇卖出价 7.1820')", right: '结汇 ›' },
+        { ico: 'fx', bg: '#eef9ef', name: '日元 / 人民币', desc: '现汇卖出价 0.0486', act: "BANK.tip('日元：现汇卖出价 0.0486')", right: '结汇 ›' },
+        { ico: 'fx', bg: '#fff6e6', name: '欧元 / 人民币', desc: '现汇卖出价 7.7640', act: "BANK.tip('欧元：现汇卖出价 7.7640')", right: '结汇 ›' }
+      ],
+      tiles: [
+        { ico: 'fx', bg: '#eaf3fd', name: '结售汇', act: "BANK.open('fx')" },
+        { ico: 'list', bg: '#eef9ef', name: '我的外币', act: "BANK.open('myfx')" },
+        { ico: 'chart', bg: '#fdeff7', name: '利率看板', act: "BANK.open('rateboard')" },
+        { ico: 'gold', bg: '#fff6e6', name: '黄金积存', act: "BANK.open('gold')" }
+      ]
+    },
+    rateboard: {
+      t: '利率看板', note: '存款 / 贷款 / 理财基准利率一览（演示）',
+      list: [
+        { ico: 'bank', bg: '#eef9ef', name: '一年期定期存款', desc: '1.45%', act: "BANK.open('deposit')", right: '去存 ›' },
+        { ico: 'bank', bg: '#eaf3fd', name: '三年期定期存款', desc: '2.35%', act: "BANK.open('deposit')", right: '去存 ›' },
+        { ico: 'house', bg: '#f0ecfd', name: '首套房贷（LPR）', desc: '3.35%', act: "BANK.open('loancalc')", right: '试算 ›' },
+        { ico: 'chart', bg: '#fdeff7', name: '七日年化（货币基金）', desc: '1.86%', act: "BANK.open('fund')", right: '申购 ›' }
+      ],
+      tiles: [
+        { ico: 'list', bg: '#eef9ef', name: '存款计算器', act: "BANK.open('depcalc')" },
+        { ico: 'list', bg: '#eaf3fd', name: '贷款计算器', act: "BANK.open('loancalc')" },
+        { ico: 'fx', bg: '#fff6e6', name: '汇率行情', act: "BANK.open('fxboard')" },
+        { ico: 'chart', bg: '#fdeff7', name: '收益曲线', act: "BANK.open('yieldcurve')" }
+      ]
+    },
+    /* ─── 生活服务 ─── */
+    cityserv: {
+      t: '城市服务', note: '在上海 · 可切换城市（演示）',
+      list: [
+        { ico: 'health', bg: '#eef9ef', name: '医保服务', desc: '余额 / 消费 / 参保', act: "BANK.open('socialsec')" },
+        { ico: 'house', bg: '#eaf3fd', name: '公积金', desc: '余额 / 提取 / 贷款', act: "BANK.open('housingfund')" },
+        { ico: 'car', bg: '#fdecec', name: '交通罚款', desc: '查询与缴纳', act: "BANK.open('trafficfine')" },
+        { ico: 'receipt', bg: '#fff6e6', name: '生活缴费', desc: '水 / 电 / 燃气 / 宽带', act: "BANK.open('paybill')" }
+      ],
+      tiles: [
+        { ico: 'water', bg: '#eaf3fd', name: '水费', act: "BANK.open('paybill','水费')" },
+        { ico: 'bolt', bg: '#fff6e6', name: '电费', act: "BANK.open('paybill','电费')" },
+        { ico: 'flame', bg: '#fdecec', name: '燃气费', act: "BANK.open('paybill','燃气费')" },
+        { ico: 'wifi', bg: '#f0ecfd', name: '宽带', act: "BANK.open('paybill','宽带')" },
+        { ico: 'tel', bg: '#eef9ef', name: '话费', act: "BANK.open('recharge')" },
+        { ico: 'tv', bg: '#fdeff7', name: '有线电视', act: "BANK.open('paybill','有线电视')" }
+      ]
+    },
+    socialsec: {
+      t: '社保服务', note: '社保卡号 ****6688 · 参保状态：正常',
+      list: [
+        { ico: 'health', bg: '#eef9ef', name: '医保个人账户', desc: '余额 ￥3,268.40', act: "BANK.tip('医保个人账户余额：￥3,268.40')" },
+        { ico: 'medal', bg: '#eaf3fd', name: '养老保险', desc: '累计缴费 62 个月', act: "BANK.tip('养老保险：累计缴费 62 个月')" },
+        { ico: 'list', bg: '#fff6e6', name: '缴费明细', desc: '近 12 期记录', act: "BANK.open('social')" }
+      ],
+      tiles: [
+        { ico: 'house', bg: '#eaf3fd', name: '公积金', act: "BANK.open('housingfund')" },
+        { ico: 'health', bg: '#eef9ef', name: '预约挂号', act: "BANK.open('medical')" },
+        { ico: 'receipt', bg: '#fff6e6', name: '生活缴费', act: "BANK.open('paybill')" },
+        { ico: 'car', bg: '#fdecec', name: '交通罚款', act: "BANK.open('trafficfine')" }
+      ]
+    },
+    housingfund: {
+      t: '公积金服务', note: '账户 ****2211 · 月缴存 ￥2,400',
+      list: [
+        { ico: 'house', bg: '#eef4ff', name: '账户余额', desc: '￥86,420.00', act: "BANK.tip('公积金余额：￥86,420.00')" },
+        { ico: 'list', bg: '#eef9ef', name: '提取记录', desc: '租房提取 · 09-10 ￥1,500', act: "BANK.tip('提取记录：租房提取 ￥1,500')" },
+        { ico: 'house', bg: '#eaf3fd', name: '公积金贷款', desc: '额度试算 · 利率 2.85%', act: "BANK.open('loancalc')" }
+      ],
+      tiles: [
+        { ico: 'house', bg: '#eef4ff', name: '申请提取', act: "BANK.tip('提取申请：已提交（演示）')" },
+        { ico: 'health', bg: '#eef9ef', name: '社保服务', act: "BANK.open('socialsec')" },
+        { ico: 'receipt', bg: '#fff6e6', name: '生活缴费', act: "BANK.open('paybill')" },
+        { ico: 'headset', bg: '#eaf3fd', name: '咨询客服', act: "BANK.open('chat')" }
+      ]
+    },
+    trafficfine: {
+      t: '交通罚款', note: '未处理 1 条（演示数据）',
+      list: [
+        { ico: 'car', bg: '#fdecec', name: '违法停车 · 沪 A***88', desc: '09-18 · ￥200 · 待处理', act: "BANK.tip('交通罚款：已缴纳 ￥200（演示）')", right: '去缴纳 ›' },
+        { ico: 'list', bg: '#eef9ef', name: '历史记录', desc: '近 1 年 0 条', act: "BANK.tip('历史记录：近 1 年 0 条')" }
+      ],
+      tiles: [
+        { ico: 'car', bg: '#e9f7f5', name: '我的车辆', act: "BANK.tip('我的车辆：沪 A***88（演示）')" },
+        { ico: 'receipt', bg: '#fff6e6', name: '生活缴费', act: "BANK.open('paybill')" },
+        { ico: 'health', bg: '#eef9ef', name: '城市服务', act: "BANK.open('cityserv')" },
+        { ico: 'list', bg: '#eaf3fd', name: '常见问题', act: "BANK.open('faq')" }
+      ]
+    },
+    /* ─── 权益与活动 ─── */
+    coupon: {
+      t: '我的优惠券', note: '共 6 张可用 · 其中 2 张 3 天后到期',
+      list: [
+        { ico: 'gift', bg: '#fdeff7', name: '谷谷屋 满 200 减 30', desc: '有效期至 10-31', act: "BANK.tip('优惠券已使用（演示）')" },
+        { ico: 'gift', bg: '#fff6e6', name: '观影券 · 买一赠一', desc: '有效期至 10-03', act: "BANK.tip('优惠券已使用（演示）')" },
+        { ico: 'gift', bg: '#eaf3fd', name: '打车立减 ￥8', desc: '有效期至 10-08', act: "BANK.tip('优惠券已使用（演示）')" }
+      ],
+      tiles: [
+        { ico: 'sparkle', bg: '#fdeff7', name: '领券中心', act: "BANK.open('rechargepromo')" },
+        { ico: 'medal', bg: '#fff6e6', name: '积分 i豆', act: "BANK.open('points')" },
+        { ico: 'gift', bg: '#eaf3fd', name: '谷子商城', act: "BANK.open('estore')" },
+        { ico: 'film', bg: '#f0ecfd', name: '电影演出', act: "BANK.open('movie')" }
+      ]
+    },
+    lottery: {
+      t: '幸运抽奖', note: '每天 1 次免费机会 · 100% 中奖',
+      list: [
+        { ico: 'sparkle', bg: '#fdeff7', name: '今日免费抽奖', desc: '剩余 1 次', act: "BANK.tip('抽奖结果：5 谷粒（演示）')" },
+        { ico: 'medal', bg: '#fff6e6', name: '我的抽奖记录', desc: '近 7 天中奖 5 次', act: "BANK.tip('抽奖记录：近 7 天中奖 5 次')" }
+      ],
+      tiles: [
+        { ico: 'medal', bg: '#fff6e6', name: '积分 i豆', act: "BANK.open('points')" },
+        { ico: 'gift', bg: '#fdeff7', name: '我的优惠券', act: "BANK.open('coupon')" },
+        { ico: 'sparkle', bg: '#f0ecfd', name: '任务中心', act: "BANK.open('task')" },
+        { ico: 'gift', bg: '#eaf3fd', name: '谷子商城', act: "BANK.open('estore')" }
+      ]
+    },
+    task: {
+      t: '任务中心', note: '完成每日任务攒谷粒，可换卡面与周边。',
+      list: [
+        { ico: 'sparkle', bg: '#fdeff7', name: '每日签到', desc: '连续 6 天 · +10 谷粒', act: "BANK.tip('签到成功：+10 谷粒（演示）')", right: '去签到 ›' },
+        { ico: 'film', bg: '#eaf3fd', name: '看一节安全课', desc: '+50 谷粒', act: "BANK.open('safecourse')" },
+        { ico: 'chart', bg: '#fff6e6', name: '完成风险测评', desc: '+30 谷粒', act: "BANK.open('riskquiz')" },
+        { ico: 'transfer', bg: '#fdecec', name: '体验一次转账', desc: '+20 谷粒', act: "BANK.open('transfer')" }
+      ],
+      tiles: [
+        { ico: 'medal', bg: '#fff6e6', name: '积分明细', act: "BANK.open('points')" },
+        { ico: 'gift', bg: '#fdeff7', name: '兑换商城', act: "BANK.open('estore')" },
+        { ico: 'sparkle', bg: '#f0ecfd', name: '幸运抽奖', act: "BANK.open('lottery')" },
+        { ico: 'guka', bg: '#eaf3fd', name: '卡面商城', act: "BANK.open('cardface')" }
+      ]
+    },
+    /* ─── 服务与设置 ─── */
+    chat: {
+      t: '在线客服', note: '智能客服 7×24 小时在线，人工客服 9:00 - 21:00',
+      list: [
+        { ico: 'robot', bg: '#eaf3fd', name: '转账没到账怎么办？', desc: '常见问题 · 1 步解决', act: "BANK.tip('客服回复：普通转账 2 小时内到账，超时可发起查询。')" },
+        { ico: 'robot', bg: '#eef9ef', name: '怎么关闭小额免密？', desc: '常见问题', act: "BANK.open('swcenter')" },
+        { ico: 'robot', bg: '#fdeff7', name: '谷卡分期怎么算？', desc: '常见问题', act: "BANK.open('installment')" },
+        { ico: 'headset', bg: '#fff6e6', name: '转人工客服', desc: '当前排队 3 人', act: "BANK.tip('已转人工：前方 3 人（演示）')" }
+      ],
+      tiles: [
+        { ico: 'list', bg: '#eef9ef', name: '常见问题', act: "BANK.open('faq')" },
+        { ico: 'headset', bg: '#eaf3fd', name: '帮助中心', act: "BANK.open('help')" },
+        { ico: 'mail', bg: '#f0ecfd', name: '意见反馈', act: "BANK.open('feedback')" },
+        { ico: 'building', bg: '#eef4ff', name: '网点预约', act: "BANK.open('branchappt')" }
+      ]
+    },
+    feedback: {
+      t: '意见反馈', note: '你的建议会直接送到产品经理手上（演示）',
+      list: [
+        { ico: 'mail', bg: '#eaf3fd', name: '功能建议', desc: '希望增加…', act: "BANK.tip('已收到反馈，感谢主人（演示）')" },
+        { ico: 'flame', bg: '#fdecec', name: '问题反馈', desc: '遇到的问题…', act: "BANK.tip('已收到反馈，感谢主人（演示）')" },
+        { ico: 'shield', bg: '#e9f7f5', name: '安全举报', desc: '可疑交易 / 诈骗线索', act: "BANK.tip('已收到举报，我们会尽快核查（演示）')" }
+      ],
+      tiles: [
+        { ico: 'list', bg: '#eef9ef', name: '我的反馈', desc: '', act: "BANK.tip('我的反馈：共 2 条（演示）')" },
+        { ico: 'headset', bg: '#eaf3fd', name: '在线客服', act: "BANK.open('chat')" },
+        { ico: 'list', bg: '#fff6e6', name: '常见问题', act: "BANK.open('faq')" },
+        { ico: 'gear', bg: '#f0f0f2', name: '设置', act: "BANK.open('settings')" }
+      ]
+    },
+    branchappt: {
+      t: '网点预约', note: '提前预约免排队，到店直接办。',
+      list: [
+        { ico: 'building', bg: '#eef4ff', name: '上海黄浦支行', desc: '明天 10:00 - 10:30 · 综合业务', act: "BANK.tip('预约成功：上海黄浦支行 明天 10:00（演示）')", right: '预约 ›' },
+        { ico: 'building', bg: '#eaf3fd', name: '上海静安支行', desc: '今天 15:30 - 16:00 · 开卡业务', act: "BANK.tip('预约成功：上海静安支行 今天 15:30（演示）')", right: '预约 ›' },
+        { ico: 'building', bg: '#eef9ef', name: '上海浦东支行', desc: '后天 09:30 - 10:00 · 对公业务', act: "BANK.tip('预约成功：上海浦东支行 后天 09:30（演示）')", right: '预约 ›' }
+      ],
+      tiles: [
+        { ico: 'list', bg: '#eef9ef', name: '我的预约', act: "BANK.tip('我的预约：1 条（演示）')" },
+        { ico: 'building', bg: '#eef4ff', name: '排队取号', act: "BANK.open('queue')" },
+        { ico: 'list', bg: '#eaf3fd', name: '网点列表', act: "BANK.open('branch')" },
+        { ico: 'headset', bg: '#f0ecfd', name: '在线客服', act: "BANK.open('chat')" }
+      ]
+    },
+    queue: {
+      t: '排队取号', note: '取号后凭号码到网点办理，过号作废需重取。',
+      list: [
+        { ico: 'list', bg: '#eef9ef', name: '综合业务 · A 号', desc: '前方 5 位 · 预计 12 分钟', act: "BANK.tip('已取号：A032 · 前方 5 位')" },
+        { ico: 'list', bg: '#eaf3fd', name: '开卡业务 · B 号', desc: '前方 3 位 · 预计 8 分钟', act: "BANK.tip('已取号：B018 · 前方 3 位')" },
+        { ico: 'list', bg: '#fff6e6', name: '对公业务 · C 号', desc: '前方 1 位 · 预计 3 分钟', act: "BANK.tip('已取号：C007 · 前方 1 位')" }
+      ],
+      tiles: [
+        { ico: 'building', bg: '#eef4ff', name: '我的号码', act: "BANK.tip('我的号码：A032 · 前方 5 位（演示）')" },
+        { ico: 'building', bg: '#e9f7f5', name: '网点预约', act: "BANK.open('branchappt')" },
+        { ico: 'list', bg: '#eaf3fd', name: '网点列表', act: "BANK.open('branch')" },
+        { ico: 'headset', bg: '#f0ecfd', name: '在线客服', act: "BANK.open('chat')" }
+      ]
+    },
+    creditreport: {
+      t: '个人征信报告', note: '演示环境：不连接真实征信系统。',
+      list: [
+        { ico: 'list', bg: '#eef9ef', name: '信用评分', desc: '762 分 · 优秀', act: "BANK.tip('信用评分：762 分（优秀）')" },
+        { ico: 'list', bg: '#eaf3fd', name: '信贷记录', desc: '2 笔 · 均正常还款', act: "BANK.open('myloans')" },
+        { ico: 'list', bg: '#fff6e6', name: '查询记录', desc: '近 6 个月 1 次', act: "BANK.tip('查询记录：近 6 个月 1 次')" }
+      ],
+      tiles: [
+        { ico: 'credit', bg: '#f0ecfd', name: '信用卡申请', act: "BANK.open('creditapply')" },
+        { ico: 'house', bg: '#eef4ff', name: '贷款申请', act: "BANK.open('loan')" },
+        { ico: 'chart', bg: '#fdeff7', name: '利率看板', act: "BANK.open('rateboard')" },
+        { ico: 'headset', bg: '#eaf3fd', name: '征信有疑问', act: "BANK.open('chat')" }
+      ]
+    },
+    invoice: {
+      t: '发票管理', note: '可开具近 90 天交易的电子发票。',
+      list: [
+        { ico: 'receipt', bg: '#eef9ef', name: '开票抬头', desc: '个人 / 上海某某科技', act: "BANK.tip('开票抬头：已保存（演示）')" },
+        { ico: 'receipt', bg: '#eaf3fd', name: '可开票金额', desc: '￥12,860.00', act: "BANK.tip('可开票金额：￥12,860.00')" },
+        { ico: 'mail', bg: '#f0ecfd', name: '接收邮箱', desc: 'c***@qq.com', act: "BANK.tip('接收邮箱：c***@qq.com')" }
+      ],
+      tiles: [
+        { ico: 'receipt', bg: '#eef9ef', name: '开具发票', act: "BANK.tip('电子发票已开具并发送（演示）')" },
+        { ico: 'list', bg: '#eaf3fd', name: '开票记录', act: "BANK.open('txnreceipt')" },
+        { ico: 'list', bg: '#fff6e6', name: '全部流水', act: "BANK.open('statement')" },
+        { ico: 'gear', bg: '#f0f0f2', name: '开票设置', act: "BANK.open('settings')" }
+      ]
+    },
+    version: {
+      t: '版本信息', note: '工商银行手机银行（演示版）',
+      list: [
+        { ico: 'list', bg: '#eef9ef', name: '当前版本', desc: 'v7.2.0 演示版', act: "BANK.tip('已是最新版本')" },
+        { ico: 'list', bg: '#eaf3fd', name: '更新内容', desc: '新增 e次元 谷子社区', act: "BANK.tip('更新内容：新增 e次元 谷子社区（演示）')" },
+        { ico: 'list', bg: '#fff6e6', name: '插画版权', desc: '全部插画为原创绘制', act: "BANK.tip('全部插画为原创绘制（演示）')" }
+      ],
+      tiles: [
+        { ico: 'shield', bg: '#e9f7f5', name: '隐私政策', act: "BANK.open('privacy')" },
+        { ico: 'list', bg: '#eef9ef', name: '用户协议', act: "BANK.open('agreement')" },
+        { ico: 'building', bg: '#eef4ff', name: '关于工行', act: "BANK.open('aboutbank')" },
+        { ico: 'mail', bg: '#f0ecfd', name: '意见反馈', act: "BANK.open('feedback')" }
+      ]
+    },
+    privacy: {
+      t: '隐私政策', note: '演示环境：本站不采集任何真实个人信息。',
+      list: [
+        { ico: 'shield', bg: '#e9f7f5', name: '我们收集什么', desc: '仅演示数据，存于浏览器本地', act: "BANK.tip('本演示仅在浏览器本地保存演示数据，不上传服务器。')" },
+        { ico: 'shield', bg: '#eaf3fd', name: '数据存放位置', desc: 'localStorage · 可一键清除', act: "BANK.tip('数据存放：localStorage（演示）')" },
+        { ico: 'shield', bg: '#f0ecfd', name: '第三方共享', desc: '不共享', act: "BANK.tip('第三方共享：无')" }
+      ],
+      tiles: [
+        { ico: 'list', bg: '#eef9ef', name: '用户协议', act: "BANK.open('agreement')" },
+        { ico: 'list', bg: '#fff6e6', name: '版本信息', act: "BANK.open('version')" },
+        { ico: 'gear', bg: '#f0f0f2', name: '设置', act: "BANK.open('settings')" },
+        { ico: 'building', bg: '#eef4ff', name: '关于工行', act: "BANK.open('aboutbank')" }
+      ]
+    },
+    agreement: {
+      t: '用户协议', note: '演示环境：以下条款仅用于界面演示。',
+      list: [
+        { ico: 'list', bg: '#eef9ef', name: '服务说明', desc: '本站为比赛演示作品', act: "BANK.tip('服务说明：本站为「工行杯」比赛演示作品，不提供真实金融服务。')" },
+        { ico: 'list', bg: '#eaf3fd', name: '免责声明', desc: '所有数据均为模拟', act: "BANK.tip('免责声明：所有交易与数据均为模拟，不产生真实资金往来。')" },
+        { ico: 'list', bg: '#fff6e6', name: '知识产权', desc: '插画与代码均为原创', act: "BANK.tip('知识产权：插画与代码均为原创（演示）')" }
+      ],
+      tiles: [
+        { ico: 'shield', bg: '#e9f7f5', name: '隐私政策', act: "BANK.open('privacy')" },
+        { ico: 'list', bg: '#eef9ef', name: '版本信息', act: "BANK.open('version')" },
+        { ico: 'building', bg: '#eef4ff', name: '关于工行', act: "BANK.open('aboutbank')" },
+        { ico: 'headset', bg: '#eaf3fd', name: '帮助中心', act: "BANK.open('help')" }
+      ]
+    },
+    esim: {
+      t: '电子账户', note: '在线开立的 III 类账户，可用于小额收付。',
+      list: [
+        { ico: 'cube', bg: '#eaf3fd', name: '电子账户余额', desc: '￥2,860.00', act: "BANK.tip('电子账户余额：￥2,860.00')" },
+        { ico: 'list', bg: '#eef9ef', name: '限额说明', desc: '单笔 ￥2,000 · 日累计 ￥5,000', act: "BANK.open('limits')" },
+        { ico: 'list', bg: '#fff6e6', name: '绑定关系', desc: '绑定薪金卡 ****8888', act: "BANK.open('mycards')" }
+      ],
+      tiles: [
+        { ico: 'credit', bg: '#eaf3fd', name: '我的银行卡', act: "BANK.open('mycards')" },
+        { ico: 'list', bg: '#eef9ef', name: '账户详情', act: "BANK.open('acctdetail')" },
+        { ico: 'pay', bg: '#fff6e6', name: '付款码', act: "BANK.open('paycode')" },
+        { ico: 'vault', bg: '#f0ecfd', name: '安全开关', act: "BANK.open('swcenter')" }
+      ]
+    },
+    /* ─── 流程结果页（原先调用未定义函数的三个按钮，现在落到真实页面） ─── */
+    filterresult: {
+      t: '筛选结果', note: '按你选择的条件筛出来的交易（演示数据）',
+      list: [
+        { ico: 'list', bg: '#eef9ef', name: '谷谷屋（吧唧 x3）', desc: '09-26 19:44 · 消费', act: "BANK.open('txndetail')", right: '-286.00' },
+        { ico: 'bear', bg: '#fdeff7', name: '星熠立牌 · 预售尾款', desc: '09-22 12:08 · 消费', act: "BANK.open('txndetail')", right: '-468.00' },
+        { ico: 'receipt', bg: '#fff6e6', name: '水费代扣', desc: '09-25 08:00 · 缴费', act: "BANK.open('txndetail')", right: '-86.00' },
+        { ico: 'salary', bg: '#e9f7f5', name: '工资代发', desc: '09-26 10:02 · 收入', act: "BANK.open('txndetail')", right: '+12,600.00' }
+      ],
+      tiles: [
+        { ico: 'list', bg: '#eef9ef', name: '换筛选条件', act: "BANK.open('txnfilter')" },
+        { ico: 'chart', bg: '#fdeff7', name: '支出分析', act: "BANK.open('spendana')" },
+        { ico: 'receipt', bg: '#eaf3fd', name: '导出流水', act: "BANK.open('statement')" },
+        { ico: 'list', bg: '#fff6e6', name: '全部明细', act: "BANK.open('cardtxn')" }
+      ]
+    },
+    pwdresult: {
+      t: '密码修改成功', note: '新密码已生效，下次登录请使用新密码（演示）。',
+      list: [
+        { ico: 'gear', bg: '#eef9ef', name: '修改时间', desc: '刚刚', act: "BANK.open('loginrec')" },
+        { ico: 'watch', bg: '#eaf3fd', name: '登录设备', desc: '3 台 · 可随时下线', act: "BANK.open('devmgr')" },
+        { ico: 'vault', bg: '#f0ecfd', name: '安全开关状态', desc: '境外锁已开 · 夜间锁已开', act: "BANK.open('swcenter')" }
+      ],
+      tiles: [
+        { ico: 'vault', bg: '#f0ecfd', name: '安全中心', act: "BANK.open('security')" },
+        { ico: 'watch', bg: '#eaf3fd', name: '设备管理', act: "BANK.open('devmgr')" },
+        { ico: 'list', bg: '#eef9ef', name: '登录记录', act: "BANK.open('loginrec')" },
+        { ico: 'headset', bg: '#fff6e6', name: '遇到问题', act: "BANK.open('chat')" }
+      ]
+    },
+    loanresult: {
+      t: '贷款申请已提交', note: '演示环境：不会产生真实授信，审批结果仅作展示。',
+      list: [
+        { ico: 'house', bg: '#eef4ff', name: '申请编号', desc: 'LN202609300001', act: "BANK.open('creditprogress')" },
+        { ico: 'list', bg: '#eef9ef', name: '预计审批时间', desc: '1 个工作日', act: "BANK.tip('预计审批时间：1 个工作日')" },
+        { ico: 'receipt', bg: '#fff6e6', name: '还款方式', desc: '等额本息 · 24 期', act: "BANK.open('repayplan')" }
+      ],
+      tiles: [
+        { ico: 'list', bg: '#eef9ef', name: '审批进度', act: "BANK.open('creditprogress')" },
+        { ico: 'list', bg: '#eaf3fd', name: '我的贷款', act: "BANK.open('myloans')" },
+        { ico: 'chart', bg: '#fdeff7', name: '还款计划', act: "BANK.open('repayplan')" },
+        { ico: 'list', bg: '#f0ecfd', name: '额度试算', act: "BANK.open('loancalc')" },
+        { ico: 'list', bg: '#fff6e6', name: '征信报告', act: "BANK.open('creditreport')" },
+        { ico: 'headset', bg: '#eaf3fd', name: '咨询客服', act: "BANK.open('chat')" }
+      ]
+    }
+  };
+
+  Object.keys(NEWPAGES).forEach(k => {
+    const p = NEWPAGES[k];
+    BANK.def(k, {
+      title: typeof p.t === 'function' ? p.t : (p.t || k),
+      render: typeof p.render === 'function' ? p.render : (() => pageHTML(p))
+    });
+  });
+
+  /* ── 补上两个「声明了但没实现」的页（原先点击会提示"即将上线"就退回） ── */
+  BANK.def('wealthbuy', {
+    title: p => '购买 · ' + (p || '随心盈 90 天'),
+    render: p => `
+      <div class="bz-warn">演示环境：不会真实扣款，确认后仅作展示。</div>
+      ${card(kv('产品名称', p || '随心盈 · 90 天') + kv('业绩比较基准', '2.85%') +
+        kv('风险等级', '稳健型 R2') + kv('起购金额', '￥1.00'))}
+      ${card('<div class="bz-form"><label>购买金额</label><div class="amount-input"><span>￥</span><input type="number" id="wbAmt" placeholder="0.00" value="1000.00"></div></div>')}
+      ${tiles([
+        { ico: 'list', bg: '#eef9ef', name: '扣款账户', act: "BANK.open('mycards')" },
+        { ico: 'chart', bg: '#fdeff7', name: '收益曲线', act: "BANK.open('yieldcurve')" },
+        { ico: 'medal', bg: '#fff6e6', name: '风险测评', act: "BANK.open('riskquiz')" },
+        { ico: 'chart', bg: '#eaf3fd', name: '我的持仓', act: "BANK.open('holdings')" }
+      ])}
+      <button class="bz-main" onclick="BANK.wbDo('随心盈 · 90 天')">确认购买</button>
+      <button class="bz-plain" onclick="BANK.back()">再看看</button>`
+  });
+  BANK.def('repayok', {
+    title: '还款结果',
+    render: () => `
+      <div class="bz-done"><span class="bz-done-ico">${ico('pay')}</span>
+        <b>还款成功</b><span>本期账单已结清（演示）</span></div>
+      ${card(kv('还款金额', '￥3,286.40') + kv('还款账户', '薪金卡 ****8888') +
+        kv('到账时间', nowStr()) + kv('状态', '已结清', 'up'))}
+      ${tiles([
+        { ico: 'receipt', bg: '#eef9ef', name: '看新账单', act: "BANK.open('billdetail')" },
+        { ico: 'chart', bg: '#fdeff7', name: '账单分析', act: "BANK.open('spendana')" },
+        { ico: 'gear', bg: '#f0f0f2', name: '自动还款', act: "BANK.open('autorepay')" },
+        { ico: 'credit', bg: '#eaf3fd', name: '我的卡片', act: "BANK.open('mycards')" },
+        { ico: 'receipt', bg: '#fff6e6', name: '开回单', act: "BANK.open('txnreceipt')" },
+        { ico: 'chart', bg: '#f0ecfd', name: '我的持仓', act: "BANK.open('holdings')" }
+      ])}`
+  });
+
+  /* ══════ ① BANK.tip → 「操作结果」真实页面 ══════ */
+  const SWSTATE = {};                                  // 开关型提示的状态
+  const TIPRULES = [
+    { k: ['券', '优惠', '领取'], emo: '🎫', tag: '权益已入袋', color: '#fff6e6',
+      note: '已放进你的卡包，可在「我的优惠券」查看使用范围与有效期。',
+      next: ['coupon', 'points', 'estore', 'food', 'movie', 'taxi'] },
+    { k: ['取号', '排队'], emo: '🎟️', tag: '取号成功', color: '#eaf3fd',
+      note: '凭号码到对应窗口办理即可，过号作废需要重新取号。',
+      next: ['queue', 'branchappt', 'branch', 'acctdetail', 'faq', 'chat'] },
+    { k: ['回单', '证明', '凭证', '发票'], emo: '🧾', tag: '凭证已生成', color: '#eef9ef',
+      note: '电子凭证与纸质凭证具有同等效力，可下载 PDF 或发送到邮箱。',
+      next: ['txnreceipt', 'statement', 'ebill', 'invoice', 'mail', 'cardtxn'] },
+    { k: ['挂失', '冻结', '锁定', '锁卡'], emo: '🔒', tag: '安全操作已生效', color: '#fdecec',
+      note: '安全类操作即时生效，可随时在安全中心自助恢复。',
+      next: ['cardloss', 'swcenter', 'accfreeze', 'locklog', 'devmgr', 'security'] },
+    { k: ['申请', '提交', '审核', '已受理'], emo: '📮', tag: '申请已提交', color: '#f0ecfd',
+      note: '审核结果会通过短信与站内消息通知你，一般 1 个工作日内出结果。',
+      next: ['creditprogress', 'myloans', 'holdings', 'statement', 'security', 'chat'] },
+    { k: ['还款', '分期', '代扣', '签约'], emo: '💳', tag: '还款相关操作完成', color: '#eaf3fd',
+      note: '还款会优先冲抵本期应还，分期会从下期开始生效。',
+      next: ['repay', 'installment', 'autorepay', 'billdetail', 'billhist', 'cardtxn'] },
+    { k: ['工资', '薪酬', '下载'], emo: '📥', tag: '文件已生成', color: '#eef9ef',
+      note: '文件已保存到「我的文件」，也可以在电子回单里重新下载。',
+      next: ['payroll', 'txnreceipt', 'statement', 'mail', 'cardtxn', 'social'] },
+    { k: ['物流', '快递', '邮寄'], emo: '📦', tag: '物流信息已更新', color: '#fff6e6',
+      note: '包裹状态变化会实时推送，可在邮寄进度里查看完整轨迹。',
+      next: ['mail', 'estore', 'points', 'coupon', 'chat', 'faq'] },
+    { k: ['课程', '视频', '播放', '课堂'], emo: '🎬', tag: '内容已就绪', color: '#fdeff7',
+      note: '演示环境不播放真实视频，但课程目录与课后答题都是可用的。',
+      next: ['safecourse', 'wealthclass', 'fraudcase', 'task', 'points', 'chat'] },
+    { k: ['测评', '风险', '评估'], emo: '📊', tag: '测评已完成', color: '#f0ecfd',
+      note: '测评结果有效期 2 年，过期后购买理财会要求重新测评。',
+      next: ['riskdetail', 'riskquiz', 'wealthbuy', 'holdings', 'wealthclass', 'fund'] },
+    { k: ['开通', '已开通', '协议', '绑定'], emo: '✅', tag: '开通成功', color: '#eef9ef',
+      note: '服务已开通，可在设置或安全中心随时关闭与调整。',
+      next: ['estore', 'swcenter', 'settings', 'agreement', 'paycode', 'receive'] },
+    { k: ['兑换', '谷粒', '积分'], emo: '🎁', tag: '兑换成功', color: '#fdeff7',
+      note: '谷粒已扣除，实物兑换可在「邮寄进度」里查看发货状态。',
+      next: ['points', 'estore', 'cardface', 'task', 'lottery', 'mail'] },
+    { k: ['预约', '就诊', '体检'], emo: '📅', tag: '预约已提交', color: '#eef4ff',
+      note: '预约成功后会收到短信提醒，可在网点预约里改期或取消。',
+      next: ['medical', 'branchappt', 'queue', 'socialsec', 'chat', 'faq'] },
+    { k: ['缴费', '充值', '缴纳', '购票', '预订', '抢到'], emo: '✅', tag: '交易成功', color: '#eef9ef',
+      note: '交易已受理并计入账单，可在明细里看到这笔支出。',
+      next: ['cardtxn', 'billhist', 'statement', 'paybill', 'recharge', 'txnreceipt'] },
+    { k: ['客服', '人工', '反馈', '举报'], emo: '🎧', tag: '已受理', color: '#eaf3fd',
+      note: '我们把你的诉求记下来了，会尽快给你回复（演示环境）。',
+      next: ['chat', 'feedback', 'faq', 'help', 'security', 'branchappt'] },
+    { k: ['已下线', '设备', '登录'], emo: '🛡️', tag: '安全操作已完成', color: '#e9f7f5',
+      note: '被下线设备需要重新验证身份才能登录，如非本人操作请尽快改密码。',
+      next: ['devmgr', 'loginrec', 'chpwd', 'swcenter', 'security', 'chat'] },
+    { k: ['更换', '修改', '设置', '调整', '已切换', '已开启', '已关闭'], emo: '⚙️', tag: '设置已更新', color: '#f0f0f2',
+      note: '设置修改后立即生效，你可以在这里随时改回来。',
+      next: ['settings', 'swcenter', 'cardlock', 'smallpay', 'limits', 'security'] },
+    { k: ['余额', '查询', '状态', '类型', '评分', '金价', '价', '记录'], emo: '📋', tag: '查询结果', color: '#eaf3fd',
+      note: '以上为演示数据，真实数据请以手机银行实时查询为准。',
+      next: ['acctdetail', 'cardtxn', 'holdings', 'rateboard', 'fxboard', 'statement'] }
+  ];
+  function tipRule(msg) {
+    for (const r of TIPRULES) { for (const k of r.k) { if (msg.indexOf(k) >= 0) return r; } }
+    return { emo: '✨', tag: '演示操作已完成', color: '#eef4ff',
+      note: '演示环境：该操作已模拟执行完毕，你可以继续往下体验相关功能。',
+      next: ['allfunc', 'mycards', 'cardtxn', 'security', 'help', 'points'] };
+  }
+  BANK.def('tipresult', {
+    title: () => '操作结果',
+    render: p => {
+      const msg = String(p || '演示操作已完成');
+      const r = tipRule(msg);
+      const isSwitch = /：已(切换|开启|关闭)/.test(msg);
+      const label = msg.split('：')[0];
+      if (isSwitch && SWSTATE[label] === undefined) SWSTATE[label] = /已开启|已切换/.test(msg);
+      const on = isSwitch ? SWSTATE[label] : true;
+      return `
+        <div class="bz-done" style="background:${r.color}">
+          <span class="bz-done-ico">${r.emo}</span>
+          <b>${msg}</b>
+          <span>${r.note}</span>
+        </div>
+        ${card(
+          kv('操作时间', nowStr()) +
+          kv('流水号', 'ICBC' + Date.now().toString().slice(-10)) +
+          kv('状态', '成功（演示）', 'up')
+        )}
+        ${isSwitch ? `<div class="bz-warn">当前「${label}」状态：<b>${on ? '已开启' : '已关闭'}</b></div>
+          <button class="bz-main" onclick="BANK.swToggle('${label.replace(/'/g, '')}')">${on ? '关闭' : '开启'}该开关</button>` : ''}
+        ${nav('接下来可以')}
+        ${card(r.next.map(k => row({
+          ico: (ICONOF[k] || 'more'), bg: '#f2f4f8',
+          name: labelOf(k), desc: DESCOF[k] || '点击进入该功能',
+          act: "BANK.open('" + k + "')"
+        })).join(''))}`;
+    }
+  });
+  /* ══════ 「全部功能」改为自动生成的全站索引（保证每一页都可达） ══════ */
+  const CATMETA = {
+    acct: ['账户总览', '💳'], card: ['卡片管理', '🏦'], txn: ['交易与账单', '🧾'],
+    safe: ['安全与防护', '🛡️'], wealth: ['财富与投资', '📈'], loan: ['贷款与信用卡', '🏠'],
+    pay: ['转账与支付', '💸'], life: ['生活服务', '🏙️'], camp: ['权益与活动', '🎁'],
+    setting: ['服务与设置', '⚙️'], misc: ['其它服务', '✨']
+  };
+  const CATORDER = ['acct', 'card', 'txn', 'pay', 'wealth', 'loan', 'life', 'camp', 'safe', 'setting', 'misc'];
+  BANK.def('allfunc', {
+    title: '全部功能',
+    render: () => {
+      const groups = {};
+      Object.keys(BIZ).forEach(k => { if (k === 'allfunc') return; (groups[CATOF[k] || 'misc'] = groups[CATOF[k] || 'misc'] || []).push(k); });
+      let html = `<div class="bz-warn">演示环境：以下 ${Object.keys(BIZ).length - 1} 项全部为模拟业务，点进去都还能继续往下挖。</div>`;
+      CATORDER.forEach(c => {
+        const ks = groups[c];
+        if (!ks || !ks.length) return;
+        const m = CATMETA[c] || ['其它服务', '✨'];
+        html += nav(m[1] + ' ' + m[0], ks.length + ' 项');
+        html += tiles(ks.map(k => ({ ico: ICONOF[k] || 'more', bg: '#f4f6fa', name: labelOf(k), act: "BANK.open('" + k + "')" })));
+      });
+      html += `<button class="bz-plain" onclick="BANK.home()">返回首页</button>`;
+      return html;
+    }
+  });
+
+  Object.assign(BANK, {
+    tip(msg) { this.open('tipresult', msg); return this; },
+    wbDo(name) {
+      const amt = +(($('#wbAmt') || {}).value || 1000);
+      const D = window.ICBCApp && ICBCApp.data;
+      if (D && amt > D.account.available) { toast('可用余额不足（演示）'); return this; }
+      if (D) { D.account.balance -= amt; D.account.available -= amt; if (ICBCApp.setBalance) ICBCApp.setBalance(D.account.balance); }
+      rec({ icon: 'chart', bg: '#fdeff7', title: '理财申购 · ' + name, amt: -amt });
+      toast('已购买 ' + fmt(amt) + ' 元（演示）');
+      this.open('holdings');
+      return this;
+    },
+    filterPick(v) { this.open('filterresult', v || '全部'); return this; },
+    pwdOk() { this.open('pwdresult'); return this; },
+    loanDo() { this.open('loanresult'); return this; },
+    swToggle(label) {
+      SWSTATE[label] = !SWSTATE[label];
+      toast((SWSTATE[label] ? '已开启：' : '已关闭：') + label);
+      rec({ icon: 'shield', bg: '#e9f7f5', title: '安全开关 · ' + label + (SWSTATE[label] ? ' 开启' : ' 关闭'), amt: 0 });
+      this.reload();
+      return this;
+    },
+    reload() { const t = stack[stack.length - 1]; if (t) render(t.key, t.param); return this; },
+    /* 供外壳浮层用：往指定容器底部注入「继续办理」区块 */
+    mountMore(sel, list) {
+      const box = document.querySelector(sel); if (!box) return this;
+      const items = (list || []).filter(k => BIZ[k]);
+      if (!items.length) return this;
+      const wrap = document.createElement('div');
+      wrap.className = 'bz-morewrap';
+      wrap.innerHTML = nav('继续办理', items.length + ' 项') + card(items.map(k => row({
+        ico: ICONOF[k] || 'more', bg: '#f4f6fa', name: labelOf(k), desc: DESCOF[k] || '点击进入该功能',
+        act: "BANK.open('" + k + "')"
+      })).join(''));
+      box.appendChild(wrap);
+      return this;
+    }
+  });
+
+  /* ══════ ② 全站「继续办理」区块（默认 8 个新入口） ══════ */
+  const LABELCACHE = {};
+  function labelOf(k) {
+    if (LABELCACHE[k]) return LABELCACHE[k];
+    const b = BIZ[k];
+    let t = k;
+    try { t = (typeof b.title === 'function' ? b.title(undefined) : b.title) || k; } catch (e) { t = k; }
+    return (LABELCACHE[k] = String(t));
+  }
+  const DESCOF = {
+    mycards: '卡片、限额、挂失一屏管住', cardtxn: '近 30 天每一笔都在这里', cardmgr: '改密码 / 换卡 / 注销',
+    cardlock: '一键锁卡最快防盗刷', limits: '单笔与日累计额度调整', smallpay: '指纹、刷脸、小额免密',
+    statement: '下载流水与存款证明', txnreceipt: '回单与存款证明自助开具',
+    transfer: '4 步完成一笔转账', scanpay: '扫码付款 / 收款 / 识谷', receive: '生成你的专属收款码',
+    paycode: '一码付，安全又快', paybill: '水电燃气宽带一站缴', recharge: '三网话费秒到账',
+    wealth: '理财超市，1 元起投', wealthbuy: '申购与赎回演示', holdings: '你的每一份持仓',
+    fund: '基金超市与业绩榜', gold: '按克积存，1 克起', insurance: '给生活加一层保障',
+    bond: '国债与稳健债基', deposit: '定期存款产品', cd: '大额存单',
+    loan: '个人消费贷 / 经营贷', creditapply: '在线申请信用卡', creditprogress: '申请进度实时查',
+    security: '账户安全一览', swcenter: '所有交易开关集中管', devmgr: '登录设备随时下线',
+    antifraud: '反诈知识与案例', safecourse: '3 分钟安全课',
+    branch: '找网点、看排队', branchappt: '提前约好，到店直接办', queue: '在家取号，快到再去',
+    help: '自助排障与人工客服', faq: '常见问题速查', chat: '智能客服 7×24',
+    settings: '账号与消息设置', points: '谷粒与积分兑换', estore: '工行自有周边商城',
+    food: '外卖立减 15 元起', movie: '观影演出购票', taxi: '打车立减 8 元', hotel: '会员价住得更便宜',
+    travel: '机票火车票一站订', medical: '在线挂号，不用排长队', social: '社保医保查询',
+    cityserv: '城市服务总入口', housingfund: '公积金查询与提取', trafficfine: '罚款查询与缴纳',
+    coupon: '6 张可用，2 张快到期', lottery: '每天一次免费抽', task: '做任务攒谷粒',
+    payroll: '每月工资条随时下载', mail: '包裹与物流进度', fee: '费用与利率说明',
+    aboutbank: '版本、协议与客服', version: '版本与更新内容', privacy: '只存在本地，不上传',
+    agreement: '看过一眼就放心', creditreport: '信用评分与信贷记录', rateboard: '存贷利率一屏看',
+    fxboard: '外币牌价与走势', allfunc: '全站 100+ 服务入口', acctdetail: '账户基础信息',
+    cardface: '用谷粒换限定卡面', riskdetail: '你的风险承受能力', ebill: '每月账单自动送',
+    budgetedit: '给每类消费设上限', catdetail: '钱花在哪一目了然',
+    filterresult: '按条件筛出来的交易', pwdresult: '改完密码顺手做个安全体检',
+    loanresult: '看看审批进度与还款计划', wealthbuy: '确认购买并查看持仓',
+    repayok: '还款完成，看看新账单',
+    txndetail: '这笔交易的完整信息', txnfilter: '按类型和时间筛一遍',
+    spendana: '钱都花在哪了', budget: '给消费设个上限',
+    locklog: '被拦截的交易都在这', chpwd: '定期改一次更安心', resetpwd: '忘记密码也能重置',
+    reissue: '同号换卡，卡号不变', cancelcard: '不用了就注销', repay: '把本期账单还上',
+    installment: '大额消费分几期', autorepay: '到期自动还，不怕忘',
+    billhist: '历史缴费一目了然', billauto: '签一次，月月自动扣',
+    rechargecustom: '想充多少充多少', rechargehist: '每笔充值都有记录',
+    rechargepromo: '充值前先看看有没有券', yieldcurve: '看看收益怎么走的',
+    riskquiz: '2 分钟测出你的风险偏好', wealthclass: '看懂再买，不踩坑',
+    cd: '利率更高的大额存单', mydeposits: '你名下的定期都在这里',
+    depcalc: '存多久划算，先算算', loanapply: '在线申请，进度可查',
+    loancalc: '月供多少，先算清楚', myloans: '你的贷款与剩余期数',
+    repayplan: '每一期还多少一目了然', creditform: '填个资料就能申请',
+    creditcalc: '看看你能批多少额度', creditprogress: '审核到哪一步了',
+    credithelp: '办卡前先看这几条', myfx: '外币账户余额与明细',
+    devices: '登录过的设备都能管', loginlog: '谁在什么时候登录过',
+    edu: '学费培训费在线缴', socialsec: '社保医保一屏查',
+    accfreeze: '资金只进不出，最稳的一招', billdetail: '本期账单看这里',
+    cardfacepick: '挑一张喜欢的卡面', fraudcase: '真实案例，别踩坑',
+    loginrec: '近 30 天登录流水', fundbuy: '确认申购份额',
+    invoice: '近 90 天交易可开票', esim: '在线开立 III 类户',
+    feedback: '你的建议直接送到产品经理', carddetail: '这张卡的额度与权益',
+    bindcard: '绑一张新卡进来', cardloss: '丢了立刻挂失', fx: '结汇购汇都在这',
+    transfer2: '直接转进这张卡', payees: '常用收款人管理',
+    scanresult: '扫出来的结果在这里', limithelp: '限额怎么调、调多少',
+    losshelp: '挂失前后要注意什么', tipresult: '刚才那步的结果'
+  };
+  const CATOF = {
+    cardtxn: 'txn', txndetail: 'txn', txnfilter: 'txn', spendana: 'txn', budget: 'txn', catdetail: 'txn',
+    billhist: 'txn', billauto: 'txn', statement: 'txn', txnreceipt: 'txn', ebill: 'txn', billdetail: 'txn',
+    invoice: 'txn', mail: 'txn', payroll: 'txn', budgetedit: 'txn', acctdetail: 'acct', esim: 'acct',
+    filterresult: 'txn', pwdresult: 'safe', loanresult: 'loan',
+    wealthbuy: 'wealth', repayok: 'loan',
+    mycards: 'card', carddetail: 'card', bindcard: 'card', cardmgr: 'card', cardlock: 'card',
+    limits: 'card', smallpay: 'card', cardloss: 'card', reissue: 'card', cancelcard: 'card',
+    chpwd: 'card', resetpwd: 'card', locklog: 'card', accfreeze: 'card', cardface: 'card', cardfacepick: 'card',
+    security: 'safe', devices: 'safe', loginlog: 'safe', antifraud: 'safe', swcenter: 'safe',
+    devmgr: 'safe', loginrec: 'safe', safecourse: 'safe', fraudcase: 'safe', riskdetail: 'safe',
+    wealth: 'wealth', wealthbuy: 'wealth', holdings: 'wealth', yieldcurve: 'wealth', riskquiz: 'wealth',
+    wealthclass: 'wealth', fund: 'wealth', fundbuy: 'wealth', gold: 'wealth', insurance: 'wealth',
+    bond: 'wealth', deposit: 'wealth', cd: 'wealth', mydeposits: 'wealth', depcalc: 'wealth',
+    loan: 'loan', loanapply: 'loan', loancalc: 'loan', myloans: 'loan', repayplan: 'loan',
+    creditapply: 'loan', creditform: 'loan', creditcalc: 'loan', creditprogress: 'loan',
+    credithelp: 'loan', repay: 'loan', repayok: 'loan', installment: 'loan', autorepay: 'loan',
+    creditreport: 'loan', rateboard: 'loan', transfer: 'pay', transfer2: 'pay', payees: 'pay',
+    scanpay: 'pay', scanresult: 'pay', receive: 'pay', paycode: 'pay', paybill: 'pay',
+    recharge: 'pay', rechargecustom: 'pay', rechargehist: 'pay', rechargepromo: 'pay', estore: 'pay',
+    food: 'life', movie: 'life', taxi: 'life', hotel: 'life', medical: 'life', travel: 'life',
+    social: 'life', edu: 'life', cityserv: 'life', socialsec: 'life', housingfund: 'life',
+    trafficfine: 'life', fx: 'life', myfx: 'life', fxboard: 'life',
+    settings: 'setting', aboutbank: 'setting', help: 'setting', faq: 'setting', points: 'setting',
+    branch: 'setting', version: 'setting', privacy: 'setting', agreement: 'setting',
+    branchappt: 'setting', queue: 'setting', chat: 'setting', feedback: 'setting',
+    coupon: 'camp', lottery: 'camp', task: 'camp', allfunc: 'misc', tipresult: 'misc',
+    limithelp: 'setting', losshelp: 'setting'
+  };
+  const ICONOF = {
+    mycards: 'credit', cardtxn: 'list', cardmgr: 'gear', cardlock: 'vault', limits: 'gold',
+    smallpay: 'finger', statement: 'receipt', txnreceipt: 'receipt', transfer: 'transfer',
+    scanpay: 'scan', receive: 'receive', paycode: 'pay', paybill: 'receipt', recharge: 'charge',
+    wealth: 'chart', wealthbuy: 'chart', holdings: 'chart', fund: 'chart', gold: 'gold',
+    insurance: 'shield', bond: 'vault', deposit: 'bank', loan: 'house', creditapply: 'credit',
+    security: 'shield', swcenter: 'vault', devmgr: 'cube', antifraud: 'flame', safecourse: 'film',
+    branch: 'building', branchappt: 'building', queue: 'list', help: 'headset', faq: 'list',
+    chat: 'headset', feedback: 'mail', settings: 'gear', points: 'medal', estore: 'gift',
+    food: 'noodle', movie: 'film', taxi: 'car', hotel: 'bed', travel: 'plane', medical: 'health',
+    social: 'health', cityserv: 'building', housingfund: 'house', trafficfine: 'car',
+    coupon: 'gift', lottery: 'sparkle', task: 'sparkle', payroll: 'payroll', mail: 'mail',
+    aboutbank: 'building', version: 'list', privacy: 'shield', agreement: 'list',
+    creditreport: 'list', rateboard: 'list', fxboard: 'fx', allfunc: 'cube',
+    acctdetail: 'bank', accfreeze: 'vault', cardface: 'sparkle', cardfacepick: 'guka',
+    ebill: 'mail', billdetail: 'receipt', budgetedit: 'gear', catdetail: 'list',
+    riskdetail: 'chart', invoice: 'receipt', esim: 'cube', fundbuy: 'chart', loginrec: 'list',
+    fraudcase: 'flame', devmgr: 'cube', tipresult: 'sparkle',
+    filterresult: 'list', pwdresult: 'gear', loanresult: 'house',
+    wealthbuy: 'chart', repayok: 'pay',
+    txndetail: 'list', txnfilter: 'list', spendana: 'chart', budget: 'chart', locklog: 'vault',
+    chpwd: 'gear', resetpwd: 'gear', reissue: 'credit', cancelcard: 'credit', repay: 'pay',
+    installment: 'receipt', autorepay: 'gear', billhist: 'receipt', billauto: 'receipt',
+    rechargecustom: 'charge', rechargehist: 'list', rechargepromo: 'gift', yieldcurve: 'chart',
+    riskquiz: 'medal', wealthclass: 'film', cd: 'vault', mydeposits: 'bank', depcalc: 'list',
+    loanapply: 'house', loancalc: 'list', myloans: 'house', repayplan: 'list', creditform: 'credit',
+    creditcalc: 'list', creditprogress: 'list', credithelp: 'headset', myfx: 'fx', devices: 'watch',
+    loginlog: 'list', edu: 'edu', socialsec: 'health', carddetail: 'credit', bindcard: 'credit',
+    cardloss: 'shield', fx: 'fx', transfer2: 'transfer', payees: 'list', scanresult: 'scan',
+    limithelp: 'list', losshelp: 'list'
+  };
+  const POOL = {
+    acct: ['acctdetail', 'mycards', 'cardtxn', 'limits', 'cardface', 'esim', 'bindcard', 'statement', 'accfreeze', 'settings'],
+    card: ['cardmgr', 'cardlock', 'limits', 'cardface', 'cardtxn', 'smallpay', 'statement', 'bindcard', 'cardloss', 'acctdetail'],
+    txn: ['txnreceipt', 'billdetail', 'catdetail', 'spendana', 'budgetedit', 'statement', 'ebill', 'invoice', 'budget', 'cardtxn'],
+    safe: ['swcenter', 'devmgr', 'loginrec', 'safecourse', 'fraudcase', 'antifraud', 'cardlock', 'chpwd', 'security', 'chat'],
+    wealth: ['fund', 'gold', 'insurance', 'bond', 'deposit', 'holdings', 'yieldcurve', 'riskquiz', 'riskdetail', 'wealthclass'],
+    loan: ['loanapply', 'loancalc', 'myloans', 'creditapply', 'creditprogress', 'repayplan', 'installment', 'autorepay', 'creditreport', 'rateboard'],
+    pay: ['transfer', 'scanpay', 'receive', 'paycode', 'paybill', 'recharge', 'payees', 'rechargehist', 'estore', 'cardtxn'],
+    life: ['cityserv', 'paybill', 'recharge', 'socialsec', 'housingfund', 'trafficfine', 'medical', 'food', 'movie', 'taxi'],
+    setting: ['chat', 'faq', 'help', 'branchappt', 'queue', 'feedback', 'version', 'privacy', 'agreement', 'aboutbank'],
+    camp: ['coupon', 'lottery', 'task', 'points', 'estore', 'cardface', 'cardfacepick', 'rechargepromo', 'mail', 'chat'],
+    misc: ['allfunc', 'mycards', 'transfer', 'scanpay', 'paybill', 'wealth', 'security', 'points', 'branch', 'help']
+  };
+  /* 个别页给更贴合的手工推荐（优先于分类池） */
+  const NEXT = {
+    allfunc: ['mycards', 'transfer', 'scanpay', 'paybill', 'wealth', 'deposit', 'loan', 'creditapply', 'security', 'points', 'travel', 'cityserv'],
+    scanpay: ['receive', 'paycode', 'scanresult', 'recharge', 'paybill', 'cardtxn', 'chat', 'faq'],
+    mycards: ['cardtxn', 'cardmgr', 'cardlock', 'limits', 'cardface', 'bindcard', 'statement', 'cardloss', 'acctdetail', 'esim'],
+    transfer: ['payees', 'scanpay', 'receive', 'limits', 'cardtxn', 'statement', 'security', 'chat'],
+    wealth: ['fund', 'gold', 'insurance', 'bond', 'deposit', 'cd', 'holdings', 'riskquiz', 'rateboard', 'wealthclass'],
+    deposit: ['cd', 'mydeposits', 'depcalc', 'rateboard', 'wealth', 'fund', 'statement', 'holdings'],
+    loan: ['loanapply', 'loancalc', 'myloans', 'creditreport', 'creditapply', 'rateboard', 'repayplan', 'chat'],
+    security: ['swcenter', 'devmgr', 'loginrec', 'cardlock', 'chpwd', 'antifraud', 'safecourse', 'fraudcase', 'chat', 'feedback'],
+    help: ['faq', 'chat', 'feedback', 'branchappt', 'security', 'version', 'privacy', 'branch'],
+    settings: ['swcenter', 'devmgr', 'privacy', 'agreement', 'version', 'aboutbank', 'chat', 'feedback'],
+    points: ['estore', 'coupon', 'task', 'lottery', 'cardface', 'mail', 'rechargepromo', 'chat'],
+    paybill: ['recharge', 'cityserv', 'billhist', 'billauto', 'statement', 'cardtxn', 'socialsec', 'chat'],
+    creditapply: ['creditform', 'creditcalc', 'creditprogress', 'credithelp', 'mycards', 'creditreport', 'rateboard', 'installment'],
+    cityserv: ['socialsec', 'housingfund', 'trafficfine', 'paybill', 'medical', 'recharge', 'branchappt', 'chat'],
+    mall: ['estore', 'points', 'coupon', 'mail', 'task', 'lottery'],
+    faq: ['help', 'chat', 'feedback', 'security', 'version', 'branchappt', 'privacy', 'agreement'],
+    aboutbank: ['version', 'privacy', 'agreement', 'feedback', 'help', 'branch', 'chat', 'security']
+  };
+  /* 修正：池子里若引用了不存在的键，自动过滤 */
+  function contBlock(key) {
+    const list = (NEXT[key] || []).slice();
+    const see = k => k === key || list.indexOf(k) >= 0 || !BIZ[k];
+    (POOL[CATOF[key] || 'misc'] || []).forEach(k => { if (list.length < 9 && !see(k)) list.push(k); });
+    (POOL.misc || []).forEach(k => { if (list.length < 9 && !see(k)) list.push(k); });
+    const items = list.filter(k => !!BIZ[k]).slice(0, 9);
+    if (!items.length) return '';
+    return `
+      ${nav('继续办理', items.length + ' 项')}
+      ${card(items.map(k => row({
+        ico: ICONOF[k] || 'more', bg: '#f4f6fa',
+        name: labelOf(k), desc: DESCOF[k] || '点击进入该功能',
+        act: "BANK.open('" + k + "')"
+      })).join(''))}
+      <button class="bz-plain" onclick="BANK.open('allfunc')">查看全部功能 ›</button>`;
+  }
+  /* 包一层：每个业务页渲染完自动追加「继续办理」 */
+  Object.keys(BIZ).forEach(k => {
+    const b = BIZ[k];
+    const old = b.render;
+    if (typeof old !== 'function' || old.__wrapped) return;
+    const wrapped = function (param) { return old(param) + contBlock(k); };
+    wrapped.__wrapped = true;
+    b.render = wrapped;
+  });
+
+  /* ══════ 外壳浮层（转账 / 收支明细 / 消息中心 / 魔法空间）也补上「继续办理」 ══════ */
+  BANK.mountMore('#page-transfer .op-body', ['payees', 'transfer2', 'scanpay', 'receive', 'limits', 'cardtxn', 'statement', 'security', 'chat']);
+  BANK.mountMore('#page-records .op-body', ['cardtxn', 'catdetail', 'spendana', 'txnfilter', 'statement', 'txnreceipt', 'budgetedit', 'billdetail', 'paybill']);
+  BANK.mountMore('#page-msgcenter .op-body', ['chat', 'feedback', 'mail', 'help', 'security', 'aboutbank', 'settings', 'branchappt']);
+  BANK.mountMore('#page-magic .op-body', ['points', 'estore', 'task', 'lottery', 'coupon', 'cardface', 'safecourse', 'cardfacepick', 'chat']);
 })();

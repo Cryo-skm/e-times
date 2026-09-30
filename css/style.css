@@ -1184,3 +1184,7 @@ body {
   font-size: 20px; font-weight: 700; display: flex; align-items: center; justify-content: center;
   box-shadow: 0 2px 8px rgba(31,41,61,.08); }
 .cs-add-t { font-size: 11px; color: #98a0ad; }
+
+/* 外壳浮层底部的「继续办理」区块 */
+.bz-morewrap { margin: 18px 0 26px; }
+.bz-morewrap .bz-card { margin-bottom: 0; }

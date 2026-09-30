@@ -107,7 +107,24 @@ const XZG = {
   money(n){return n.toLocaleString('zh-CN')},
   /* toast 桥接外壳 ICBCApp */
   toast(msg,emo){emo=emo||'✅';if(window.ICBCApp&&ICBCApp.toast)ICBCApp.toast(`${emo} ${msg}`)},
-  sheet(html){this.$('#xzgSheet').innerHTML='<div class="grab"></div>'+html;this.$('#xzgMask').classList.add('on')},
+  sheet(html,opt){
+    const more=(opt&&opt.nomore)?'':this.sheetMore();
+    this.$('#xzgSheet').innerHTML='<div class="grab"></div>'+html+more;
+    this.$('#xzgMask').classList.add('on');
+  },
+  /* 弹层底部的「继续逛逛」：保证任何一次点击之后都还能推 8 个新点击 */
+  sheetMore(){
+    const L=this._ECMORE[this._lastPg]||this._ECMORE.plaza; if(!L||!L.length) return '';
+    return `<div class="ec-more ec-more--sheet">
+      <div class="ec-more-h"><b>继续逛逛</b><span>还有 ${L.length} 个地方可以去</span></div>
+      <div class="ec-more-grid">${L.map(it=>{
+        const t=it[0],emo=it[1],n=it[2],d=it[3];
+        const act=t.startsWith('b:')
+          ? `XZG.sheetClose();ICBCApp.openPage('page-biz');BANK.open('${t.slice(2)}')`
+          : `XZG.sheetClose();XZG.go('${t}')`;
+        return `<button class="ec-more-i" onclick="${act}"><i>${emo}</i><b>${n}</b><span>${d}</span></button>`;
+      }).join('')}</div></div>`;
+  },
   sheetClose(){this.$('#xzgMask').classList.remove('on')},
   addGrains(n,why){this.S.grains+=n;this.S.exp+=Math.round(n/2);this.save();this.syncMine();this.renderZaangu();this.toast(`${why} +${n} 谷粒`,'🌾')},
   checkLevel(){const lv=this.S.exp>=3000?4:this.S.exp>=1500?3:this.S.exp>=600?2:1;const names={1:'谷新',2:'谷民',3:'谷咖',4:'谷神'};if(lv>this.S.lv){this.S.lv=lv;this.toast(`等级提升！恭喜成为「${names[lv]} Lv.${lv}」`,'🎉')}this.S.lvName=names[lv]},
@@ -160,7 +177,7 @@ const XZG = {
           <i class="gp-tag">小e · 星熠 · 语棠…</i>
         </button>
       </div>
-      <div class="xzg-muted" style="font-size:10.5px;margin-top:11px;text-align:center">之后可随时在「我的」页或右上角「⚙ 设置」里切换</div>`);
+      <div class="xzg-muted" style="font-size:10.5px;margin-top:11px;text-align:center">之后可随时在「我的」页或右上角「⚙ 设置」里切换</div>`,{nomore:true});
   },
   /* 首次进入 e次元 的性别选择：选完关掉面板并回到内容页 */
   setGender(g){
@@ -383,6 +400,45 @@ const XZG = {
     /* 动态特效色调：商城/广场→海水蓝；我的/论坛→樱花粉 */
     const fx=document.querySelector('#xgFx');
     if(fx)fx.dataset.tone=(p==='mine'||p==='forum')?'sakura':'sea';
+    this.ensureMore(p);
+  },
+  /* ════ 「继续逛逛」：每个 e次元 子页底部固定 8 个新去处 ════
+     目标：任何一次点击之后，都还能继续往下推 5~10 个新点击。
+     条目格式 [目标, emoji, 名称, 说明]；目标 'b:xxx' 表示跳到工行业务页。 */
+  _ECMORE:{
+    plaza:[['shigu','🔍','识谷','拍一拍，秒出行情价'],['guxiang','🤖','谷享','一句话帮你盯全网红'],['mall','🛍','商城','工行自有 IP 周边'],['forum','📣','论坛','资讯 · 情报 · 同好'],['cang','🏛','藏馆','数字分身 · 虚拟展厅'],['guka','💳','谷卡','卡面投票定制'],['b:points','🎁','积分 i豆','谷粒兑好礼'],['b:wealth','📈','投资理财','1 元起投']],
+    shigu:[['b:cardtxn','🧾','交易明细','这笔谷子记在账上'],['b:spendana','📊','支出分析','看看钱花在哪'],['b:points','🎁','积分 i豆','识谷也能攒谷粒'],['b:estore','🛍','谷子商城','用谷粒换周边'],['guxiang','🤖','谷享','让 AI 帮你比价'],['cang','🏛','藏馆','存进你的数字展厅'],['zhidai','🏦','质押贷','藏品变额度'],['plaza','🏠','回广场','去看看大家在聊啥']],
+    chugu:[['b:transfer','💸','转账汇款','货款走托管账户'],['b:cardtxn','🧾','交易明细','托管流水全记录'],['b:creditreport','📋','个人征信','沉淀信用分'],['b:security','🛡️','安全中心','交易保障设置'],['guka','💳','谷卡','大额藏品可分期'],['zhidai','🏦','质押贷','藏品变额度'],['forum','📣','论坛','出谷行情与情报'],['plaza','🏠','回广场','去看看大家在聊啥']],
+    guka:[['b:creditapply','💳','申请信用卡','在线申请秒批'],['b:installment','🧮','账单分期','3/6/12 期可选'],['b:cardface','🎨','卡面商城','谷粒换限定卡面'],['b:creditprogress','📮','申请进度','实时查审核状态'],['chugu','🛡','出谷通','分期买也稳'],['mall','🛍','商城','开卡送限定谷'],['b:points','🎁','积分 i豆','刷卡攒谷粒'],['plaza','🏠','回广场','去看看大家在聊啥']],
+    guxiang:[['b:transfer','💸','转账汇款','代购款一键付'],['b:paybill','🧾','生活缴费','顺手把杂费缴了'],['b:estore','🛍','谷子商城','官方周边更省心'],['b:recharge','📱','手机充值','顺手充个话费'],['mall','🛍','商城','看看官方周边'],['chugu','🛡','出谷通','托管交易更安心'],['cang','🏛','藏馆','到货后存进藏馆'],['plaza','🏠','回广场','去看看大家在聊啥']],
+    zhidai:[['b:loancalc','🧮','额度试算','先算算能借多少'],['b:loan','🏦','个人贷款','正规信贷产品'],['b:creditreport','📋','个人征信','信用越好额度越高'],['b:repayplan','📅','还款计划','等额本息清清楚楚'],['cang','🏛','藏馆','估值越高授信越高'],['chugu','🛡','出谷通','交易流水助力授信'],['b:security','🛡️','安全中心','账户安全一览'],['plaza','🏠','回广场','去看看大家在聊啥']],
+    cang:[['guka','💳','谷卡','藏品可做分期'],['zhidai','🏦','质押贷','藏品变额度'],['mall','🛍','商城','再去收一件'],['shigu','🔍','识谷','AI 估值与鉴真'],['b:insurance','🛡️','保险保障','给谷子加层保障'],['b:points','🎁','积分 i豆','建档也有奖励'],['forum','📣','论坛','晒晒你的展厅'],['plaza','🏠','回广场','去看看大家在聊啥']],
+    forum:[['plaza','🏠','回广场','热门话题都在这'],['create','✏️','发帖','有话说就说'],['mall','🛍','商城','周边上新了'],['shigu','🔍','识谷','发帖前先估个价'],['cang','🏛','藏馆','把收藏展示出来'],['b:points','🎁','积分 i豆','发帖攒谷粒'],['exchange','🔁','交易所','收出谷看这里'],['b:chat','🎧','在线客服','遇到问题找客服']],
+    create:[['forum','📣','论坛','发完去广场看看'],['plaza','🏠','回广场','看大家怎么聊'],['mall','🛍','商城','配图去商城找'],['shigu','🔍','识谷','给藏品估个价'],['b:points','🎁','积分 i豆','创作攒谷粒'],['cang','🏛','藏馆','同步到藏馆'],['exchange','🔁','交易所','顺便挂个链接'],['b:settings','⚙️','设置','账号与消息设置']],
+    exchange:[['cang','🏛','藏馆','收来的存进藏馆'],['zhidai','🏦','质押贷','藏品换额度'],['mall','🛍','商城','官方周边直邮'],['chugu','🛡','出谷通','托管交易更安全'],['b:transfer','💸','转账汇款','顺便把钱转了'],['b:cardtxn','🧾','交易明细','看看这月流水'],['b:security','🛡️','安全中心','防骗小知识'],['plaza','🏠','回广场','去看看大家在聊啥']],
+    mallorder:[['mall','🛍','回商城','继续挑周边'],['b:mail','📦','邮寄进度','包裹到哪了'],['b:points','🎁','积分 i豆','下单攒谷粒'],['cang','🏛','藏馆','到货后存进展厅'],['b:chat','🎧','在线客服','订单有问题找客服'],['b:cardtxn','🧾','交易明细','这笔消费在账上'],['shigu','🔍','识谷','到货先验个真'],['forum','📣','论坛','晒个开箱']],
+    mine:[['plaza','🏠','回广场','热门话题都在这'],['mall','🛍','商城','周边上新了'],['create','✏️','发帖','有话说就说'],['exchange','🔁','交易所','收出谷看这里'],['forum','📣','论坛','同好都在聊'],['b:mycards','💳','我的银行卡','工行卡都在这里'],['b:points','🎁','积分 i豆','谷粒与勋章'],['b:security','🛡️','安全中心','账户安全一览']],
+    brand:[['mall','🛍','商城','品牌联名都在卖'],['guka','💳','谷卡','联名卡面定制'],['forum','📣','论坛','品牌讨论区'],['cang','🏛','藏馆','联名藏品建档'],['b:estore','🛍','谷子商城','积分也能换'],['b:coupon','🎫','我的优惠券','买前先看看券'],['plaza','🏠','回广场','去看看大家在聊啥'],['b:chat','🎧','在线客服','想合作找客服']]
+  },
+  _ECMORE_EMO:{},
+  moreHTML(p){
+    const L=this._ECMORE[p]; if(!L||!L.length) return '';
+    return `<div class="ec-more-h"><b>继续逛逛</b><span>还有 ${L.length} 个地方可以去</span></div>
+      <div class="ec-more-grid">${L.map(it=>{
+        const t=it[0], emo=it[1], n=it[2], d=it[3];
+        const act=t.startsWith('b:')
+          ? `ICBCApp.openPage('page-biz');BANK.open('${t.slice(2)}')`
+          : `XZG.go('${t}')`;
+        return `<button class="ec-more-i" onclick="${act}"><i>${emo}</i><b>${n}</b><span>${d}</span></button>`;
+      }).join('')}</div>`;
+  },
+  ensureMore(p){
+    const pg=document.querySelector('#pg-'+p); if(!pg) return;
+    const html=this.moreHTML(p);
+    let box=pg.querySelector(':scope > .ec-more');
+    if(!html){ if(box)box.remove(); return; }
+    if(!box){ box=document.createElement('div'); box.className='ec-more'; pg.appendChild(box); }
+    box.innerHTML=html;
   },
   /* 同步外壳「我的」页谷龄成长卡 */
   syncMine(){const S=this.S;this.checkLevel();const th={1:600,2:1500,3:3000,4:5000};
