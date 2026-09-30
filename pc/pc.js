@@ -23,6 +23,8 @@
     'banner-ai':'banner2-ai.jpg','banner-credit':'banner2-credit.jpg',
     'banner-trade':'banner2-trade.jpg','banner-ar':'banner2-ar.jpg',
     'banner-guxiang':'banner2-guxiang.jpg','cover-enter':'cover2-enter.jpg',
+    'banner-mall':'banner2-mall.jpg','banner-gallery':'banner2-gallery.jpg',
+    'banner-pledge':'banner2-pledge.jpg',
     'goods-stand':'goods2-stand.jpg','goods-figure':'goods2-figure.jpg',
     'goods-badge':'goods2-badge.jpg','goods-strap':'goods2-strap.jpg',
     'goods-box':'goods2-box.jpg','goods-blind':'goods2-blind.jpg'
@@ -950,13 +952,18 @@
   $$('.bk-nav button').forEach(b => b.addEventListener('click', () => {
     $$('.bk-nav button').forEach(x => x.classList.toggle('on', x === b));
   }));
-  /* 银行首页「推门」横幅：跟随手机端选的性别（同一 origin 的 localStorage） */
+  /* 银行首页「推门」横幅 + e次元侧栏 hero：跟随手机端选的性别（同一 origin 的 localStorage） */
   const bkDoor = $('#bkDoorImg');
-  if (bkDoor) bkDoor.src = gArt('banner-door');
+  const ecHero = $('#ecSideHero');
+  const paintGenderArt = () => {
+    if (bkDoor) bkDoor.src = gArt('banner-door');
+    if (ecHero) ecHero.src = gArt('banner-gallery');
+  };
+  paintGenderArt();
   /* 手机端改了性别后，PC 端切回来自动同步 */
   window.addEventListener('storage', e => {
     if (e.key === 'ec_char_gender') {
-      if (bkDoor) bkDoor.src = gArt('banner-door');
+      paintGenderArt();
       go(S.page || 'home');
     }
   });

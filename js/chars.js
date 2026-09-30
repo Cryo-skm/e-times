@@ -71,6 +71,9 @@
     'banner-trade': 'banner2-trade.jpg',
     'banner-ar': 'banner2-ar.jpg',
     'banner-guxiang': 'banner2-guxiang.jpg',
+    'banner-mall': 'banner2-mall.jpg',
+    'banner-gallery': 'banner2-gallery.jpg',
+    'banner-pledge': 'banner2-pledge.jpg',
     'cover-enter': 'cover2-enter.jpg',
     /* 周边商品图（立牌/手办/吧唧/挂件/礼盒/盲盒）也换美少年版 */
     'goods-stand': 'goods2-stand.jpg',
@@ -160,4 +163,10 @@
   };
 
   window.CHARS = API;
+
+  /* 首屏对齐：静态页里的 data-gart 场景图（如生活页 e次元 门）按当前性别换图；
+     动态渲染的场景图在生成时已按性别取对，这里重复执行只是幂等兜底。 */
+  const _boot = () => { try { API.repaint(); } catch (e) {} };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', _boot);
+  else _boot();
 })();
