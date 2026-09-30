@@ -793,3 +793,99 @@
 /* 我的页蓝调（天蓝→靛蓝） */
 .mn-hero{background:linear-gradient(135deg,#3d7eff 0%,#5b7cff 52%,#8a6bff 100%)!important;
   box-shadow:0 12px 30px rgba(61,126,255,.32)!important}
+
+/* ════════════════════════════════════════════════════════════════════
+   商城全流程（购物车 / 收货地址 / 结算 / 订单 / 物流） 
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── 商城顶部快捷行：购物车 / 订单 / 地址 ── */
+.ml-quickrow{display:flex;gap:9px;margin:10px 0 12px}
+.ml-qb{flex:1;position:relative;display:flex;align-items:center;justify-content:center;gap:6px;
+  padding:11px 0;border-radius:14px;background:#fff;box-shadow:var(--shadow);
+  font-size:12.5px;font-weight:600;color:var(--ink2);transition:transform .15s}
+.ml-qb:active{transform:scale(.96)}
+.ml-qb-badge{position:absolute;top:4px;right:14px;min-width:17px;height:17px;padding:0 4px;border-radius:9px;
+  background:var(--red-grad);color:#fff;font-size:10px;font-weight:700;font-style:normal;
+  display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(199,0,11,.35)}
+.ml-qb-badge.gray{background:#c9cfda;box-shadow:none}
+
+/* ── 商品卡「加入购物车」条 ── */
+.ml-cart{width:100%;margin-top:7px;padding:7px 0;border-radius:11px;background:#fff5f7;color:var(--red);
+  font-size:11.5px;font-weight:700;border:1px solid #ffdde5;transition:transform .15s}
+.ml-cart:active{transform:scale(.95)}
+
+/* ── 购物车 / 订单 通用商品行 ── */
+.xzg-cartrow{display:flex;align-items:center;gap:11px;padding:11px 0}
+.xzg-cartrow+.xzg-cartrow{border-top:1px solid var(--line)}
+.cc-img{width:60px;height:60px;border-radius:12px;overflow:hidden;flex-shrink:0;display:block;
+  background:#f6f7fa;box-shadow:0 3px 10px rgba(31,41,61,.07)}
+.cc-img svg,.cc-img img{width:100%;height:100%;object-fit:cover;display:block}
+.cc-main{flex:1;min-width:0}
+.cc-main b{font-size:12.5px;font-weight:600;display:block;line-height:1.45;
+  overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.cc-p{font-size:11.5px;color:var(--ink3);display:block;margin-top:4px}
+.cc-sum{font-size:13.5px;font-weight:800;color:var(--ink);flex-shrink:0}
+.cc-ops{display:flex;align-items:center;gap:0;margin-top:7px}
+.cc-ops button{width:26px;height:26px;border-radius:8px;background:#f5f6fa;color:var(--ink2);
+  font-size:15px;font-weight:700;line-height:1;display:flex;align-items:center;justify-content:center}
+.cc-ops button:active{background:#eceef4}
+.cc-ops i{min-width:34px;text-align:center;font-style:normal;font-size:13px;font-weight:700}
+.cc-ops .cc-del{width:auto;padding:0 10px;margin-left:auto;background:none;color:var(--ink3);
+  font-size:11.5px;font-weight:500}
+
+/* ── 收货地址选择块 ── */
+.xzg-addrbox{display:flex;align-items:center;gap:11px;background:#fff;border-radius:14px;
+  padding:13px 14px;box-shadow:var(--shadow);margin-bottom:12px;cursor:pointer}
+.xzg-addrbox:active{transform:scale(.99)}
+.ab-ic{font-size:19px;flex-shrink:0}
+.ab-m{flex:1;min-width:0}
+.ab-m b{font-size:13px;display:block}
+.ab-m span{font-size:11.5px;color:var(--ink3);display:block;margin-top:3px;line-height:1.5}
+.ab-arr{font-size:19px;color:var(--ink3);flex-shrink:0}
+
+/* ── 地址管理列表 ── */
+.xzg-addrow{display:flex;align-items:center;gap:10px;background:#fff;border-radius:14px;
+  padding:13px 14px;margin-bottom:9px;box-shadow:var(--shadow);cursor:pointer;
+  border:1.5px solid transparent;transition:border-color .2s}
+.xzg-addrow.on{border-color:#f3c6c9;background:#fffafb}
+.ar-m{flex:1;min-width:0}
+.ar-m b{font-size:13px;display:block}
+.ar-m b i{font-style:normal;font-weight:400;color:var(--ink3);font-size:11.5px;margin-left:6px}
+.ar-m b em{font-style:normal;font-size:9.5px;font-weight:700;color:#fff;background:var(--red-grad);
+  padding:2px 7px;border-radius:8px;margin-left:6px}
+.ar-m span{font-size:11.5px;color:var(--ink3);display:block;margin-top:4px;line-height:1.5}
+.ar-tag{font-size:10px;color:var(--ink3);background:#f3f4f8;padding:3px 9px;border-radius:9px;flex-shrink:0}
+
+/* ── 订单列表 ── */
+.mo-seg{display:flex;gap:8px;margin-bottom:12px}
+.mo-seg button{flex:1;padding:9px 0;border-radius:12px;background:#fff;box-shadow:var(--shadow);
+  font-size:12.5px;font-weight:600;color:var(--ink2);transition:.2s}
+.mo-seg button.on{background:var(--red-grad);color:#fff;box-shadow:0 5px 14px rgba(199,0,11,.28)}
+.mo-card{background:#fff;border-radius:16px;box-shadow:var(--shadow);padding:13px 14px;margin-bottom:12px;cursor:pointer}
+.mo-card:active{transform:scale(.99)}
+.mo-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.mo-no{font-size:11px;color:var(--ink3)}
+.mo-h b{font-size:12.5px;font-weight:700}
+.mo-f{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding-top:10px;margin-top:6px;border-top:1px solid var(--line)}
+.mo-ops{display:flex;gap:9px;justify-content:flex-end;margin-top:11px;flex-wrap:wrap}
+.mo-ops .xzg-btn.mini{border-radius:16px}
+
+/* ── 物流时间轴 ── */
+.xzg-logi{position:relative;padding-left:6px;margin:6px 0 4px}
+.lg-row{position:relative;padding:0 0 20px 22px}
+.lg-row:last-child{padding-bottom:4px}
+.lg-row::before{content:'';position:absolute;left:5px;top:14px;bottom:0;width:1.5px;background:var(--line)}
+.lg-row:last-child::before{display:none}
+.lg-dot{position:absolute;left:0;top:5px;width:11px;height:11px;border-radius:50%;
+  background:#dfe3ea;box-shadow:0 0 0 3px #fff}
+.lg-row.on .lg-dot{background:var(--red);box-shadow:0 0 0 3px #ffe6e9}
+.lg-m b{font-size:12.5px;font-weight:600;display:block;line-height:1.5}
+.lg-row.on .lg-m b{color:var(--red)}
+.lg-m span{font-size:11px;color:var(--ink3);display:block;margin-top:3px}
+
+/* ── 订单详情键值行 ── */
+.xzg-kvrow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 0}
+.xzg-kvrow+.xzg-kvrow{border-top:1px solid var(--line)}
+.xzg-kvrow span{font-size:12px;color:var(--ink3);flex-shrink:0}
+.xzg-kvrow b{font-size:12.5px;font-weight:600;text-align:right}

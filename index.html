@@ -135,14 +135,14 @@
       <section class="tab-view active" id="view-home" data-status="light">
         <div class="home-header">
           <div class="hh-top">
-            <button class="hh-loc" data-toast="演示环境：城市切换暂未开通">上海 <i>▾</i></button>
-            <div class="hh-searchpill" data-toast="演示环境：搜索暂未开通">
+            <button class="hh-loc" data-open="page-biz" onclick="BANK.open('branch')">上海 <i>▾</i></button>
+            <div class="hh-searchpill" data-open="page-biz" onclick="BANK.open('faq')">
               <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M16 16l4.5 4.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
               <span>新客专区 · 工小智已上线</span>
               <svg class="hh-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
             </div>
             <div class="hh-actions">
-              <button class="hh-icon" data-toast="演示环境：智能客服暂未开通" title="我的客服">
+              <button class="hh-icon" data-open="page-biz" onclick="BANK.open('help')" title="我的客服">
                 <svg viewBox="0 0 24 24"><path d="M12 3a8 8 0 0 0-8 8v4a3 3 0 0 0 3 3h1v-7H6.5A5.5 5.5 0 0 1 17.5 11H16v7h1a3 3 0 0 0 3-3v-4a8 8 0 0 0-8-8z" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="16" y="11" width="2.6" height="7" rx="1.3" fill="currentColor"/><rect x="5.4" y="11" width="2.6" height="7" rx="1.3" fill="currentColor"/></svg>
               </button>
               <button class="hh-icon hh-msg" data-open="page-msgcenter" title="消息中心">
@@ -156,7 +156,7 @@
 
         <div class="home-body">
           <!-- 促销主 Banner（对标工行「开学特卖季」） -->
-          <div class="card promo-card" data-toast="演示环境：活动会场敬请期待">
+          <div class="card promo-card" data-open="page-biz" onclick="BANK.open('points')">
             <div class="promo-inner">
               <span class="promo-tag">广告</span>
               <span class="promo-kicker">促消费 · 惠民生</span>
@@ -195,11 +195,16 @@
             </div>
             <div class="ac-sub">可用余额 <b id="acAvail">253,963.52</b> 元 · 活期</div>
             <div class="ac-actions">
-              <button class="ac-btn ac-btn--main" data-open="page-transfer">转账汇款</button>
+              <button class="ac-btn ac-btn--main" data-open="page-biz" onclick="BANK.open('transfer')">转账汇款</button>
               <button class="ac-btn" data-open="page-records">收支明细</button>
-              <button class="ac-btn" data-toast="演示环境：更多功能敬请期待">更多服务</button>
+              <button class="ac-btn" data-open="page-biz" onclick="BANK.open('allfunc')">更多服务</button>
             </div>
           </div>
+
+          <!-- 我的银行卡卡面（横向滑动，数据源 BANK_CARDS） -->
+          <div class="sec-head"><h3>我的银行卡</h3>
+            <span class="sec-more" data-open="page-biz" onclick="BANK.open('mycards')">卡片管理 ›</span></div>
+          <div class="cardstrip" id="cardStrip"><!-- bank-biz.js 渲染 --></div>
 
           <!-- ★★★ e次元 首页专属入口（植入位1：#xingegu-home-slot） ★★★ -->
           <div class="card xingegu-card" id="xingegu-home-slot">
@@ -229,10 +234,10 @@
           <div class="home-sec">
             <div class="sec-head">
               <h3>品牌特惠</h3>
-              <span class="sec-more" data-toast="演示环境：更多品牌敬请期待">更多 ›</span>
+              <span class="sec-more" data-open="page-biz" onclick="BANK.open('allfunc')">更多 ›</span>
             </div>
             <div class="brand-row">
-              <button class="brand-item" data-toast="演示环境：京东专区敬请期待">
+              <button class="brand-item" data-open="page-biz" onclick="BANK.open('estore')">
                 <span class="brand-logo" style="background:linear-gradient(140deg,#ff7a6b,#e2231a)">京</span>
                 <b>京东专区</b><span>正品直营</span>
               </button>
@@ -251,18 +256,18 @@
           <div class="home-sec">
             <div class="sec-head">
               <h3>热兑好物</h3>
-              <span class="sec-more" data-toast="演示环境：更多好物敬请期待">更多 ›</span>
+              <span class="sec-more" data-open="page-biz" onclick="BANK.open('allfunc')">更多 ›</span>
             </div>
             <div class="redeem-row">
-              <button class="redeem-item" data-toast="演示环境：兑换详情敬请期待">
+              <button class="redeem-item" data-open="page-biz" onclick="BANK.open('points')">
                 <span class="redeem-img" style="background:linear-gradient(150deg,#fdeff6,#fbd9e8)">🧴</span>
                 <b>小魔3折便携装</b><span class="redeem-p"><em>1.84</em>万豆</span>
               </button>
-              <button class="redeem-item" data-toast="演示环境：兑换详情敬请期待">
+              <button class="redeem-item" data-open="page-biz" onclick="BANK.open('points')">
                 <span class="redeem-img" style="background:linear-gradient(150deg,#eef4ff,#dbe7ff)">🖊️</span>
                 <b>黑金商务签字笔</b><span class="redeem-p"><em>3,06</em>0豆</span>
               </button>
-              <button class="redeem-item" data-toast="演示环境：兑换详情敬请期待">
+              <button class="redeem-item" data-open="page-biz" onclick="BANK.open('points')">
                 <span class="redeem-img" style="background:linear-gradient(150deg,#f0fbf5,#dcf3e8)">🍳</span>
                 <b>不粘炒锅 26cm</b><span class="redeem-p"><em>2.7</em>万豆</span>
               </button>
@@ -303,7 +308,7 @@
         <div class="home-header home-header--life">
           <div class="hh-top">
             <div class="hh-logo"><strong class="hh-city">上海 <i>▾</i></strong></div>
-            <div class="hh-actions"><button class="hh-icon" data-toast="演示环境：签到成功 +10 工银i豆">🎁</button></div>
+            <div class="hh-actions"><button class="hh-icon" data-open="page-biz" onclick="BANK.open('points')">🎁</button></div>
           </div>
           <div class="life-slogan">惠生活 · 精彩每一天</div>
           <div class="hh-quick hh-quick--life" id="lifeQuick"><!-- JS渲染 --></div>
@@ -322,7 +327,7 @@
             <div class="grid8" id="lifeGrid"><!-- JS渲染：生活服务 --></div>
           </div>
           <div class="home-sec">
-            <div class="sec-head"><h3>限时优惠</h3><span class="sec-more" data-toast="演示环境：更多优惠敬请期待">更多 ›</span></div>
+            <div class="sec-head"><h3>限时优惠</h3><span class="sec-more" data-open="page-biz" onclick="BANK.open('allfunc')">更多 ›</span></div>
             <div class="coupon-list" id="couponList"><!-- JS渲染 --></div>
           </div>
           <div class="home-sec">
@@ -340,7 +345,7 @@
         <div class="home-header">
           <div class="hh-top">
             <div class="hh-logo"><strong class="hh-city">投资</strong></div>
-            <div class="hh-actions"><button class="hh-icon" data-toast="演示环境：资产报告生成中">📄</button></div>
+            <div class="hh-actions"><button class="hh-icon" data-open="page-biz" onclick="BANK.open('spendana')">📄</button></div>
           </div>
         </div>
         <div class="home-body">
@@ -373,7 +378,7 @@
           <div class="hh-top">
             <div class="hh-logo"><strong class="hh-city">信用卡</strong></div>
             <div class="hh-actions">
-              <button class="hh-icon" data-toast="演示环境：信用卡客服暂未开通" title="卡片客服">
+              <button class="hh-icon" data-open="page-biz" onclick="BANK.open('help')" title="卡片客服">
                 <svg viewBox="0 0 24 24"><path d="M12 3a8 8 0 0 0-8 8v4a3 3 0 0 0 3 3h1v-7H6.5A5.5 5.5 0 0 1 17.5 11H16v7h1a3 3 0 0 0 3-3v-4a8 8 0 0 0-8-8z" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="16" y="11" width="2.6" height="7" rx="1.3" fill="currentColor"/><rect x="5.4" y="11" width="2.6" height="7" rx="1.3" fill="currentColor"/></svg>
               </button>
             </div>
@@ -383,6 +388,7 @@
           <!-- 我的信用卡卡面 + 额度 -->
           <div class="card credit-hero" id="ccHero">
             <div class="cc-visual">
+              <img class="cc-face" src="img/art/card-credit.jpg" alt="工银World奋斗信用卡卡面">
               <div class="cc-deco"></div><div class="cc-deco cc-deco2"></div>
               <div class="cc-bankrow"><span class="cc-mark">工</span>中国工商银行 <em>· 信用卡</em></div>
               <div class="cc-no" id="ccNo">6222 2300 **** 1234</div>
@@ -397,12 +403,12 @@
 
           <!-- 本期账单 -->
           <div class="card bill-card">
-            <div class="bc-top"><b id="ccBillMonth">09月账单</b><span class="bc-more" data-toast="演示环境：账单明细敬请期待">账单明细 ›</span></div>
+            <div class="bc-top"><b id="ccBillMonth">09月账单</b><span class="bc-more" data-open="page-biz" onclick="BANK.open('cardtxn')">账单明细 ›</span></div>
             <div class="bc-amt">¥<b id="ccBillAmt">2,386.40</b><em>本期应还</em></div>
             <div class="bc-due">到期还款日 <b id="ccDue">10月25日</b> · 最低还款 ¥<b id="ccMin">238.64</b></div>
             <div class="bc-btns">
               <button class="ac-btn ac-btn--main" id="ccRepayBtn">一键还款</button>
-              <button class="ac-btn" data-toast="演示：可分期金额 ¥2,150.00，分12期费率0.6%/期">账单分期</button>
+              <button class="ac-btn" data-open="page-biz" onclick="BANK.open('installment')">账单分期</button>
             </div>
           </div>
 
@@ -417,7 +423,7 @@
 
           <!-- 卡片权益 -->
           <div class="home-sec">
-            <div class="sec-head"><h3>卡片权益</h3><span class="sec-more" data-toast="演示环境：更多权益敬请期待">全部 ›</span></div>
+            <div class="sec-head"><h3>卡片权益</h3><span class="sec-more" data-open="page-biz" onclick="BANK.open('carddetail','c2')">全部 ›</span></div>
             <div class="card"><div class="grid8" id="creditBenefits"></div></div>
           </div>
 
@@ -441,7 +447,7 @@
                 </div>
               </div>
             </div>
-            <button class="hh-icon" data-toast="演示环境：设置暂未开通">⚙</button>
+            <button class="hh-icon" data-open="page-biz" onclick="BANK.open('settings')">⚙</button>
           </div>
           <div class="mine-stats">
             <div><em>工银i豆</em><b>8,640</b></div>
@@ -589,8 +595,28 @@
           <div class="scan-line"></div>
         </div>
         <p class="scan-tip">对准二维码 / 条码，即可收款付款<br><b>也可以扫谷子上的防伪码验证真伪</b></p>
-        <div class="scan-tools"><span>相册</span><span>闪光灯</span></div>
+        <div class="scan-tools">
+          <button onclick="ICBCApp.toast('演示环境：已从相册读取二维码','🖼')">相册</button>
+          <button onclick="this.classList.toggle('on');ICBCApp.toast('闪光灯已'+(this.classList.contains('on')?'开启':'关闭'),'🔦')">闪光灯</button>
+        </div>
+        <div class="scan-picks">
+          <span class="scan-picks-h">可选场景（演示）</span>
+          <button class="scan-pick" onclick="ICBCApp.closePage('page-scan');BANK.open('scanresult','pay')">扫码付款<em>商户收款码</em></button>
+          <button class="scan-pick" onclick="ICBCApp.closePage('page-scan');BANK.open('scanresult','recv')">扫码收款<em>顾客付款码</em></button>
+          <button class="scan-pick" onclick="ICBCApp.closePage('page-scan');BANK.open('scanresult','gu')">识谷鉴真<em>谷子防伪码</em></button>
+          <button class="scan-pick ghost" onclick="ICBCApp.closePage('page-scan');BANK.open('scanpay')">全部扫码功能<em>收付 / 记录 / 设置</em></button>
+        </div>
       </div>
+    </div>
+
+    <!-- 通用业务页：绑卡 / 限额 / 挂失 / 缴费 / 充值 / 理财 / 存款 / 贷款 /
+         信用卡申请 / 结售汇 / 网点 / 安全中心 / 设置 / 回单…由 js/bank-biz.js 渲染 -->
+    <div class="overlay-page" id="page-biz" data-status="dark">
+      <div class="op-navbar">
+        <button class="op-back" onclick="BANK.back()"><svg viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <span id="bizTitle">业务办理</span><i class="op-more" onclick="BANK.home()">···</i>
+      </div>
+      <div class="op-body" id="bizBody"><!-- JS渲染 --></div>
     </div>
 
     <!-- 更多功能 -->
@@ -661,6 +687,7 @@
 <script src="js/data.js"></script>
 <script src="js/chars.js"></script>
 <script src="js/app.js"></script>
+<script src="js/bank-biz.js"></script>
 <script src="js/xingegu.js"></script>
 <script src="js/modules3.js"></script>
 <script src="js/ec-discovery.js"></script>

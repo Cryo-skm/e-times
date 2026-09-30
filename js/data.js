@@ -23,22 +23,22 @@ const DATA = {
   /* 首页头部快捷入口 */
   quickActions: [
     { icon: 'scan',   name: '扫一扫', act: 'open:page-scan' },
-    { icon: 'receive', name: '收款',  act: 'toast:收款码已生成（演示）' },
-    { icon: 'pay',    name: '付款',   act: 'toast:请向商户出示付款码（演示）' },
-    { icon: 'train',  name: '出行',   act: 'toast:乘车码（演示）' },
+    { icon: 'receive', name: '收款',  act: 'biz:receive' },
+    { icon: 'pay',    name: '付款',   act: 'biz:paycode' },
+    { icon: 'train',  name: '出行',   act: 'biz:travel' },
     { icon: 'robot',  name: '工小智', act: 'open:page-xiaozhi' }
   ],
 
   /* 首页常用功能宫格：page=打开浮层 / toast=提示 / tab=切Tab / xg=e次元 */
   functions: [
     { icon: 'transfer', bg: '#fdecec', name: '转账汇款', act: 'open:page-transfer' },
-    { icon: 'bank',     bg: '#eaf3fd', name: '定期存款', act: 'tab:view-wealth' },
+    { icon: 'bank',     bg: '#eaf3fd', name: '定期存款', act: 'biz:deposit' },
     { icon: 'list',     bg: '#eef9ef', name: '余额明细', act: 'open:page-records' },
-    { icon: 'bolt',     bg: '#fff6e6', name: '工银e支付', act: 'toast:工银e支付（演示）' },
-    { icon: 'credit',   bg: '#f0ecfd', name: '信用卡还款', act: 'tab:view-credit' },
-    { icon: 'house',    bg: '#eef4ff', name: '个人贷款', act: 'toast:个人贷款（演示）' },
-    { icon: 'chart',    bg: '#fdeff7', name: '投资理财', act: 'tab:view-wealth' },
-    { icon: 'fx',       bg: '#e9f7f5', name: '结售汇', act: 'toast:结售汇（演示）' }
+    { icon: 'bolt',     bg: '#fff6e6', name: '工银e支付', act: 'biz:estore' },
+    { icon: 'credit',   bg: '#f0ecfd', name: '信用卡还款', act: 'biz:repay|c2' },
+    { icon: 'house',    bg: '#eef4ff', name: '个人贷款', act: 'biz:loan' },
+    { icon: 'chart',    bg: '#fdeff7', name: '投资理财', act: 'biz:wealth' },
+    { icon: 'fx',       bg: '#e9f7f5', name: '结售汇', act: 'biz:fx' }
   ],
 
   /* 更多功能（全部功能页） */
@@ -46,19 +46,19 @@ const DATA = {
     { icon: 'scan',     bg: '#fdecec', name: '扫码收款', act: 'open:page-scan' },
     { icon: 'transfer', bg: '#fdecec', name: '转账汇款', act: 'open:page-transfer' },
     { icon: 'list',     bg: '#eef9ef', name: '收支明细', act: 'open:page-records' },
-    { icon: 'bank',     bg: '#eaf3fd', name: '存款产品', act: 'tab:view-wealth' },
-    { icon: 'chart',    bg: '#fdeff7', name: '理财产品', act: 'tab:view-wealth' },
-    { icon: 'gold',     bg: '#fff6e6', name: '基金黄金', act: 'tab:view-wealth' },
-    { icon: 'credit',   bg: '#f0ecfd', name: '信用卡', act: 'tab:view-credit' },
-    { icon: 'house',    bg: '#eef4ff', name: '个人贷款', act: 'toast:个人贷款（演示）' },
-    { icon: 'fx',       bg: '#e9f7f5', name: '结售汇', act: 'toast:结售汇（演示）' },
-    { icon: 'payroll',  bg: '#eaf3fd', name: '电子工资单', act: 'toast:电子工资单（演示）' },
-    { icon: 'health',   bg: '#eef9ef', name: '社保医保', act: 'toast:社保医保（演示）' },
-    { icon: 'edu',      bg: '#fff6e6', name: '教育缴费', act: 'toast:教育缴费（演示）' },
+    { icon: 'bank',     bg: '#eaf3fd', name: '存款产品', act: 'biz:deposit' },
+    { icon: 'chart',    bg: '#fdeff7', name: '理财产品', act: 'biz:wealth' },
+    { icon: 'gold',     bg: '#fff6e6', name: '基金黄金', act: 'biz:wealth' },
+    { icon: 'credit',   bg: '#f0ecfd', name: '信用卡', act: 'biz:cardmgr|c2' },
+    { icon: 'house',    bg: '#eef4ff', name: '个人贷款', act: 'biz:loan' },
+    { icon: 'fx',       bg: '#e9f7f5', name: '结售汇', act: 'biz:fx' },
+    { icon: 'payroll',  bg: '#eaf3fd', name: '电子工资单', act: 'biz:payroll' },
+    { icon: 'health',   bg: '#eef9ef', name: '社保医保', act: 'biz:social' },
+    { icon: 'edu',      bg: '#fff6e6', name: '教育缴费', act: 'biz:edu' },
     { icon: 'magic',    bg: '#f0ecfd', name: '魔法空间', act: 'open:page-magic' },
     { icon: 'robot',    bg: '#fdeff7', name: '工小智', act: 'open:page-xiaozhi' },
-    { icon: 'shield',   bg: '#e9f7f5', name: '安全中心', act: 'toast:安全中心（演示）' },
-    { icon: 'headset',  bg: '#eaf3fd', name: '联系客服', act: 'toast:演示环境：客服暂未开通' }
+    { icon: 'shield',   bg: '#e9f7f5', name: '安全中心', act: 'biz:security' },
+    { icon: 'headset',  bg: '#eaf3fd', name: '联系客服', act: 'biz:help' }
   ],
 
   /* 首页轮播（背景用渐变色） */
@@ -66,7 +66,7 @@ const DATA = {
     { t: '领航AI+ · 智享未来', d: '工小智全新升级，500+ 场景智能随行', bg: 'linear-gradient(135deg,#241547,#5b2d92)' },
     { t: '工银i豆 · 天天领好礼', d: '签到、消费、攒谷都能赚i豆', bg: 'linear-gradient(135deg,#b8862f,#e8b86a)' },
     { t: 'e次元 · 推开门就是另一个世界', d: '谷圈广场 · 甄选商城 · 同好论坛 · 私人藏馆',
-      bg: 'linear-gradient(135deg,#7a1f3d,#c73a5e)', ec: 'plaza', img: 'img/art/banner-door.jpg',
+      bg: 'linear-gradient(135deg,#7a1f3d,#c73a5e)', ec: 'plaza', img: 'banner-door', gart: 1,
       go: '进入 e次元 ›' }
   ],
 
@@ -110,20 +110,20 @@ const DATA = {
 
   /* 生活频道 */
   lifeServices: [
-    { icon: 'charge',  bg: '#eaf3fd', name: '手机充值', act: 'toast:话费充值（演示）' },
-    { icon: 'receipt', bg: '#fff6e6', name: '生活缴费', act: 'toast:水电煤缴费（演示）' },
-    { icon: 'noodle',  bg: '#fdecec', name: '外卖到家', act: 'toast:外卖频道（演示）' },
-    { icon: 'film',    bg: '#f0ecfd', name: '电影演出', act: 'toast:购票优惠（演示）' },
-    { icon: 'car',     bg: '#e9f7f5', name: '打车出行', act: 'toast:打车券包（演示）' },
-    { icon: 'bed',     bg: '#eef4ff', name: '酒店民宿', act: 'toast:酒店预订（演示）' },
-    { icon: 'health',  bg: '#eef9ef', name: '医疗健康', act: 'toast:医疗挂号（演示）' },
+    { icon: 'charge',  bg: '#eaf3fd', name: '手机充值', act: 'biz:recharge' },
+    { icon: 'receipt', bg: '#fff6e6', name: '生活缴费', act: 'biz:paybill' },
+    { icon: 'noodle',  bg: '#fdecec', name: '外卖到家', act: 'biz:food' },
+    { icon: 'film',    bg: '#f0ecfd', name: '电影演出', act: 'biz:movie' },
+    { icon: 'car',     bg: '#e9f7f5', name: '打车出行', act: 'biz:taxi' },
+    { icon: 'bed',     bg: '#eef4ff', name: '酒店民宿', act: 'biz:hotel' },
+    { icon: 'health',  bg: '#eef9ef', name: '医疗健康', act: 'biz:medical' },
     { icon: 'bear',    bg: '#fdeff7', name: '潮玩谷店', act: 'xg:shigu' }
   ],
   lifeQuick: [
-    { icon: 'gift',   name: '签到有礼', act: 'toast:签到成功 +10 工银i豆' },
-    { icon: 'noodle', name: '外卖券', act: 'toast:外卖红包已领取（演示）' },
-    { icon: 'film',   name: '9.9观影', act: 'toast:观影特惠（演示）' },
-    { icon: 'car',    name: '打车5折', act: 'toast:打车券已领取（演示）' },
+    { icon: 'gift',   name: '签到有礼', act: 'biz:points' },
+    { icon: 'noodle', name: '外卖券', act: 'biz:food' },
+    { icon: 'film',   name: '9.9观影', act: 'biz:movie' },
+    { icon: 'car',    name: '打车5折', act: 'biz:taxi' },
     { icon: 'bear',   name: '谷店券', act: 'xg:shigu' }
   ],
   coupons: [
@@ -132,14 +132,14 @@ const DATA = {
     { amt: '50', unit: 'i豆', name: '展会门票抵扣i豆', desc: '漫展/谷展购票立抵', btn: '领取' }
   ],
   payServices: [
-    { icon: 'water',    bg: '#eaf3fd', name: '水费', act: 'toast:水费缴费（演示）' },
-    { icon: 'bolt',     bg: '#fff6e6', name: '电费', act: 'toast:电费缴费（演示）' },
-    { icon: 'gas',      bg: '#fdecec', name: '燃气费', act: 'toast:燃气缴费（演示）' },
-    { icon: 'tv',       bg: '#f0ecfd', name: '有线电视', act: 'toast:电视缴费（演示）' },
-    { icon: 'wifi',     bg: '#e9f7f5', name: '宽带', act: 'toast:宽带缴费（演示）' },
-    { icon: 'tel',      bg: '#eef4ff', name: '固话', act: 'toast:固话缴费（演示）' },
-    { icon: 'building', bg: '#eef9ef', name: '物业费', act: 'toast:物业缴费（演示）' },
-    { icon: 'flame',    bg: '#fdeff7', name: '供暖费', act: 'toast:供暖缴费（演示）' }
+    { icon: 'water',    bg: '#eaf3fd', name: '水费', act: 'biz:paybill|水费' },
+    { icon: 'bolt',     bg: '#fff6e6', name: '电费', act: 'biz:paybill|电费' },
+    { icon: 'gas',      bg: '#fdecec', name: '燃气费', act: 'biz:paybill|燃气费' },
+    { icon: 'tv',       bg: '#f0ecfd', name: '有线电视', act: 'biz:paybill|有线电视' },
+    { icon: 'wifi',     bg: '#e9f7f5', name: '宽带', act: 'biz:paybill|宽带' },
+    { icon: 'tel',      bg: '#eef4ff', name: '固话', act: 'biz:paybill|固话' },
+    { icon: 'building', bg: '#eef9ef', name: '物业费', act: 'biz:paybill|物业费' },
+    { icon: 'flame',    bg: '#fdeff7', name: '供暖费', act: 'biz:paybill|供暖费' }
   ],
 
   /* 消息（首页铃铛 → 消息中心浮层） */
@@ -175,16 +175,16 @@ const DATA = {
 
   /* 我的-菜单 */
   mineMenu1: [
-    { icon: 'credit', bg: '#eaf3fd', name: '我的银行卡（3张）', act: 'toast:银行卡管理（演示）' },
+    { icon: 'credit', bg: '#eaf3fd', name: '我的银行卡（3张）', act: 'biz:mycards' },
     { icon: 'guka',   bg: '#fff6e6', name: '我的信用卡 · 谷卡', act: 'xg:guka' },
     { icon: 'list',    bg: '#eef9ef', name: '收支明细', act: 'open:page-records' },
     { icon: 'transfer', bg: '#fdecec', name: '转账汇款', act: 'open:page-transfer' }
   ],
   mineMenu2: [
     { icon: 'magic',   bg: '#f0ecfd', name: '魔法空间 · 勋章墙', act: 'open:page-magic' },
-    { icon: 'shield',  bg: '#e9f7f5', name: '安全中心', act: 'toast:安全中心（演示）' },
-    { icon: 'headset', bg: '#eaf3fd', name: '帮助中心', act: 'toast:演示环境：客服暂未开通' },
-    { icon: 'gear',    bg: '#f0f0f2', name: '设置', act: 'toast:设置（演示）' }
+    { icon: 'shield',  bg: '#e9f7f5', name: '安全中心', act: 'biz:security' },
+    { icon: 'headset', bg: '#eaf3fd', name: '帮助中心', act: 'biz:help' },
+    { icon: 'gear',    bg: '#f0f0f2', name: '设置', act: 'biz:settings' }
   ],
 
   /* 魔法空间 */
@@ -227,10 +227,10 @@ const DATA = {
       { icon: 'gold',   bg: '#eef9ef', name: '全部权益' }
     ],
     menus: [
-      { icon: 'list',   bg: '#eef9ef', name: '账单明细', act: 'toast:账单明细（演示）' },
-      { icon: 'gold',   bg: '#fff6e6', name: '额度调整', act: 'toast:额度调整（演示）' },
-      { icon: 'shield', bg: '#e9f7f5', name: '卡片安全锁', act: 'toast:安全锁已开启（演示）' },
-      { icon: 'gear',   bg: '#f0f0f2', name: '卡片管理', act: 'toast:卡片管理（演示）' }
+      { icon: 'list',   bg: '#eef9ef', name: '账单明细', act: 'biz:cardtxn' },
+      { icon: 'gold',   bg: '#fff6e6', name: '额度调整', act: 'biz:limits' },
+      { icon: 'shield', bg: '#e9f7f5', name: '卡片安全锁', act: 'biz:cardlock|c1' },
+      { icon: 'gear',   bg: '#f0f0f2', name: '卡片管理', act: 'biz:cardmgr' }
     ]
   },
 

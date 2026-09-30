@@ -16,6 +16,20 @@
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const money = n => Number(n).toLocaleString('zh-CN');
 
+  /* 场景插画：与手机端共用 ec_char_gender（同一 origin 的 localStorage）
+     男生版 banner-x.jpg / 女生版 banner2-x.jpg；抽象底图不在表内 */
+  const GART = {
+    'banner-door':'banner2-door.jpg','banner-community':'banner2-community.jpg',
+    'banner-ai':'banner2-ai.jpg','banner-credit':'banner2-credit.jpg',
+    'banner-trade':'banner2-trade.jpg','banner-ar':'banner2-ar.jpg',
+    'banner-guxiang':'banner2-guxiang.jpg','cover-enter':'cover2-enter.jpg'
+  };
+  const gArt = base => {
+    let g = 'boy';
+    try { g = localStorage.getItem('ec_char_gender') || 'boy'; } catch (e) {}
+    return A + ((g === 'girl' && GART[base]) ? GART[base] : base + '.jpg');
+  };
+
   /* ══════════ 素材表 ══════════ */
   const CHARS = [
     { id: 'xiaoe', n: '小e', r: '首席谷伴', f: ['综合陪伴', '新手引导'] },
@@ -201,7 +215,7 @@
     return `
     <div class="pg-head"><h1>${TITLE.goods[0]}</h1><p>${TITLE.goods[1]}</p></div>
     <div class="win win-bn" style="margin-bottom:16px">
-      <img src="${A}banner-ai.jpg" alt="">
+      <img src="${gArt('banner-ai')}" alt="">
       <div class="wt"><b>自有 IP 直供 · 说一句话就下单</b><span>正版可溯 · 支持谷粒兑换 / 免息分期 / 出谷通托管</span></div>
     </div>
     <div class="chiprow" style="margin-bottom:14px">
@@ -219,7 +233,7 @@
     </div><div class="sp"><button class="btn gray sm" data-pctoast="演示环境：历史记录为示意">🕘 查看历史记录</button></div></div></div>
 
     <div class="win win-bn" style="margin-bottom:16px">
-      <img src="${A}banner-ai.jpg" alt="">
+      <img src="${gArt('banner-ai')}" alt="">
       <div class="wt"><b>多模态识别 · 一眼辨真伪</b><span>视觉比对 + 官方图库 + 区块链存证，鉴定报告不可篡改</span></div>
     </div>
 
@@ -342,7 +356,7 @@
     </div><div class="sp"><button class="btn am sm" data-pctoast="演示环境：协议文本为示意">📄 查看协议</button></div></div></div>
 
     <div class="win win-bn" style="margin-bottom:16px">
-      <img src="${A}banner-trade.jpg" alt="">
+      <img src="${gArt('banner-trade')}" alt="">
       <div class="wt"><b>下单前说清楚，收到后有地方核对</b><span>版本 / 品相 / 附件 / 售后约定全部写进订单确认页 · 72 小时验货窗口</span></div>
     </div>
 
@@ -402,7 +416,7 @@
     </div><div class="sp"><span class="tag pk">年化低至 3.45% 起</span> <span class="tag bl">最高 5 万额度</span></div></div></div>
 
     <div class="win win-bn" style="margin-bottom:16px">
-      <img src="${A}banner-credit.jpg" alt="">
+      <img src="${gArt('banner-credit')}" alt="">
       <div class="wt"><b>让热爱不被预算限制</b><span>谷卡分期 · 免息券 · 藏品质押授信，一站式解决「想买又差点钱」</span></div>
     </div>
 
@@ -470,7 +484,7 @@
     </div><div class="sp"><span class="tag pk">收藏</span> <span class="tag">展示</span> <span class="tag">创作</span> <span class="tag">分享</span> <span class="tag">遇见同好</span></div></div></div>
 
     <div class="room">
-      <img src="${A}banner-gallery.jpg" alt="">
+      <img src="${gArt('banner-gallery')}" alt="">
       <div class="rt"><b>${rooms.find(r => r[0] === S.cangRoom)[1]}</b>
         <span>已建档 6 件 · 展厅浏览量 1,284 · 同好留言 42</span></div>
     </div>
@@ -507,7 +521,7 @@
   P.plaza = () => `
     <div class="pg-head"><h1>${TITLE.plaza[0]}</h1><p>${TITLE.plaza[1]}</p></div>
     <div class="win win-bn" style="margin-bottom:16px">
-      <img src="${A}banner-community.jpg" alt="">
+      <img src="${gArt('banner-community')}" alt="">
       <div class="wt"><b>今日广场 · 3 位同好正在晒谷</b><span>发帖、晒谷、出回血，都能攒谷粒</span></div>
     </div>
     <div class="grid-32">
@@ -555,7 +569,7 @@
   P.coop = () => `
     <div class="pg-head"><h1>${TITLE.coop[0]}</h1><p>${TITLE.coop[1]}</p></div>
     <div class="win win-bn" style="margin-bottom:16px">
-      <img src="${A}banner-community.jpg" alt="">
+      <img src="${gArt('banner-community')}" alt="">
       <div class="wt"><b>和同好一起，把喜欢的东西摆在一起</b><span>实时语音 · 协同布展 · 云逛展，收藏不再是孤单的事</span></div>
     </div>
     <div class="grid3">
@@ -610,7 +624,7 @@
       </div>
     </div>
     <div class="win win-bn" style="margin-top:16px">
-      <img src="${A}banner-ar.jpg" alt="">
+      <img src="${gArt('banner-ar')}" alt="">
       <div class="wt"><b>打破次元壁</b><span>把收藏带到现实，把现实分享给同好</span></div>
     </div>`;
 
@@ -807,7 +821,7 @@
   }
   function enterEC() {
     const o = $('#pce');
-    $('#pceCover').style.backgroundImage = `url(${A}cover-enter.jpg)`;
+    $('#pceCover').style.backgroundImage = `url(${gArt('cover-enter')})`;
     $('#pceK').textContent = 'ICBC × e次元';
     $('#pceT').innerHTML = 'e<em>次元</em>';
     $('#pceS').textContent = '推开门，就是另一个世界';

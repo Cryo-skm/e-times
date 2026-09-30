@@ -88,7 +88,8 @@
     busy = true;
 
     const d = dest(to);
-    document.getElementById('ecEnterCover').style.backgroundImage = 'url(img/art/cover-enter.jpg)';
+    const _cover = (window.CHARS && CHARS.artFile) ? CHARS.artFile('cover-enter') : 'cover-enter.jpg';
+    document.getElementById('ecEnterCover').style.backgroundImage = 'url(img/art/' + _cover + ')';
     document.getElementById('ecEK').textContent = d.kicker;
     document.getElementById('ecET').innerHTML = d.title;
     document.getElementById('ecES').textContent = d.sub;

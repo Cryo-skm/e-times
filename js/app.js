@@ -161,6 +161,13 @@
       if (btn) btn.click();
     }
     else if (type === 'xg') openXingegu(val);
+    /* 业务办理页（bank-biz.js 提供）：act: 'biz:loan' / 带参数 'biz:paybill|水费' */
+    else if (type === 'biz' && window.BANK) {
+      const i = val.indexOf('|');
+      const k = i < 0 ? val : val.slice(0, i);
+      const p = i < 0 ? undefined : val.slice(i + 1);
+      openPage('page-biz'); window.BANK.open(k, p);
+    }
   }
 
   /* 事件委托：data-xingegu > data-close > data-open > data-toast > data-tab-jump */
@@ -215,7 +222,7 @@
   /* 轮播 */
   $('#bannerTrack').innerHTML = DATA.banners.map(b => `
     <div class="banner-slide${b.img ? ' banner-slide--img' : ''}" style="background:${b.bg}"
-      ${b.ec ? `data-ec="${b.ec}"` : ''}>${b.img ? `<img class="bs-img" src="${b.img}" alt="">` : ''}
+      ${b.ec ? `data-ec="${b.ec}"` : ''}>${b.img ? (b.gart && window.CHARS ? CHARS.artImg(b.img, 'bs-img', b.t) : `<img class="bs-img" src="${b.img}" alt="">`) : ''}
       <div class="bs-txt"><h4>${b.t}</h4><p>${b.d}</p>${b.go ? `<span class="bs-go">${b.go}</span>` : ''}</div>
     </div>`).join('');
   $('#bannerDots').innerHTML = DATA.banners.map((_, i) =>

@@ -16,7 +16,7 @@ const XZG = {
   KEY:'xzg_state_v1',
   /* 外壳 feature id → 内部页面 id（攒谷外壳拼写为 zangu；plaza=谷圈广场） */
   E2F:{shigu:'shigu',zangu:'zaangu',chugu:'chugu',guka:'guka',plaza:'plaza',forum:'forum',mall:'mall',mine:'mine',brand:'brand',create:'create',exchange:'exchange',guxiang:'guxiang',zhidai:'zhidai',cang:'cang'},
-  F2E:{shigu:'shigu',zaangu:'zangu',chugu:'chugu',guka:'guka',plaza:'plaza',forum:'forum',mall:'mall',mine:'mine',brand:'mall',create:'mine',exchange:'mine',guxiang:'guxiang',zhidai:'zhidai',cang:'cang'},
+  F2E:{shigu:'shigu',zaangu:'zangu',chugu:'chugu',guka:'guka',plaza:'plaza',forum:'forum',mall:'mall',mallorder:'mall',mine:'mine',brand:'mall',create:'mine',exchange:'mine',guxiang:'guxiang',zhidai:'zhidai',cang:'cang'},
   /* ---- 演示数据库 ---- */
   DB:{
     goods:[
@@ -87,6 +87,14 @@ const XZG = {
     escrow:320,doneCnt:0,
     medals:{},votes:{},myVote:null,
     cardApplied:false,myCard:null,calcUsed:false,shopVisit:false,
+    /* ── 商城购物链路：购物车 / 收货地址 / 商城订单 / 物流 ── */
+    cart:[],
+    addr:{name:'李**',phone:'138****5678',city:'上海市黄浦区',detail:'工银大厦 20F',tag:'家'},
+    addrList:[
+      {id:'ad1',name:'李**',phone:'138****5678',city:'上海市黄浦区',detail:'工银大厦 20F',tag:'家',def:true},
+      {id:'ad2',name:'李**',phone:'138****5678',city:'上海市徐汇区',detail:'漕溪北路 331 号 8 号楼',tag:'公司',def:false}
+    ],
+    mallOrders:[],
     gender:null   /* 用户性别：boy→美少女风格UI / girl→美少年风格UI */
   }},
   load(){try{const r=localStorage.getItem(this.KEY);return r?Object.assign(this.DEF(),JSON.parse(r)):this.DEF()}catch(e){return this.DEF()}},
@@ -115,8 +123,80 @@ const XZG = {
   _mounted:false,
   mount(fid){
     const p=this.E2F[fid]||'plaza';
-    if(!this._mounted){this.buildSkeleton();this._mounted=true;this.bindRipple(document.querySelector('#xingegu-slot'))}
+    if(!this._mounted){
+      this.buildSkeleton();this._mounted=true;
+      this.bindRipple(document.querySelector('#xingegu-slot'));
+      /* 右上角「···」→ e次元设置 */
+      const more=document.querySelector('#page-xingegu .op-more');
+      if(more&&!more.__bound){
+        more.__bound=true;more.style.cursor='pointer';more.title='e次元设置';
+        more.addEventListener('click',()=>this.openSettings());
+      }
+    }
+    this.applyGender();
     this.go(p);
+    /* 首次进入：先问性别 —— 谷伴用主人喜欢的画风陪着逛 */
+    if(!this.S.gender)setTimeout(()=>this.askGender(),360);
+  },
+  /* ════ 形象风格：性别决定全站插画（男→美少女 / 女→美少年） ════ */
+  applyGender(){
+    const pg=document.querySelector('#page-xingegu');
+    if(pg)pg.dataset.gender=CHARS.gender();
+    this.fillAvatars();
+  },
+  _headG(id,g){return `<img class="ec-head" src="${CHARS.art(id,g)}" alt="">`},
+  askGender(){
+    this.sheet(`<h3>欢迎来到 e次元</h3>
+      <div class="ssub">先告诉小e你的性别 —— 谷伴们会用你喜欢的样子陪你逛</div>
+      <div class="gpick gpick--gender">
+        <button class="gp-card${CHARS.isBoy()?' on':''}" onclick="XZG.setGender('boy')">
+          <div class="gp-avas"><span>${this._headG('xiaoe','boy')}</span><span>${this._headG('yutang','boy')}</span></div>
+          <b>我是男生</b><span class="gp-sub">谷伴以美少女形象出现</span>
+          <i class="gp-tag">小e · 星熠 · 语棠…</i>
+        </button>
+        <button class="gp-card${CHARS.isGirl()?' on':''}" onclick="XZG.setGender('girl')">
+          <div class="gp-avas"><span>${this._headG('xiaoe','girl')}</span><span>${this._headG('yutang','girl')}</span></div>
+          <b>我是女生</b><span class="gp-sub">谷伴以美少年形象出现</span>
+          <i class="gp-tag">小e · 星熠 · 语棠…</i>
+        </button>
+      </div>
+      <div class="xzg-muted" style="font-size:10.5px;margin-top:11px;text-align:center">之后可以在右上角「···」设置里随时切换</div>`);
+  },
+  setGender(g){
+    CHARS.setGender(g);
+    this.S.gender=g;this.save();
+    this.sheetClose();
+    this.applyGender();
+    this.go(this._lastPg||'plaza');
+    this.toast(g==='girl'?'已切换为美少年风格':'已切换为美少女风格','🎨');
+  },
+  openSettings(){
+    const g=CHARS.gender();
+    this.sheet(`<h3>⚙️ e次元设置</h3><div class="ssub">形象风格 · 谷伴 · 演示数据</div>
+      <div class="xzg-form">
+        <button class="xzg-btn" onclick="XZG.askGender()">🎨 插画风格：${g==='girl'?'美少年':'美少女'} · 点此切换</button>
+        <button class="xzg-btn" onclick="XZG.pickCompanionOpen()">🐾 更换谷伴（当前：${CHARS.get(CHARS.current()).name}）</button>
+        <button class="xzg-btn" onclick="XZG.openAbout()">ℹ️ 关于 e次元</button>
+        <button class="xzg-btn gold" onclick="XZG.resetData()">♻️ 重置演示数据</button>
+      </div>`);
+  },
+  openAbout(){
+    this.sheet(`<h3>ℹ️ 关于 e次元</h3>
+      <div class="ssub">谷子经济 · 一站式金融服务平台</div>
+      <div class="xzg-muted" style="line-height:2;font-size:12px;margin:12px 0 14px">
+        本作品为第 17 届「工行杯」全国大学生金融科技创新大赛参赛作品。<br>
+        全部角色形象均为原创绘制，不含任何第三方 IP 素材。<br>
+        页面中的金融业务、额度与行情数据皆为演示模拟，不构成真实金融服务；<br>
+        银行卡卡面为示意设计，不对应任何真实卡种。
+      </div>
+      <button class="xzg-btn" onclick="XZG.sheetClose()">知道了</button>`);
+  },
+  resetData(){
+    this.sheet(`<h3>♻️ 重置演示数据</h3><div class="ssub">谷粒、订单、投票、成长值都会恢复初始状态</div>
+      <div class="xzg-form">
+        <button class="xzg-btn gold" onclick="XZG.reset()">确认重置</button>
+        <button class="xzg-btn" onclick="XZG.sheetClose()">取消</button>
+      </div>`);
   },
   /* ════════ 谷伴角色团（自研原创矢量形象，定义见 js/chars.js） ════════
      不再有首屏强制选择：默认「小e」，用户可在广场公告条随时更换。 */
@@ -176,7 +256,7 @@ const XZG = {
           <span class="pm-ico">${ico(ic,20)}</span><b>${n}</b>
         </button>`).join('')}</div>
       <div class="plz-sechead"><b>话题热榜</b><span>谷友都在聊</span></div>
-      <div class="plz-topics">${topics.map(t=>`<button class="pt-row" onclick="ICBCApp.toast('演示环境：话题详情敬请期待')"><div class="pt-main"><b>${t[0]}</b><span>${t[1]}</span></div><i>${t[2]}</i></button>`).join('')}</div>
+      <div class="plz-topics">${topics.map(t=>`<button class="pt-row" onclick="XZG.topicOpen('${t[0]}|${t[1]}|${t[2]}')"><div class="pt-main"><b>${t[0]}</b><span>${t[1]}</span></div><i>${t[2]}</i></button>`).join('')}</div>
       <div class="plz-board">
         <div class="pb-ava ec-ava-wrap">${CHARS.svg(me)}</div>
         <div class="pb-bubble"><b>${ME.name} · ${ME.role}</b>${ME.say}</div>
@@ -194,6 +274,10 @@ const XZG = {
       </div>
       <div class="xzg-fpage" id="pg-mall">
         <div class="xzg-body" id="mallBody"></div>
+      </div>
+      <div class="xzg-fpage" id="pg-mallorder">
+        ${bar('chengxi','商城订单 · 我的谷子','下单 → 发货 → 物流 → 收货 全流程可查','<span class="xzg-sbadge" onclick="XZG.go(\'mall\')">🛍 回商城</span>')}
+        <div class="xzg-body" id="mallOrderBody"></div>
       </div>
       <div class="xzg-fpage" id="pg-mine">
         <div class="xzg-body" id="mineBody"></div>
@@ -216,11 +300,11 @@ const XZG = {
         <div class="xzg-body" id="zaanguBody"></div>
       </div>
       <div class="xzg-fpage" id="pg-chugu">
-        ${bar('chugu','出谷通 · 安全托管','货款进工行托管 · 验货后放款 · 沉淀信用分','<span class="xzg-sbadge" onclick="ICBCApp.toast(\'融安e信风控：新建订单时自动扫描\')">🛡 融安e信</span>')}
+        ${bar('chugu','出谷通 · 安全托管','货款进工行托管 · 验货后放款 · 沉淀信用分','<span class="xzg-sbadge" onclick="XZG.riskOpen()">🛡 融安e信</span>')}
         <div class="xzg-body" id="chuguBody"></div>
       </div>
       <div class="xzg-fpage" id="pg-guka">
-        ${bar('guka','谷卡 · 联名卡','卡面由你投票定 · 大额藏品可分期 · 开卡送限定谷','<span class="xzg-sbadge" onclick="ICBCApp.toast(\'演示环境：信用卡频道即将上线\')">💳 信用卡频道</span>')}
+        ${bar('guka','谷卡 · 联名卡','卡面由你投票定 · 大额藏品可分期 · 开卡送限定谷','<span class="xzg-sbadge" onclick="XZG.gotoCredit()">💳 信用卡频道</span>')}
         <div class="xzg-body" id="gukaBody"></div>
       </div>
       <div class="xzg-fpage" id="pg-guxiang">
@@ -264,7 +348,7 @@ const XZG = {
     document.querySelectorAll('.xzg-fpage').forEach(x=>x.classList.toggle('on',x.id==='pg-'+p));
     document.querySelectorAll('#xingeguChips .xg-chip').forEach(c=>c.classList.toggle('active',c.dataset.feature===this.F2E[p]));
     this.fillAvatars();
-    ({plaza:()=>this.renderPlaza(),shigu:()=>this.renderShigu(),zaangu:()=>this.renderZaangu(),chugu:()=>this.renderChugu(),guka:()=>this.renderGuka(),forum:()=>this.renderForum(),mall:()=>this.renderMall(),mine:()=>this.renderMine(),brand:()=>this.renderBrand(),create:()=>this.renderCreate(),exchange:()=>this.renderExchange(),guxiang:()=>this.renderGuxiang(),zhidai:()=>this.renderZhidai(),cang:()=>this.renderCang()})[p]();
+    ({plaza:()=>this.renderPlaza(),shigu:()=>this.renderShigu(),zaangu:()=>this.renderZaangu(),chugu:()=>this.renderChugu(),guka:()=>this.renderGuka(),forum:()=>this.renderForum(),mall:()=>this.renderMall(),mallorder:()=>this.renderMallOrders(),mine:()=>this.renderMine(),brand:()=>this.renderBrand(),create:()=>this.renderCreate(),exchange:()=>this.renderExchange(),guxiang:()=>this.renderGuxiang(),zhidai:()=>this.renderZhidai(),cang:()=>this.renderCang()})[p]();
     const slot=document.querySelector('#xingegu-slot');if(slot)slot.scrollTop=0;
     /* 动态特效色调：商城/广场→海水蓝；我的/论坛→樱花粉 */
     const fx=document.querySelector('#xgFx');
@@ -588,7 +672,7 @@ Object.assign(XZG,{
       </div>
       <div class="xzg-card" style="padding:4px 14px">
         ${E.forumNotices.map(n=>`
-          <button class="fm-msg" onclick="ICBCApp.toast('演示环境：通知详情敬请期待')">
+          <button class="fm-msg" onclick="XZG.notifOpen()">
             <span class="fm-msg-ava">${CHARS.head(n.char)}</span>
             <span class="fm-msg-m"><b>${n.name}<i class="fm-woff"></i></b><span>${n.sub}</span></span>
             <span class="fm-msg-r"><i>${n.time}</i><em class="${n.badge>=99?'max':''}">${n.badge>=99?'99+':n.badge}</em></span>
@@ -630,7 +714,7 @@ Object.assign(XZG,{
       <p style="font-size:13px;color:#5b6472;line-height:1.9;margin-top:8px">${p.txt}</p>
       <div style="display:flex;gap:18px;margin-top:16px;padding-top:12px;border-top:1px solid #edeff3">
         <button class="xzg-btn ghost mini" onclick="XZG.likePost(this,${p.likes})">👍 <em>${(p.likes/1000).toFixed(1)}k</em></button>
-        <button class="xzg-btn ghost mini" onclick="ICBCApp.toast('评论功能演示中','💬')">💬 ${p.cmts}</button>
+        <button class="xzg-btn ghost mini" onclick="XZG.cmtOpen('${String(p.title).replace(/'/g,'')}|${p.cmts}')">💬 ${p.cmts}</button>
         <button class="xzg-btn ghost mini" onclick="ICBCApp.toast('链接已复制（演示）','🔗')">🔗 分享</button>
       </div>`);
     setTimeout(()=>ICBCApp.toast('来自「'+p.user+'」的帖子','📜'),60);
@@ -654,19 +738,25 @@ Object.assign(XZG,{
   /* ═══ 商城（搜索栏 + 分部瓷片 + 最近上新 + 商品流） ═══ */
   renderMall(){
     const E=this.EZ(),b=this.$('#mallBody');if(!b)return;
+    const cn=this.cartCount();
     b.innerHTML=`
       <div class="ml-search">
-        <div class="ml-search-bar" onclick="ICBCApp.toast('演示环境：搜索暂未开通','🔍')">
+        <div class="ml-search-bar" onclick="XZG.mallSearch()">
           <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M16 16l4.5 4.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
           <span>群星邀约 · 搜一搜你心动的谷子</span>
         </div>
-        <button class="ml-search-ref" onclick="ICBCApp.toast('已为你刷新「周边上新」','🔄')">🔄</button>
+        <button class="ml-search-ref" onclick="XZG.toast('已为你刷新「周边上新」','🔄')">🔄</button>
+      </div>
+      <div class="ml-quickrow">
+        <button class="ml-qb" onclick="XZG.openCart()">🛒 购物车${cn?`<i class="ml-qb-badge">${cn}</i>`:''}</button>
+        <button class="ml-qb" onclick="XZG.go('mallorder')">📦 我的订单<i class="ml-qb-badge gray">${this.S.mallOrders.length}</i></button>
+        <button class="ml-qb" onclick="XZG.openAddr()">📍 收货地址</button>
       </div>
       <div class="ml-banner" onclick="XZG.openBrand('juequeling')">${this.mallBanner()}</div>
       <div class="ml-ztiles">${E.zones.map(z=>this.zoneTile(z)).join('')}</div>
       <div class="plz-sechead"><b>✦ 最近上新</b><span>官方周边 · 正品保障</span></div>
-      <div class="ml-newrow">${E.newArrivals.map(n=>`
-        <button class="ml-newcard" style="background:${n.tone}" onclick="ICBCApp.toast('演示环境：商品详情敬请期待','🖼')">
+      <div class="ml-newrow">${E.newArrivals.map((n,i)=>`
+        <button class="ml-newcard" style="background:${n.tone}" onclick="XZG.buyGoods('m'+(i===0?'4':i===1?'4':'1'))">
           <span class="ml-new-fig">${this.artSVG(n.art)}</span><i>NEW</i><b>${n.name}</b>
         </button>`).join('')}</div>
       <div class="plz-sechead"><b>🏦 工行自有 IP 系列</b><span>官方自营 · 限量发行</span></div>
@@ -683,7 +773,7 @@ Object.assign(XZG,{
       <span class="zt-fig" style="background:${z.grad}">${CHARS.svg(z.char)}</span>
     </button>`;
   },
-  /* 周年庆系列：价格/单位 + 立即购买 */
+  /* 周年庆系列：价格/单位 + 加入购物车 / 立即购买 */
   annivCards(){
     return this.EZ().annivGoods.map(g=>`
       <div class="ml-gd" onclick="XZG.buyGoods('${g.id}')">
@@ -691,6 +781,7 @@ Object.assign(XZG,{
         <b>${g.name}</b>
         <span class="ml-gd-p"><em>¥</em>${g.price}<i class="u">/${g.unit}</i>
           <button class="ml-buy" onclick="event.stopPropagation();XZG.buyGoods('${g.id}')">立即购买</button></span>
+        <button class="ml-cart" onclick="event.stopPropagation();XZG.addCart('${g.id}')">＋ 加入购物车</button>
       </div>`).join('');
   },
   mallCards(list){
@@ -700,6 +791,7 @@ Object.assign(XZG,{
         <b>${g.name}</b>
         <span class="ml-gd-p"><em>¥</em>${g.price}<i class="u">/件</i>
           <button class="ml-buy" onclick="event.stopPropagation();XZG.buyGoods('${g.id}')">立即购买</button></span>
+        <button class="ml-cart" onclick="event.stopPropagation();XZG.addCart('${g.id}')">＋ 加入购物车</button>
       </div>`).join('');
   },
   openBrand(zid){this._brand=zid;this.go('brand')},
@@ -765,7 +857,354 @@ Object.assign(XZG,{
       <button class="xzg-btn gold big" style="margin-top:14px" onclick="XZG.sheetClose()">完成</button></div>`);
     this.addGrains(Math.round(p/10)||5,'购物返谷粒');
   },
-  /* ═══ 我的（e次元个人主页：谷伴形象 + 粉丝关注获赞 + 成就勋章 + 创作中心） ═══ */
+  /* ═══════════════ 社区 · 话题 / 通知 / 评论 / 风控（把「敬请期待」接成真实层级） ═══════════════ */
+  topicOpen(arg){
+    const [name,sub,cnt]=String(arg||'').split('|');
+    const hot=this.EZ().forumPosts.slice(0,3);
+    this.sheet(`<h3># ${name||'谷圈话题'}</h3><div class="ssub">${sub||'谷友正在讨论'} · ${cnt||'128'} 条动态</div>
+      ${hot.map(p=>`<div class="xzg-cartrow" onclick="XZG.sheetClose();XZG.cmtOpen('${String(p.title).replace(/'/g,'')}|${p.cmts}')">
+        <span class="cc-img">${CHARS.head(p.char)}</span>
+        <div class="cc-main"><b>${p.title}</b><span class="cc-p">${p.user} · 赞 ${this.money(p.likes)}</span></div>
+        <span class="cc-sum" style="font-size:12px;color:#98a0ad">💬 ${p.cmts}</span></div>`).join('')}
+      <div class="xzg-hr"></div>
+      <div class="mo-ops" style="justify-content:center">
+        <button class="xzg-btn plain mini" onclick="XZG.sheetClose();XZG.go('forum')">去论坛</button>
+        <button class="xzg-btn mini" onclick="XZG.cmtOpen('${String(name||'谷圈话题').replace(/'/g,'')}|${cnt||128}')">参与讨论</button>
+        <button class="xzg-btn gold mini" onclick="XZG.go('create');XZG.sheetClose()">发新帖</button>
+      </div>`);
+  },
+  notifOpen(){
+    const L=[
+      {emo:'🎁',t:'「攒谷计划」奖励到账',s:'完成每日签到，+20 谷粒已入账',w:'10 分钟前'},
+      {emo:'⚡',t:'秒杀提醒',s:'你关注的「小e 限定吧唧」将在 20 分钟后开抢',w:'1 小时前'},
+      {emo:'📦',t:'订单物流更新',s:'你的包裹已到达 上海黄浦集散中心',w:'今天 14:19'},
+      {emo:'🛡',t:'融安e信安全提示',s:'检测到一笔异地登录，已为你开启二次验证',w:'昨天'}
+    ];
+    this.sheet(`<h3>🔔 通知中心</h3><div class="ssub">${L.length} 条未读 · 演示数据</div>
+      ${L.map(n=>`<div class="xzg-cartrow">
+        <span class="cc-img" style="display:flex;align-items:center;justify-content:center;font-size:24px;background:#f7f8fb">${n.emo}</span>
+        <div class="cc-main"><b>${n.t}</b><span class="cc-p">${n.s}<br>${n.w}</span></div></div>`).join('')}
+      <div class="mo-ops" style="justify-content:center">
+        <button class="xzg-btn plain mini" onclick="XZG.sheetClose();XZG.go('mallorder')">查看订单</button>
+        <button class="xzg-btn mini" onclick="XZG.sheetClose();XZG.go('zaangu')">去攒谷</button>
+        <button class="xzg-btn gold mini" onclick="XZG.sheetClose();XZG.go('shigu')">去识谷</button>
+      </div>`);
+  },
+  cmtOpen(arg){
+    const [name,n]=String(arg||'').split('|');
+    const C=[
+      {c:'chengxi',u:'蹲低价的小满',x:'同款我上周入的，价格差不多，放心冲～',w:'6 分钟前',l:32},
+      {c:'yunjian',u:'稳如老云',x:'建议走托管，验货期能省不少心。',w:'18 分钟前',l:21},
+      {c:'yutang',u:'吃谷十年的阿棠',x:'收藏了，谢谢分享！',w:'1 小时前',l:9}
+    ];
+    this.sheet(`<h3>💬 评论 · ${name||'帖子'}（${n||C.length}）</h3>
+      <div class="ssub">理性吃谷 · 友善交流</div>
+      ${C.map(c=>`<div class="xzg-cartrow">
+        <span class="cc-img">${CHARS.head(c.c)}</span>
+        <div class="cc-main"><b>${c.u}</b><span class="cc-p">${c.x}<br>${c.w} · 赞 ${c.l}</span></div></div>`).join('')}
+      <div class="xzg-form" style="margin-top:10px"><div class="fi">
+        <input type="text" id="cmtText" placeholder="说点什么…"></div></div>
+      <button class="xzg-btn big" onclick="XZG.cmtSend()">发送评论</button>
+      <div class="mo-ops" style="justify-content:center;margin-top:9px">
+        <button class="xzg-btn plain mini" onclick="XZG.sheetClose();XZG.go('forum')">回论坛</button>
+        <button class="xzg-btn plain mini" onclick="XZG.toast('已收藏该帖子','⭐')">收藏帖子</button>
+        <button class="xzg-btn ghost mini" onclick="XZG.toast('已举报，融安e信将复核','🛡')">举报</button>
+      </div>`);
+  },
+  cmtSend(){
+    const v=((this.$('#cmtText')||{}).value||'').trim();
+    if(!v) return this.toast('先写点什么吧','✍️');
+    this.sheetClose(); this.addGrains(5,'参与社区讨论');
+    this.toast('评论已发布：'+v.slice(0,10)+'…','💬');
+  },
+  riskOpen(){
+    this.sheet(`<h3>🛡 融安e信 · 风险扫描报告</h3><div class="ssub">e次元交易安全引擎 · 实时风控</div>
+      <div class="xzg-card" style="background:linear-gradient(135deg,#f0fbf6,#e2f7ee);box-shadow:none">
+        <div class="ct" style="color:#0aa870">本次扫描通过 ✅</div>
+        <div class="xzg-muted" style="font-size:11.5px;line-height:1.9">交易对手信用分 712 · 无黑名单命中<br>资金流向正常 · 无高频异常操作</div></div>
+      <div class="xzg-kvrow"><span>对手方信用等级</span><b>优秀（712 分）</b></div>
+      <div class="xzg-kvrow"><span>历史纠纷率</span><b>0.8%</b></div>
+      <div class="xzg-kvrow"><span>建议托管金额上限</span><b>¥5,000.00</b></div>
+      <div class="mo-ops" style="justify-content:center;margin-top:10px">
+        <button class="xzg-btn mini" onclick="XZG.sheetClose();XZG.orderCreate()">去建托管订单</button>
+        <button class="xzg-btn plain mini" onclick="XZG.sheetClose();XZG.go('chugu')">回出谷通</button>
+        <button class="xzg-btn ghost mini" onclick="XZG.toast('已导出报告（演示）','📄')">导出报告</button>
+      </div>`);
+  },
+  /* 谷卡 → 真的跳到外壳「信用卡」Tab（而不是一句提示） */
+  gotoCredit(){
+    this.sheetClose();
+    if(window.ICBCApp) ICBCApp.closePage('page-xingegu');
+    setTimeout(()=>{ const b=document.querySelector('.tab-item[data-tab="view-credit"]'); if(b) b.click(); },260);
+  },
+  /* ═══════════════ 商城 · 商品查找 ═══════════════ */
+  _goods(id){
+    const E=this.EZ();
+    let g=E.mallGoods.find(x=>x.id===id);
+    if(!g){const a=E.annivGoods.find(x=>x.id===id);
+      if(a)g={id:a.id,zone:'icbc',name:a.name,price:a.price,tag:'周年庆',art:a.art}}
+    return g||null;
+  },
+  _cartList(){
+    return (this.S.cart||[]).map(c=>{const g=this._goods(c.id);return g?Object.assign({},g,{price:+g.price,qty:c.qty}):null}).filter(Boolean);
+  },
+  _cartTotal(){return this._cartList().reduce((s,x)=>s+x.price*x.qty,0)},
+  /* ═══════════════ 商城 · 购物车 ═══════════════ */
+  cartCount(){return (this.S.cart||[]).reduce((s,c)=>s+c.qty,0)},
+  addCart(id){
+    const g=this._goods(id); if(!g) return;
+    this.S.cart=this.S.cart||[];
+    const it=this.S.cart.find(c=>c.id===g.id);
+    if(it) it.qty=Math.min(99,it.qty+1); else this.S.cart.push({id:g.id,qty:1});
+    this.save();
+    if(this._lastPg==='mall') this.renderMall();
+    this.toast('已加入购物车「'+String(g.name).slice(0,12)+'」','🛒');
+  },
+  cartQty(id,d){
+    const c=(this.S.cart||[]).find(x=>x.id===id); if(!c)return;
+    c.qty=Math.max(1,Math.min(99,c.qty+d)); this.save(); this.openCart();
+  },
+  cartDel(id){
+    this.S.cart=(this.S.cart||[]).filter(x=>x.id!==id); this.save(); this.openCart();
+    if(this._lastPg==='mall') this.renderMall();
+    this.toast('已移出购物车','🗑');
+  },
+  openCart(){
+    const list=this._cartList();
+    const total=this._cartTotal(),cnt=list.reduce((s,x)=>s+x.qty,0);
+    this.sheet(`<h3>🛒 购物车</h3><div class="ssub">共 ${list.length} 种 ${cnt} 件 · 合计 ¥${this.money(total)} · 满 99 包邮</div>
+      ${list.length?list.map(x=>`
+        <div class="xzg-cartrow">
+          <span class="cc-img">${this.artSVG(x.art)}</span>
+          <div class="cc-main"><b>${x.name}</b><span class="cc-p">¥${this.money(x.price)}</span>
+            <div class="cc-ops"><button onclick="XZG.cartQty('${x.id}',-1)">－</button><i>${x.qty}</i><button onclick="XZG.cartQty('${x.id}',1)">＋</button>
+              <button class="cc-del" onclick="XZG.cartDel('${x.id}')">删除</button></div></div>
+        </div>`).join(''):'<div class="xzg-null"><span class="nic">🛒</span>购物车还是空的 · 去「为你推荐」挑一挑</div>'}
+      ${list.length?`<div class="xzg-calc"><div class="cres"><div class="c"><b>¥${this.money(total)}</b><span>商品合计</span></div><div class="c"><b>¥0</b><span>运费</span></div><div class="c"><b>${cnt}</b><span>件数</span></div></div></div>
+      <button class="xzg-btn big" onclick="XZG.checkout()">去结算 (${cnt})</button>
+      <button class="xzg-btn plain big" style="margin-top:9px" onclick="XZG.sheetClose();XZG.go('mall')">继续逛逛</button>`
+      :`<button class="xzg-btn big" style="margin-top:14px" onclick="XZG.sheetClose();XZG.go('mall')">去商城逛逛</button>`}`);
+  },
+  /* ═══════════════ 商城 · 收货地址 ═══════════════ */
+  openAddr(){
+    const L=this.S.addrList||[];
+    this.sheet(`<h3>📍 收货地址</h3><div class="ssub">共 ${L.length} 个地址 · 默认地址将用于结算</div>
+      ${L.map(a=>`<div class="xzg-addrow${a.def?' on':''}" onclick="XZG.pickAddr('${a.id}')">
+        <div class="ar-m"><b>${a.name} <i>${a.phone}</i>${a.def?'<em>默认</em>':''}</b><span>${a.city} ${a.detail}</span></div>
+        <span class="ar-tag">${a.tag||'家'}</span></div>`).join('')}
+      <button class="xzg-btn plain big" style="margin-top:6px" onclick="XZG.addrNew()">＋ 新增收货地址</button>
+      <div class="xzg-muted" style="font-size:10.5px;margin-top:9px;text-align:center">* 演示环境，请勿填写真实个人信息</div>`);
+  },
+  pickAddr(id){
+    const a=(this.S.addrList||[]).find(x=>x.id===id); if(!a)return;
+    (this.S.addrList||[]).forEach(x=>x.def=(x.id===id));
+    this.S.addr={name:a.name,phone:a.phone,city:a.city,detail:a.detail,tag:a.tag};
+    this.save(); this.sheetClose(); this.toast('已切换收货地址','📍');
+    if(this._cartList().length) setTimeout(()=>this.checkout(),260); else this.openAddr();
+  },
+  addrNew(){
+    this.sheet(`<h3>＋ 新增收货地址</h3><div class="ssub">演示环境，任意填写即可</div>
+      <div class="xzg-form">
+        <div class="fi"><label>收货人</label><input type="text" id="adName" value="李**"></div>
+        <div class="fi"><label>手机号</label><input type="text" id="adPhone" value="138****5678"></div>
+        <div class="fi"><label>所在城市</label><input type="text" id="adCity" value="上海市浦东新区"></div>
+        <div class="fi"><label>详细地址</label><input type="text" id="adDetail" placeholder="街道 / 门牌 / 楼层"></div>
+        <div class="fi"><label>标签</label><input type="text" id="adTag" value="家"></div>
+      </div>
+      <button class="xzg-btn big" onclick="XZG.addrSave()">保存地址</button>`);
+  },
+  addrSave(){
+    const v=id=>((this.$('#'+id)||{}).value||'').trim();
+    if(!v('adDetail')) return this.toast('请填写详细地址','📍');
+    this.S.addrList=this.S.addrList||[];
+    this.S.addrList.push({id:this.uid(),name:v('adName')||'李**',phone:v('adPhone')||'138****5678',
+      city:v('adCity')||'上海市',detail:v('adDetail'),tag:v('adTag')||'家',def:!this.S.addrList.length});
+    this.save(); this.sheetClose(); this.toast('地址已保存','✅'); setTimeout(()=>this.openAddr(),200);
+  },
+  /* ═══════════════ 商城 · 结算与支付 ═══════════════ */
+  checkout(){
+    const list=this._cartList(); if(!list.length) return this.toast('购物车是空的','🛒');
+    const A=this.S.addr||{},total=this._cartTotal();
+    this.sheet(`<h3>🧾 确认订单</h3><div class="ssub">工行 e次元商城 · 官方直营 · 正品保障</div>
+      <div class="xzg-addrbox" onclick="XZG.openAddr()">
+        <span class="ab-ic">📍</span>
+        <div class="ab-m"><b>${A.name||'李**'} ${A.phone||''}</b><span>${(A.city||'')+' '+(A.detail||'')}</span></div>
+        <span class="ab-arr">›</span>
+      </div>
+      ${list.map(x=>`<div class="xzg-cartrow"><span class="cc-img">${this.artSVG(x.art)}</span>
+        <div class="cc-main"><b>${x.name}</b><span class="cc-p">¥${this.money(x.price)} × ${x.qty}</span></div>
+        <span class="cc-sum">¥${this.money(x.price*x.qty)}</span></div>`).join('')}
+      <div class="xzg-hr"></div>
+      <div class="xzg-addrbox">
+        <span class="ab-ic">💳</span>
+        <div class="ab-m"><b>工商银行 · 储蓄卡（薪金卡）</b><span>尾号 8888 · 余额充足</span></div>
+        <span class="ab-arr">›</span>
+      </div>
+      <div class="xzg-calc"><div class="cres">
+        <div class="c"><b>¥${this.money(total)}</b><span>商品合计</span></div>
+        <div class="c"><b>¥0</b><span>运费</span></div>
+        <div class="c"><b>🌾${Math.max(5,Math.round(total/10))}</b><span>返谷粒</span></div>
+      </div></div>
+      <button class="xzg-btn big" onclick="XZG.payNow()">工商银行储蓄卡支付 ¥${this.money(total)}</button>
+      <div class="xzg-muted" style="font-size:10.5px;margin-top:9px;text-align:center">* 演示环境 · 不会产生任何真实扣款</div>`);
+  },
+  payNow(){
+    const list=this._cartList(); if(!list.length) return;
+    const total=this._cartTotal(),now=this._now();
+    const o={id:this.uid(),no:'EC'+Date.now().toString().slice(-10),items:list.map(x=>({id:x.id,name:x.name,price:x.price,qty:x.qty,art:x.art})),
+      total:total,step:1,t:now,addr:Object.assign({},this.S.addr),
+      express:'顺丰速运 SF'+(100000000+Math.floor(Math.random()*899999999)),
+      trace:[{t:now,s:'订单已提交，等待支付'},{t:now,s:'支付成功 · 货款已进入工行托管，等待商家发货'}]};
+    this.S.mallOrders.unshift(o);
+    this.S.cart=[]; this.save();
+    if(window.ICBCApp&&ICBCApp.addRecord)ICBCApp.addRecord({icon:'🛍️',bg:'#fdeff7',
+      title:'e次元商城 · '+String(list[0].name).slice(0,12)+(list.length>1?'等'+list.length+'件':''),time:'刚刚',amt:-total});
+    this.addGrains(Math.max(5,Math.round(total/10)),'购物返谷粒');
+    this.sheet(`<div style="text-align:center;padding:10px 0 4px"><div style="font-size:46px">📦</div>
+      <b style="font-size:15.5px;display:block;margin-top:8px">支付成功！</b>
+      <div class="xzg-muted" style="margin-top:6px">订单号 ${o.no}<br>预计 48 小时内发货 · 货款由工行托管保障中</div>
+      <button class="xzg-btn gold big" style="margin-top:14px" onclick="XZG.sheetClose();XZG.go('mallorder')">查看订单</button>
+      <button class="xzg-btn plain big" style="margin-top:9px" onclick="XZG.sheetClose();XZG.go('mall')">继续逛逛</button></div>`);
+  },
+  /* ═══════════════ 商城 · 订单列表与物流 ═══════════════ */
+  _ostatus(o){
+    return {1:['待发货','#e08a2e','商家备货中 · 48 小时内发出'],
+            2:['运输中','#3d8ff0','包裹在途 · 点击查看物流'],
+            3:['派送中','#7a5cff','快递员正在派送 · 今日送达'],
+            4:['已完成','#0aa870','已签收 · 感谢你的支持'],
+            5:['已取消','#98a0ad','订单已取消 · 货款已退回']}[o.step]||['待处理','#98a0ad',''];
+  },
+  renderMallOrders(){
+    const b=this.$('#mallOrderBody'); if(!b)return;
+    const L=this.S.mallOrders||[];
+    const seg=this._moSeg||'all';
+    const F=L.filter(o=>seg==='all'||(seg==='run'&&o.step>=1&&o.step<=3)||(seg==='done'&&o.step===4));
+    b.innerHTML=`
+      <div class="mo-seg">
+        ${[['all','全部'],['run','进行中'],['done','已完成']].map(([k,t])=>
+          `<button class="${seg===k?'on':''}" onclick="XZG.moSeg('${k}')">${t}</button>`).join('')}
+      </div>
+      ${F.length?F.map(o=>{const st=this._ostatus(o);return `
+        <div class="mo-card" onclick="XZG.openOrder('${o.id}')">
+          <div class="mo-h"><span class="mo-no">订单号 ${o.no}</span><b style="color:${st[1]}">${st[0]}</b></div>
+          ${o.items.map(it=>`<div class="xzg-cartrow"><span class="cc-img">${this.artSVG(it.art)}</span>
+            <div class="cc-main"><b>${it.name}</b><span class="cc-p">¥${this.money(it.price)} × ${it.qty}</span></div>
+            <span class="cc-sum">¥${this.money(it.price*it.qty)}</span></div>`).join('')}
+          <div class="mo-f"><span class="xzg-muted" style="font-size:11px">${st[2]}</span>
+            <b style="font-size:14px">合计 ¥${this.money(o.total)}</b></div>
+          <div class="mo-ops">
+            ${o.step===1?`<button class="xzg-btn plain mini" onclick="event.stopPropagation();XZG.orderCancel('${o.id}')">取消订单</button>
+              <button class="xzg-btn mini" onclick="event.stopPropagation();XZG.orderShip('${o.id}')">催发货</button>`:''}
+            ${o.step===2||o.step===3?`<button class="xzg-btn plain mini" onclick="event.stopPropagation();XZG.openLogistics('${o.id}')">查看物流</button>
+              <button class="xzg-btn mini" onclick="event.stopPropagation();XZG.orderConfirm('${o.id}')">确认收货</button>`:''}
+            ${o.step===4?`<button class="xzg-btn plain mini" onclick="event.stopPropagation();XZG.openLogistics('${o.id}')">查看物流</button>
+              <button class="xzg-btn mini" onclick="event.stopPropagation();XZG.orderReview('${o.id}')">再买一次</button>`:''}
+            ${o.step===5?`<button class="xzg-btn plain mini" onclick="event.stopPropagation();XZG.orderReview('${o.id}')">再买一次</button>`:''}
+          </div>
+        </div>`}).join(''):`<div class="xzg-card"><div class="xzg-null"><span class="nic">📦</span>还没有订单 · 去商城挑点心动谷子</div></div>`}
+      <button class="xzg-btn plain big" style="margin-top:4px" onclick="XZG.go('mall')">🛍 回商城继续逛</button>`;
+  },
+  moSeg(k){this._moSeg=k;this.renderMallOrders()},
+  openOrder(id){
+    const o=(this.S.mallOrders||[]).find(x=>x.id===id); if(!o)return;
+    const st=this._ostatus(o);
+    this.sheet(`<h3>📦 订单详情</h3><div class="ssub">订单号 ${o.no} · 下单时间 ${o.t}</div>
+      <div class="xzg-card" style="background:linear-gradient(135deg,#fff4f7,#ffe9f1)">
+        <div class="ct" style="color:${st[1]}">${st[0]}<span class="more" onclick="XZG.openLogistics('${o.id}')">查看物流 ›</span></div>
+        <div class="xzg-muted" style="font-size:11.5px">${st[2]}</div></div>
+      ${o.items.map(it=>`<div class="xzg-cartrow"><span class="cc-img">${this.artSVG(it.art)}</span>
+        <div class="cc-main"><b>${it.name}</b><span class="cc-p">¥${this.money(it.price)} × ${it.qty}</span></div>
+        <span class="cc-sum">¥${this.money(it.price*it.qty)}</span></div>`).join('')}
+      <div class="xzg-hr"></div>
+      <div class="xzg-kvrow"><span>收货人</span><b>${o.addr.name} ${o.addr.phone}</b></div>
+      <div class="xzg-kvrow"><span>收货地址</span><b style="max-width:62%;text-align:right">${o.addr.city} ${o.addr.detail}</b></div>
+      <div class="xzg-kvrow"><span>承运快递</span><b>${o.step>=2?o.express:'待分配'}</b></div>
+      <div class="xzg-kvrow"><span>支付方式</span><b>工商银行储蓄卡 · 尾号 8888</b></div>
+      <div class="xzg-kvrow"><span>实付金额</span><b style="color:#e03a5e;font-size:16px">¥${this.money(o.total)}</b></div>
+      <div class="xzg-hr"></div>
+      <div class="mo-ops" style="justify-content:center">
+        <button class="xzg-btn plain mini" onclick="XZG.openLogistics('${o.id}')">物流追踪</button>
+        ${o.step===1?`<button class="xzg-btn mini" onclick="XZG.orderShip('${o.id}')">催发货</button>`:''}
+        ${o.step>=2&&o.step<=3?`<button class="xzg-btn mini" onclick="XZG.orderConfirm('${o.id}')">确认收货</button>`:''}
+        <button class="xzg-btn gold mini" onclick="XZG.sheetClose()">完成</button>
+      </div>`);
+  },
+  openLogistics(id){
+    const o=(this.S.mallOrders||[]).find(x=>x.id===id); if(!o)return;
+    if(o.step<2){ this.sheet(`<h3>🚚 物流追踪</h3><div class="ssub">订单号 ${o.no}</div>
+      <div class="xzg-null"><span class="nic">📮</span>商家还未发货，暂无物流信息</div>
+      <button class="xzg-btn big" onclick="XZG.orderShip('${o.id}')">模拟发货（演示）</button>`); return; }
+    const T=o.trace||[];
+    this.sheet(`<h3>🚚 物流追踪</h3><div class="ssub">${o.express} · 运单号 ${o.express.replace(/\D/g,'')}</div>
+      <div class="xzg-logi">
+        ${T.slice().reverse().map((t,i)=>`<div class="lg-row${i===0?' on':''}"><span class="lg-dot"></span>
+          <div class="lg-m"><b>${t.s}</b><span>${t.t}</span></div></div>`).join('')}
+      </div>
+      <div class="xzg-hr"></div>
+      <div class="xzg-kvrow"><span>收货信息</span><b style="max-width:62%;text-align:right">${o.addr.city} ${o.addr.detail}</b></div>
+      <div class="mo-ops" style="justify-content:center;margin-top:10px">
+        ${o.step<=3?`<button class="xzg-btn mini" onclick="XZG.orderConfirm('${o.id}')">确认收货</button>`:''}
+        <button class="xzg-btn plain mini" onclick="XZG.sheetClose()">关闭</button>
+      </div>`);
+  },
+  orderShip(id){
+    const o=(this.S.mallOrders||[]).find(x=>x.id===id); if(!o||o.step!==1)return;
+    const now=this._now();
+    o.step=2;
+    o.trace=o.trace.concat([
+      {t:now,s:'商家已发货 · 包裹交由 '+o.express},
+      {t:now,s:'【上海市】快件已到达 上海黄浦集散中心'}
+    ]);
+    this.save(); this.sheetClose(); setTimeout(()=>this.openLogistics(o.id),200);
+    this.toast('商家已发货 · 快去查看物流','🚚');
+    setTimeout(()=>{o.step=3;o.trace.push({t:this._now(),s:'【上海市】快递员正在派送，请保持电话畅通'});this.save();
+      if(this._lastPg==='mallorder')this.renderMallOrders();},2600);
+  },
+  orderConfirm(id){
+    const o=(this.S.mallOrders||[]).find(x=>x.id===id); if(!o)return;
+    o.step=4; o.trace=(o.trace||[]).concat([{t:this._now(),s:'包裹已签收 · 感谢使用 e次元商城'}]);
+    this.S.exp+=30; this.save();
+    if(window.ICBCApp&&ICBCApp.addRecord)ICBCApp.addRecord({icon:'🎉',bg:'#eef9ef',title:'e次元商城 · 确认收货回馈谷粒',time:'刚刚',amt:0});
+    this.toast('已确认收货 · 成长值 +30','🎉');
+    this.sheetClose(); setTimeout(()=>this.openLogistics(o.id),200);
+  },
+  orderCancel(id){
+    const o=(this.S.mallOrders||[]).find(x=>x.id===id); if(!o)return;
+    o.step=5; o.trace=(o.trace||[]).concat([{t:this._now(),s:'订单已取消 · 货款原路退回工行储蓄卡'}]);
+    this.save(); this.renderMallOrders(); this.toast('订单已取消 · 演示环境不产生真实退款','↩️');
+  },
+  orderReview(id){
+    const o=(this.S.mallOrders||[]).find(x=>x.id===id); if(!o)return;
+    this.sheet(`<h3>⭐ 评价晒单</h3><div class="ssub">订单号 ${o.no}</div>
+      <div style="text-align:center;font-size:26px;letter-spacing:6px;padding:8px 0">⭐⭐⭐⭐⭐</div>
+      <textarea id="moRv" placeholder="说说这次吃谷体验…" style="width:100%;height:88px;border:1.5px solid #edeff3;border-radius:12px;padding:12px;font-size:13px;resize:none;font-family:inherit"></textarea>
+      <button class="xzg-btn big" style="margin-top:12px" onclick="XZG.moReviewOk('${o.id}')">提交评价 · 得 30 谷粒</button>`);
+  },
+  moReviewOk(id){
+    const o=(this.S.mallOrders||[]).find(x=>x.id===id); if(o) o.reviewed=true;
+    this.save(); this.sheetClose(); this.addGrains(30,'晒单评价');
+    if(this._lastPg==='mallorder') this.renderMallOrders();
+  },
+  /* 商城搜索（演示版：按关键词过滤商品） */
+  mallSearch(){
+    this.sheet(`<h3>🔍 搜索谷子</h3><div class="ssub">试试：吧唧 / 立牌 / 手办 / 痛包 / 色纸</div>
+      <div class="xzg-form"><div class="fi"><label>关键词</label>
+        <input type="text" id="mlQ" placeholder="输入品名或品类" oninput="XZG.mallSearchRun(this.value)"></div></div>
+      <div id="mlRes"></div>`);
+    setTimeout(()=>this.mallSearchRun(''),30);
+  },
+  mallSearchRun(q){
+    const box=this.$('#mlRes'); if(!box)return;
+    const kw=String(q||'').trim();
+    const all=this.EZ().mallGoods.map(g=>Object.assign({},g,{price:+g.price}));
+    const hit=kw?all.filter(g=>(g.name+g.tag).indexOf(kw)>=0):all.slice(0,6);
+    box.innerHTML=hit.length?hit.map(g=>`
+      <div class="xzg-cartrow" onclick="XZG.sheetClose();XZG.buyGoods('${g.id}')">
+        <span class="cc-img">${this.artSVG(g.art)}</span>
+        <div class="cc-main"><b>${g.name}</b><span class="cc-p">¥${this.money(g.price)} · ${g.tag}</span></div>
+        <span class="cc-sum" style="color:#e03a5e;font-weight:800">¥${this.money(g.price)}</span></div>`).join('')
+      :`<div class="xzg-null"><span class="nic">🔍</span>没有找到「${kw}」相关谷子</div>`;
+  },
   renderMine(){
     const E=this.EZ(),M=E.mine,S=this.S,b=this.$('#mineBody');if(!b)return;
     const medalCnt=Object.keys(S.medals||{}).length;

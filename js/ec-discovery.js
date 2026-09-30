@@ -17,6 +17,12 @@
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c =>
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
+  /* 场景插画：按当前性别取文件名（男生版 banner-x.jpg / 女生版 banner2-x.jpg）
+     返回的 <img> 自带 data-gart，性别切换时由 CHARS.repaint() 就地换图 */
+  const G = (base, cls, alt) => (window.CHARS && CHARS.artImg)
+    ? CHARS.artImg(base, cls, alt)
+    : `<img${cls ? ` class="${cls}"` : ''} data-gart="${base}" src="${A}${base}.jpg" alt="${alt || ''}" loading="lazy">`;
+
   /* ── 周边窗：名称 / 图 / 价 / 标签 ── */
   const GOODS = [
     { img: 'goods-stand.jpg',  n: '亚克力立牌 · 星熠白昼流光', p: '¥269', t: '现货' },
@@ -46,7 +52,7 @@
     plaza: {
       sel: '#plazaBody', pos: 'prepend', html: () => `
         <button class="ecx-hero" data-ec-go="forum">
-          <img src="${A}banner-community.jpg" alt="谷圈广场" loading="lazy">
+          ${G('banner-community', null, '谷圈广场')}
           <div class="ecx-hero-t">
             <span class="ecx-k">今日广场</span>
             <b>谷圈广场 · 今天也在吃谷</b>
@@ -60,7 +66,7 @@
     mall: {
       sel: '#mallBody', pos: 'prepend', html: () => `
         <button class="ecx-hero" data-ec-go="guxiang">
-          <img src="${A}banner-mall.jpg" alt="e次元甄选" loading="lazy">
+          ${G('banner-mall', null, 'e次元甄选')}
           <div class="ecx-hero-t">
             <span class="ecx-k">e次元 甄选</span>
             <b>自有 IP 直供 · 说一句话就下单</b>
@@ -74,7 +80,7 @@
     shigu: {
       sel: '#shiguBody', pos: 'prepend', html: () => `
         <div class="ecx-hero ecx-hero--plain">
-          <img src="${A}banner-ai.jpg" alt="识谷" loading="lazy">
+          ${G('banner-ai', null, '识谷')}
           <div class="ecx-hero-t">
             <span class="ecx-k">多模态识别</span>
             <b>拍一拍，就知道它值多少</b>
@@ -87,7 +93,7 @@
     chugu: {
       sel: '#chuguBody', pos: 'prepend', html: () => `
         <div class="ecx-hero ecx-hero--plain">
-          <img src="${A}banner-trade.jpg" alt="出谷通" loading="lazy">
+          ${G('banner-trade', null, '出谷通')}
           <div class="ecx-hero-t">
             <span class="ecx-k">出谷通 · 托管</span>
             <b>下单前说清楚，收到后有地方核对</b>
@@ -100,7 +106,7 @@
     guka: {
       sel: '#gukaBody', pos: 'prepend', html: () => `
         <div class="ecx-hero ecx-hero--plain">
-          <img src="${A}banner-credit.jpg" alt="谷卡" loading="lazy">
+          ${G('banner-credit', null, '谷卡')}
           <div class="ecx-hero-t">
             <span class="ecx-k">谷卡 · 分期</span>
             <b>喜欢的东西，可以慢慢付</b>
@@ -113,7 +119,7 @@
     guxiang: {
       sel: '#guxiangBody', pos: 'prepend', html: () => `
         <button class="ecx-hero" data-ec-go="mall">
-          <img src="${A}banner-guxiang.jpg" alt="谷享" loading="lazy">
+          ${G('banner-guxiang', null, '谷享')}
           <div class="ecx-hero-t">
             <span class="ecx-k">谷享 · AI 代购</span>
             <b>说一句话，全网替你盯梢比价</b>
@@ -127,7 +133,7 @@
     cang: {
       sel: '#cangBody', pos: 'prepend', html: () => `
         <button class="ecx-hero ecx-hero--tall" data-ec-go="cang">
-          <img src="${A}banner-gallery.jpg" alt="虚拟藏馆" loading="lazy">
+          ${G('banner-gallery', null, '虚拟藏馆')}
           <div class="ecx-hero-t">
             <span class="ecx-k">数字分身</span>
             <b>你的私人展厅已经亮灯</b>
@@ -140,7 +146,7 @@
     zhidai: {
       sel: '#zhidaiBody', pos: 'prepend', html: () => `
         <div class="ecx-hero ecx-hero--plain">
-          <img src="${A}banner-pledge.jpg" alt="质押贷" loading="lazy">
+          ${G('banner-pledge', null, '质押贷')}
           <div class="ecx-hero-t">
             <span class="ecx-k">价值变现</span>
             <b>把收藏变成可用额度</b>
@@ -153,7 +159,7 @@
     forum: {
       sel: '#forumBody', pos: 'prepend', html: () => `
         <button class="ecx-hero" data-ec-go="create">
-          <img src="${A}banner-community.jpg" alt="谷圈论坛" loading="lazy">
+          ${G('banner-community', null, '谷圈论坛')}
           <div class="ecx-hero-t">
             <span class="ecx-k">同好在此</span>
             <b>晒谷 · 情报 · 出回血</b>
@@ -167,7 +173,7 @@
     create: {
       sel: '#createBody', pos: 'prepend', html: () => `
         <div class="ecx-hero ecx-hero--plain">
-          <img src="${A}banner-community.jpg" alt="创作中心" loading="lazy">
+          ${G('banner-community', null, '创作中心')}
           <div class="ecx-hero-t">
             <span class="ecx-k">创作有收益</span>
             <b>把热爱写下来，也是收入</b>
@@ -180,7 +186,7 @@
     exchange: {
       sel: '#exchangeBody', pos: 'prepend', html: () => `
         <div class="ecx-hero ecx-hero--plain">
-          <img src="${A}banner-gallery.jpg" alt="权益星球" loading="lazy">
+          ${G('banner-gallery', null, '权益星球')}
           <div class="ecx-hero-t">
             <span class="ecx-k">权益星球</span>
             <b>攒下的谷粒，都算数</b>
