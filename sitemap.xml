@@ -1,21 +1,87 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  e次元 e-times · 站点地图
+  ═══════════════════════════════════════════════════════════════
+  本站是「纯静态 + 客户端渲染」的演示站，因此分两组：
+
+  【第 1 组】真实 HTML 文档（3 个）
+      各自有独立 <link rel="canonical">，可被搜索引擎独立抓取与收录。
+
+  【第 2 组】应用内部路由（hash 前缀 #/）
+      同一份文档的不同状态，用于向搜索引擎声明本作品完整的内容覆盖面。
+      搜索引擎可能把它们归并到所属文档，这是纯客户端路由站点的固有特性。
+
+  最后更新：2026-10-04
+  ═══════════════════════════════════════════════════════════════
+-->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <!-- ══════════ 第 1 组：真实文档 ══════════ -->
   <url>
     <loc>https://cryo-skm.github.io/e-times/</loc>
-    <lastmod>2026-09-30</lastmod>
+    <lastmod>2026-10-04</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://cryo-skm.github.io/e-times/about.html</loc>
-    <lastmod>2026-09-30</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <lastmod>2026-10-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
   </url>
   <url>
     <loc>https://cryo-skm.github.io/e-times/pc/index.html</loc>
-    <lastmod>2026-09-30</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <lastmod>2026-10-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
+
+  <!-- ══════════ 第 2 组：手机端 · 五个主 Tab ══════════ -->
+  <url><loc>https://cryo-skm.github.io/e-times/#/t/home</loc><lastmod>2026-10-04</lastmod><priority>0.7</priority></url>
+  <url><loc>https://cryo-skm.github.io/e-times/#/t/credit</loc><lastmod>2026-10-04</lastmod><priority>0.6</priority></url>
+  <url><loc>https://cryo-skm.github.io/e-times/#/t/wealth</loc><lastmod>2026-10-04</lastmod><priority>0.6</priority></url>
+  <url><loc>https://cryo-skm.github.io/e-times/#/t/life</loc><lastmod>2026-10-04</lastmod><priority>0.6</priority></url>
+  <url><loc>https://cryo-skm.github.io/e-times/#/t/mine</loc><lastmod>2026-10-04</lastmod><priority>0.6</priority></url>
+
+  <!-- ══════════ 第 2 组：手机端 · 银行核心业务入口 ══════════ -->
+  <url><loc>https://cryo-skm.github.io/e-times/#/p/transfer</loc><lastmod>2026-10-04</lastmod><priority>0.6</priority></url>
+  <url><loc>https://cryo-skm.github.io/e-times/#/p/scan</loc><lastmod>2026-10-04</lastmod><priority>0.5</priority></url>
+  <url><loc>https://cryo-skm.github.io/e-times/#/p/xiaozhi</loc><lastmod>2026-10-04</lastmod><priority>0.5</priority></url>
+  <url><loc>https://cryo-skm.github.io/e-times/#/p/records</loc><lastmod>2026-10-04</lastmod><priority>0.5</priority></url>
+  <url><loc>https://cryo-skm.github.io/e-times/#/p/msgcenter</loc><lastmod>2026-10-04</lastmod><priority>0.5</priority></url>
+  <url><loc>https://cryo-skm.github.io/e-times/#/biz/loan</loc><lastmod>2026-10-04</lastmod><priority>0.6</priority></url>
+
+  <!-- ══════════ 第 2 组：e次元 · 十五个核心子页 ══════════ -->
+  <url><loc>https://cryo-skm.github.io/e-times/#/xg/plaza</loc><lastmod>2026-10-04</lastmod><priority>0.7</priority></url>
+  <url><loc>https://cryo-skm.github.io/e-times/#/xg/shigu</loc><lastmod>2026-10-04</lastmod><priority>0.7</priority></url>
+  <url><loc>https://cryo-skm.github.io/e-times/#/xg/zaangu</loc><lastmod>2026-10-04</lastmod><priority>0.6</priority></url>
+  <url><loc>https://cryo-skm.github.io/e-times/#/xg/chugu</loc><lastmod>2026-10-04</lastmod><priority>0.6</priority></url>
+  <url><loc>https://cryo-skm.github.io/e-times/#/xg/guka</loc><lastmod>2026-10-04</lastmod><priority>0.6</priority></url>
+  <url><loc>https://cryo-skm.github.io/e-times/#/xg/guxiang</loc><lastmod>2026-10-04</lastmod><priority>0.6</priority></url>
+  <url><loc>https://cryo-skm.github.io/e-times/#/xg/zhidai</loc><lastmod>2026-10-04</lastmod><priority>0.6</priority></url>
+  <url><loc>https://cryo-skm.github.io/e-times/#/xg/cang</loc><lastmod>2026-10-04</lastmod><priority>0.7</priority></url>
+  <url><loc>https://cryo-skm.github.io/e-times/#/xg/mall</loc><lastmod>2026-10-04</lastmod><priority>0.7</priority></url>
+  <url><loc>https://cryo-skm.github.io/e-times/#/xg/mallorder</loc><lastmod>2026-10-04</lastmod><priority>0.5</priority></url>
+  <url><loc>https://cryo-skm.github.io/e-times/#/xg/forum</loc><lastmod>2026-10-04</lastmod><priority>0.6</priority></url>
+  <url><loc>https://cryo-skm.github.io/e-times/#/xg/exchange</loc><lastmod>2026-10-04</lastmod><priority>0.6</priority></url>
+  <url><loc>https://cryo-skm.github.io/e-times/#/xg/brand</loc><lastmod>2026-10-04</lastmod><priority>0.6</priority></url>
+  <url><loc>https://cryo-skm.github.io/e-times/#/xg/create</loc><lastmod>2026-10-04</lastmod><priority>0.5</priority></url>
+  <url><loc>https://cryo-skm.github.io/e-times/#/xg/mine</loc><lastmod>2026-10-04</lastmod><priority>0.6</priority></url>
+
+  <!-- ══════════ 第 2 组：PC 端 · 网上银行 + 十三项工作台 ══════════ -->
+  <url><loc>https://cryo-skm.github.io/e-times/pc/index.html#/bank</loc><lastmod>2026-10-04</lastmod><priority>0.7</priority></url>
+  <url><loc>https://cryo-skm.github.io/e-times/pc/index.html#/ec/home</loc><lastmod>2026-10-04</lastmod><priority>0.7</priority></url>
+  <url><loc>https://cryo-skm.github.io/e-times/pc/index.html#/ec/goods</loc><lastmod>2026-10-04</lastmod><priority>0.6</priority></url>
+  <url><loc>https://cryo-skm.github.io/e-times/pc/index.html#/ec/shigu</loc><lastmod>2026-10-04</lastmod><priority>0.7</priority></url>
+  <url><loc>https://cryo-skm.github.io/e-times/pc/index.html#/ec/value</loc><lastmod>2026-10-04</lastmod><priority>0.6</priority></url>
+  <url><loc>https://cryo-skm.github.io/e-times/pc/index.html#/ec/trade</loc><lastmod>2026-10-04</lastmod><priority>0.6</priority></url>
+  <url><loc>https://cryo-skm.github.io/e-times/pc/index.html#/ec/credit</loc><lastmod>2026-10-04</lastmod><priority>0.6</priority></url>
+  <url><loc>https://cryo-skm.github.io/e-times/pc/index.html#/ec/cang</loc><lastmod>2026-10-04</lastmod><priority>0.7</priority></url>
+  <url><loc>https://cryo-skm.github.io/e-times/pc/index.html#/ec/plaza</loc><lastmod>2026-10-04</lastmod><priority>0.6</priority></url>
+  <url><loc>https://cryo-skm.github.io/e-times/pc/index.html#/ec/coop</loc><lastmod>2026-10-04</lastmod><priority>0.5</priority></url>
+  <url><loc>https://cryo-skm.github.io/e-times/pc/index.html#/ec/ar</loc><lastmod>2026-10-04</lastmod><priority>0.5</priority></url>
+  <url><loc>https://cryo-skm.github.io/e-times/pc/index.html#/ec/fav</loc><lastmod>2026-10-04</lastmod><priority>0.5</priority></url>
+  <url><loc>https://cryo-skm.github.io/e-times/pc/index.html#/ec/me</loc><lastmod>2026-10-04</lastmod><priority>0.5</priority></url>
+  <url><loc>https://cryo-skm.github.io/e-times/pc/index.html#/ec/msg</loc><lastmod>2026-10-04</lastmod><priority>0.5</priority></url>
+
 </urlset>
