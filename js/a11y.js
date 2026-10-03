@@ -7,10 +7,16 @@
    本文件做四件事（全部是「补齐」，不改任何既有交互）：
      1) 键盘可达：把带点击语义的 div/span 补成 role="button" + tabindex="0"，
         并让 Enter / Space 能真正触发它；
-     2) Esc 关闭：按层级从内到外关掉 e次元弹层 → PC 弹窗 → 业务页 → 覆盖页；
+     2) Esc 关闭：按层级从内到外关掉 登录屏的账户抽屉 → e次元弹层 → PC 弹窗
+        → 业务页 → 覆盖页；
      3) 焦点可见：本文件不含样式，焦点环定义在 css 里（:focus-visible）；
      4) 兜底 alt：动态插入的 <img> 若没写 alt，自动补空 alt（装饰性图片），
         用 MutationObserver 持续监听。
+
+   与登录系统（js/auth.js）的衔接：
+     登录屏 .ea-screen 与账户抽屉 .ea-sheet 是后加进来的全屏模态，本层负责
+     把它们的 dialog 语义、背景 aria-hidden、焦点进入与焦点陷阱补齐 ——
+     登录屏内的按钮原本就是原生 <button>，键盘可达性已经没问题。
    ════════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
@@ -50,6 +56,16 @@
 
   /* ── 2. Esc 逐层关闭 ── */
   function escClose() {
+    /* ⓪ 登录屏的账户抽屉（.ea-sheet）—— 最内层，优先关它。
+         登录屏本身是「闸门」，不响应 Esc：随手一按就溜进游客态会让人莫名其妙，
+         想跳过请走屏上的「先随便逛逛（游客浏览）」。 */
+    const sh = document.querySelector('.ea-sheet.on');
+    if (sh) {
+      if (window.ECAUTH && ECAUTH.closeAccount) { try { ECAUTH.closeAccount(); return true; } catch (e) {} }
+      sh.classList.remove('on'); sh.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('ea-locked');
+      return true;
+    }
     /* ① e次元 弹层 */
     if (window.XZG && XZG.sheetClose &&
         document.querySelector('#xzgMask.on, .xzg-mask.on')) {
@@ -97,6 +113,93 @@
     });
   }
 
+  /* ── 登录屏 / 账户抽屉：补 dialog 语义 + 背景隐藏 + 焦点进入与陷阱 ── */
+  const isOn = el => !!(el && el.classList && el.classList.contains('on'));
+
+  function markDialog(el, labelledBy, fallback) {
+    if (!el) return;
+    if (el.getAttribute('role') !== 'dialog') el.setAttribute('role', 'dialog');
+    if (el.getAttribute('aria-modal') !== 'true') el.setAttribute('aria-modal', 'true');
+    const t = labelledBy && document.getElementById(labelledBy);
+    if (t) {
+      if (el.getAttribute('aria-labelledby') !== labelledBy) el.setAttribute('aria-labelledby', labelledBy);
+      el.removeAttribute('aria-label');
+    } else if (!el.getAttribute('aria-label') && !el.getAttribute('aria-labelledby')) {
+      el.setAttribute('aria-label', fallback);
+    }
+  }
+
+  /* 模态打开时，把同一个父容器里的其它兄弟对读屏器隐藏（可逆） */
+  function hideSiblings(el, on) {
+    if (!el || !el.parentNode) return;
+    Array.prototype.forEach.call(el.parentNode.children, n => {
+      if (n === el) return;
+      if (on) {
+        if (!n.hasAttribute('data-a11y-prev')) n.setAttribute('data-a11y-prev', n.getAttribute('aria-hidden') || '');
+        n.setAttribute('aria-hidden', 'true');
+      } else if (n.hasAttribute('data-a11y-prev')) {
+        const prev = n.getAttribute('data-a11y-prev');
+        if (prev === '') n.removeAttribute('aria-hidden'); else n.setAttribute('aria-hidden', prev);
+        n.removeAttribute('data-a11y-prev');
+      }
+    });
+  }
+
+  /* 当前处于最上层的模态（账户抽屉 > 登录屏 > 无） */
+  function activeModal() {
+    const sh = document.querySelector('.ea-sheet.on');
+    if (sh) return sh;
+    const scr = document.getElementById('eaScreen');
+    return isOn(scr) ? scr : null;
+  }
+
+  function syncAuthAria() {
+    const scr = document.getElementById('eaScreen');
+    const sheet = document.querySelector('.ea-sheet');
+    if (!scr && !sheet) return false;
+    markDialog(scr, 'eaTitle', '登录');
+    markDialog(sheet, 'eaSheetTitle', '账户与安全');
+
+    const scrOn = isOn(scr), shOn = isOn(sheet);
+    /* 先抽屉后登录屏：让登录屏那一层的结论最后落地 */
+    hideSiblings(sheet, shOn);
+    hideSiblings(scr, scrOn);
+    /* 抽屉在登录屏之上：抽屉开着时登录屏本身也不该被读 */
+    if (scr) {
+      if (shOn) scr.setAttribute('aria-hidden', 'true');
+      else if (scrOn) scr.removeAttribute('aria-hidden');
+    }
+    return scrOn || shOn;
+  }
+
+  /* 可聚焦元素（排除不可见与 tabindex=-1） */
+  function focusables(root) {
+    return Array.prototype.filter.call(
+      root.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]):not([type=hidden]),select,textarea,[tabindex]:not([tabindex="-1"])'),
+      el => el.offsetParent !== null
+    );
+  }
+
+  /* 模态刚打开时把焦点请进去；聚焦容器本身（不聚焦输入框），手机上不会弹键盘 */
+  function focusInto(m) {
+    if (!m || m.contains(document.activeElement)) return;
+    if (!m.hasAttribute('tabindex')) m.setAttribute('tabindex', '-1');
+    try { m.focus({ preventScroll: true }); } catch (e) { try { m.focus(); } catch (e2) { } }
+  }
+
+  /* 焦点陷阱：模态开着时 Tab 只在模态内循环 */
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Tab') return;
+    const m = activeModal();
+    if (!m) return;
+    const list = focusables(m);
+    if (!list.length) { e.preventDefault(); return; }
+    const first = list[0], last = list[list.length - 1];
+    const inside = m.contains(document.activeElement);
+    if (e.shiftKey && (document.activeElement === first || !inside)) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && (document.activeElement === last || !inside)) { e.preventDefault(); first.focus(); }
+  }, true);
+
   /* ── 5. 可访问名兜底：图标按钮若有 title / data-aria，就补成 aria-label ── */
   function fixNames(root) {
     let n = 0;
@@ -117,29 +220,38 @@
     fixAlt(document);
     fixNames(document);
     syncOverlayAria();
+    syncAuthAria();
 
-    /* 动态渲染的内容（业务页 / e次元 子页 / 弹层）持续补齐 */
+    /* 动态渲染的内容（业务页 / e次元 子页 / 弹层 / 登录屏）持续补齐 */
     if (window.MutationObserver) {
       let t = null;
       const mo = new MutationObserver(muts => {
         clearTimeout(t);
         t = setTimeout(() => {
-          let dirty = false;
+          let dirty = false, modalToggled = false;
           for (const m of muts) {
-            if (m.addedNodes && m.addedNodes.length) { dirty = true; break; }
+            if (m.addedNodes && m.addedNodes.length) { dirty = true; }
+            if (m.type === 'attributes' && m.target) {
+              const tid = m.target.id;
+              if (tid === 'eaScreen' || (m.target.classList && m.target.classList.contains('ea-sheet'))) modalToggled = true;
+            }
           }
-          if (!dirty) return;
-          makeFocusable(document);
-          fixAlt(document);
-          fixNames(document);
+          if (dirty) { makeFocusable(document); fixAlt(document); fixNames(document); }
+          if (dirty || modalToggled) {
+            if (modalToggled) syncOverlayAria();
+            if (syncAuthAria()) focusInto(activeModal());
+          }
         }, 160);
       });
-      mo.observe(document.body, { childList: true, subtree: true });
+      mo.observe(document.body, {
+        childList: true, subtree: true,
+        attributes: true, attributeFilter: ['class']
+      });
     }
   }
 
   /* 供审计脚本/调试查看 */
-  window.A11Y = { makeFocusable, fixAlt, fixNames, escClose, syncOverlayAria };
+  window.A11Y = { makeFocusable, fixAlt, fixNames, escClose, syncOverlayAria, syncAuthAria, activeModal, focusables };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();

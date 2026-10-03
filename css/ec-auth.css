@@ -44,19 +44,21 @@
 
 body.ea-locked { overflow: hidden; }
 
-/* ⚠️ 必须显式声明：.ea-field / .ea-steps 自带 display:flex，作者样式表会盖掉
-   浏览器默认的 [hidden]{display:none}（UA 样式表优先级更低，且与选择器权重无关）。
-   不写这一条，"隐藏"就完全不生效 —— 步骤指示器会在登录页里一直露着。 */
+/* ⚠️ 必须显式声明：.ea-field / .ea-steps / .ea-mine-bar 自带 display:flex，
+   作者样式表会盖掉浏览器默认的 [hidden]{display:none}（UA 样式表优先级更低，且与选择器权重无关）。
+   不写这一条，"隐藏"就完全不生效 —— 步骤指示器、旧密码行、游客引导条都会赖着不走。 */
 .ea-screen [hidden],
-.ea-sheet [hidden] { display: none !important; }
+.ea-sheet [hidden],
+.ea-mine-bar[hidden] { display: none !important; }
 
 /* ══════════════════════════════════════════════════════════════════
    二、品牌侧（手机上=顶部红头 / PC 上=左侧大栏）
    ══════════════════════════════════════════════════════════════════ */
 .ea-hero {
   position: relative;
-  flex: 0 1 254px;
-  min-height: 150px;
+  /* 高度由内容撑出（不压缩）：flex 收缩会把红头压到内容以下，造成文字叠字 */
+  flex: 0 0 auto;
+  min-height: 0;
   overflow: hidden;
   color: #fff;
   background: linear-gradient(150deg, #e6453c 0%, #c7000b 52%, #9d0008 100%);
@@ -77,7 +79,7 @@ body.ea-locked { overflow: hidden; }
   position: relative;
   flex: 1 1 auto;
   min-height: 0;
-  padding: 50px 26px 18px;
+  padding: 48px 26px 16px;
   display: flex;
   flex-direction: column;
 }
@@ -142,25 +144,27 @@ body.ea-locked { overflow: hidden; }
 .ea-feats {
   display: flex;
   flex-wrap: wrap;
-  gap: 7px;
+  gap: 6px;
   margin-top: 12px;
   list-style: none;
 }
 .ea-feats li {
-  display: flex; align-items: center; gap: 4px;
-  padding: 4.5px 10px;
+  display: flex; align-items: center; gap: 3.5px;
+  padding: 4px 8px;
   border-radius: 999px;
   background: rgba(255, 255, 255, .16);
   border: 1px solid rgba(255, 255, 255, .26);
-  font-size: 11.5px;
-  letter-spacing: .4px;
+  font-size: 11px;
+  letter-spacing: 0;
+  white-space: nowrap;
   backdrop-filter: blur(4px);
 }
-.ea-feats li i { font-style: normal; font-size: 11px; }
+.ea-feats li i { font-style: normal; font-size: 10.5px; }
 
 .ea-hero-foot {
   position: relative;
-  padding: 0 26px 14px;
+  /* 底部留白要大于白卡上压的 22px，否则这行小字会被卡片盖住 */
+  padding: 0 26px 30px;
   font-size: 10.5px;
   letter-spacing: .6px;
   color: rgba(255, 255, 255, .58);
@@ -863,11 +867,13 @@ body.ea-locked { overflow: hidden; }
    八、小屏适配
    ══════════════════════════════════════════════════════════════════ */
 @media (max-height: 720px) {
-  .ea-hero { flex: 0 1 196px; }
-  .ea-hero-main { padding: 46px 22px 14px; }
+  .ea-hero-main { padding: 44px 22px 12px; }
   .ea-quicklogo { width: 40px; height: 40px; font-size: 22px; }
+  .ea-brandline { margin-top: 9px; }
   .ea-brandline b { font-size: 17px; }
+  .ea-xg { margin-top: 9px; }
   .ea-xg > b { font-size: 18px; }
+  .ea-feats { margin-top: 9px; }
   .ea-panel-in { padding: 18px 20px 22px; }
 }
 @media (max-width: 400px) {
@@ -879,8 +885,8 @@ body.ea-locked { overflow: hidden; }
 /* 窄屏 PC（如平板）退化成上下结构，别把表单挤扁 */
 @media (max-width: 900px) {
   .ea-screen--desktop .ea-wrap { flex-direction: column; }
-  .ea-screen--desktop .ea-hero { flex: 0 1 200px; max-width: none; }
-  .ea-screen--desktop .ea-hero-main { padding: 26px 24px 12px; justify-content: flex-start; }
+  .ea-screen--desktop .ea-hero { flex: 0 0 auto; max-width: none; }
+  .ea-screen--desktop .ea-hero-main { padding: 24px 24px 10px; justify-content: flex-start; }
   .ea-screen--desktop .ea-quicklogo { width: 44px; height: 44px; font-size: 24px; }
   .ea-screen--desktop .ea-brandline { margin-top: 12px; }
   .ea-screen--desktop .ea-brandline b { font-size: 20px; letter-spacing: 3px; }
@@ -908,4 +914,33 @@ body.ea-locked { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
   .ea-screen, .ea-sheet, .ea-sheet-card, .ea-hero-main { transition: none !important; animation: none !important; }
   .ea-screen.on .ea-hero-main { animation: none !important; }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   十、无障碍：焦点环（与 js/a11y.js 的焦点管理配套）
+   ──────────────────────────────────────────────────────────────────
+   登录屏是后加的全屏模态，接入 a11y 层后需要两件事：
+     · 容器本身只被程序聚焦（把读屏器请进对话框），绝不能画出一圈描边；
+     · 红头 / 品牌侧是深色底，蓝色焦点环（style.css 的全局默认）对比度不够，
+       这里换成暖黄，与站内「深色底用 #ffd76e」的既有约定保持一致。
+   ══════════════════════════════════════════════════════════════════ */
+.ea-screen:focus-visible,
+.ea-sheet:focus-visible {
+  outline: none;
+}
+.ea-hero :focus-visible {
+  outline-color: #ffd76e;
+}
+/* 红色主按钮上的焦点环用金边，避免红压红 */
+.ea-screen .ea-submit:focus-visible,
+.ea-screen .ea-tab:focus-visible,
+.ea-screen .ea-mode:focus-visible {
+  outline: 3px solid #ffd76e;
+  outline-offset: 2px;
+}
+
+/* 登录屏与账户抽屉被标记为 dialog，去掉页面级滚动链 */
+.ea-screen[role="dialog"],
+.ea-sheet[role="dialog"] {
+  overscroll-behavior: contain;
 }

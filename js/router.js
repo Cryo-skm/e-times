@@ -12,6 +12,11 @@
    PC 端（/pc/）
      #/bank        #/ec/home  #/ec/goods  #/ec/shigu  #/ec/me …
 
+   登录屏（两端通用）
+     #/login      —— 全屏登录/注册/找回密码；它是模态，优先级高于下面所有路由。
+                     登录屏打开时 hash 与 title 都归它；登录成功或选择游客浏览后
+                     自动回落到登录前的页面。已登录状态下访问 #/login 不会重复弹屏。
+
    设计原则：不抢原有逻辑，只做「包裹 + 回写」。
    · 保留一个描述符栈，用「还在不在 DOM 上」自愈式校验，避免状态漂移
    · 同一 tick 内多次变化合并成一次写 hash，history 里不留中间态
@@ -48,6 +53,25 @@
     var v = t ? (t + ' · ' + SITE) : SITE;
     if (document.title !== v) document.title = v;
   }
+  /* 登录屏有自己的标题（不套 SITE 后缀，因为此时还没进站） */
+  var LOGIN_TITLE = '登录 · 中国工商银行（手机银行 模拟演示版）';
+  function setTitleFor(d) {
+    if (d && d.k === 'login') { if (document.title !== LOGIN_TITLE) document.title = LOGIN_TITLE; }
+    else setTitle(d && d.label);
+  }
+
+  /* ────────── 登录屏（模态，优先级最高） ────────── */
+  function loginOn() {
+    var el = document.getElementById('eaScreen');
+    return !!(el && el.classList && el.classList.contains('on'));
+  }
+  function authReady() { return !!(window.ECAUTH && typeof ECAUTH.isLoggedIn === 'function'); }
+  /* 登录屏打开时它就是「当前页」，盖过 Tab / 浮层 / e次元 / 网银 */
+  function topDesc() { return loginOn() ? { k: 'login', label: '登录' } : null; }
+  function authShow() {
+    if (!authReady() || ECAUTH.isLoggedIn()) return false;
+    try { ECAUTH.show(); return true; } catch (e) { return false; }
+  }
 
   /* ────────── 手机端：描述符 ────────── */
   function pageLabel(id) {
@@ -56,6 +80,8 @@
     return l || '手机银行';
   }
   function defaultDesc() {
+    var login = topDesc();
+    if (login) return login;
     var tv = $('.tab-view.active');
     var id = tv ? tv.id : 'view-home';
     return { k: 't', id: id, label: TAB_LABEL[id] || '手机银行' };
@@ -63,6 +89,7 @@
   /* 描述符「还活着吗」—— 由此实现栈的自愈，不需要监听每一次关闭 */
   function live(d) {
     if (!d) return false;
+    if (d.k === 'login') return loginOn();
     if (d.k === 't') { var tv = $('.tab-view.active'); return !!tv && tv.id === d.id; }
     if (d.k === 'p') { var el = document.getElementById('page-' + d.id); return !!el && el.classList.contains('open'); }
     if (d.k === 'biz') {
@@ -79,6 +106,8 @@
     return false;
   }
   function current() {
+    var login = topDesc();
+    if (login) return login;
     while (stack.length && !live(stack[stack.length - 1])) stack.pop();
     return stack[stack.length - 1] || null;
   }
@@ -91,6 +120,8 @@
     });
   }
   function pcCurrent() {
+    var login = topDesc();
+    if (login) return login;
     var app = $('#ecapp');
     if (app && app.classList.contains('on')) {
       var on = $('#ecMenu .ec-mi.on');
@@ -104,6 +135,7 @@
   /* ────────── 描述符 → hash ────────── */
   function hashOf(d) {
     d = d || (IS_PC ? pcCurrent() : defaultDesc());
+    if (d.k === 'login') return '#/login';
     if (IS_PC) return d.k === 'ecpg' ? '#/ec/' + d.pg : '#/bank';
     if (d.k === 't') return '#/t/' + (TAB_SLUG[d.id] || 'home');
     if (d.k === 'xg') return '#/xg/' + d.pg;
@@ -118,6 +150,7 @@
     if (!raw) return null;
     var seg = raw.split('/').map(function (s) { try { return decodeURIComponent(s); } catch (e) { return s; } });
     var k = seg[0];
+    if (k === 'login') return { k: 'login', label: '登录' };
     if (k === 't') { var id = SLUG_TAB[seg[1]] || 'view-home'; return { k: 't', id: id, label: TAB_LABEL[id] }; }
     if (k === 'p') { return { k: 'p', id: seg[1], label: pageLabel(seg[1]) }; }
     if (k === 'xg') { var pg = seg[1] || 'plaza'; return { k: 'xg', pg: pg, label: XG_LABEL[pg] || 'e次元' }; }
@@ -132,8 +165,15 @@
     if (suppress) return;
     var d = IS_PC ? pcCurrent() : (current() || defaultDesc());
     var h = hashOf(d);
-    if (location.hash !== h) { try { location.hash = h; } catch (e) {} }
-    setTitle(d && d.label);
+    if (location.hash !== h) {
+      try {
+        /* 登录屏的进出用 replaceState：不让「自动弹登录屏」这个动作占用一条历史，
+           否则用户按返回键会在「已登录的页面」和「登录闸门」之间来回弹。 */
+        if (h === '#/login' || location.hash === '#/login') history.replaceState(null, '', h);
+        else location.hash = h;
+      } catch (e) {}
+    }
+    setTitleFor(d);
   }
   function scheduleSync() {
     if (suppress || syncT) return;
@@ -158,7 +198,11 @@
   }
   function applyMobile(d) {
     if (!d) return;
-    if (d.k === 't') {
+    if (d.k === 'login') {
+      /* 登录屏是模态：清掉底下的浮层，再把它请上来 */
+      closeOtherOverlays(null);
+      authShow();
+    } else if (d.k === 't') {
       closeOtherOverlays(null);
       var btn = $('.tab-item[data-tab="' + d.id + '"]');
       if (btn) btn.click();
@@ -185,7 +229,9 @@
   }
   function applyPC(d) {
     if (!d) return;
-    if (d.k === 'ecpg') {
+    if (d.k === 'login') {
+      authShow();
+    } else if (d.k === 'ecpg') {
       showEC(true);
       if (window.PCAPP && PCAPP.go) PCAPP.go(d.pg);
       /* 菜单高亮由 go() 负责，标题用菜单真实文案 */
@@ -197,12 +243,20 @@
   }
   function apply(h) {
     var d = parse(h);
+    /* 登录屏是模态闸门：它开着的时候，其余路由不真的改页面状态 ——
+       否则会在屏后面偷偷翻页，用户一登录就落到一个没预期的地方。 */
+    if (d && d.k !== 'login' && loginOn()) {
+      var keep = hashOf(topDesc());
+      if (location.hash !== keep) { try { history.replaceState(null, '', keep); } catch (e) {} }
+      setTitleFor(topDesc());
+      return;
+    }
     suppress = true;
     try { (IS_PC ? applyPC : applyMobile)(d); } catch (e) { console.error('[router]', e); }
     suppress = false;
     if (d) { stack.length = 0; stack.push(d); }
     var real = IS_PC ? pcCurrent() : (current() || defaultDesc());
-    setTitle(real && real.label);
+    setTitleFor(real);
     var want = hashOf(real);
     if (location.hash !== want) { try { history.replaceState(null, '', want); } catch (e) {} }
   }
@@ -261,6 +315,54 @@
     }
   }
 
+  /* ────────── 接入登录系统：显隐 / 登录 / 登出 都要回写 hash 与标题 ────────── */
+  function hookAuth() {
+    var EA = window.ECAUTH;
+    if (!EA) return false;                 /* auth.js 还没就绪 → 交给重试 */
+    if (EA.__routed) return true;
+    EA.__routed = true;
+    ['show', 'hide'].forEach(function (m) {
+      if (typeof EA[m] !== 'function') return;
+      var o = EA[m];
+      EA[m] = function () {
+        var r = o.apply(this, arguments);
+        scheduleSync();
+        setTimeout(scheduleSync, 80);    /* 等 .ea-screen 的 class 落定后再算一次 */
+        return r;
+      };
+    });
+    ['ecauth:change', 'ecauth:login', 'ecauth:logout'].forEach(function (ev) {
+      document.addEventListener(ev, function () { scheduleSync(); setTimeout(scheduleSync, 80); });
+    });
+    return true;
+  }
+  function hookAuthRetry(n) {
+    if (hookAuth()) return;
+    if (n <= 0) return;
+    setTimeout(function () { hookAuthRetry(n - 1); }, 120);
+  }
+
+  /* ────────── 登录屏状态守望 ──────────
+     auth.js 首屏是「内部 show()」自动弹屏（不经过 window.ECAUTH.show），
+     所以只包公开 API 会漏掉这条路径；这里直接盯 #eaScreen / .ea-sheet 的 class，
+     外加一个 400ms 的兜底轮询（登录屏是脚本后面才创建的，观测时机不保证）。
+     轮询只做 getElementById + classList 判断，开销可忽略。 */
+  function watchAuth() {
+    var last = null;
+    var tick = function () {
+      var now = loginOn();
+      if (now !== last) { last = now; scheduleSync(); setTimeout(scheduleSync, 80); }
+    };
+    tick();
+    if (window.MutationObserver) {
+      try {
+        new MutationObserver(function () { tick(); })
+          .observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
+      } catch (e) {}
+    }
+    setInterval(tick, 400);
+  }
+
   /* ────────── 事件 ────────── */
   function bind() {
     /* 主 Tab：app.js 的监听先跑（先切类名），这里后跑（再回写 hash） */
@@ -301,19 +403,21 @@
     /* 没有 hash：把当前真实状态写进地址栏（replace，不污染历史） */
     var d = IS_PC ? pcCurrent() : defaultDesc();
     if (!IS_PC) { stack.length = 0; stack.push(d); }
-    setTitle(d.label);
+    setTitleFor(d);
     try { history.replaceState(null, '', hashOf(d)); } catch (e) {}
   }
 
   function start() {
     hook();
+    hookAuthRetry(25);        /* auth.js 与本文件的加载顺序不保证，最多重试 25 次 */
     bind();
     try { boot(); } catch (e) { console.error('[router] boot 失败：', e); }
+    watchAuth();
   }
 
   if (document.readyState === 'complete' || document.readyState === 'interactive') setTimeout(start, 60);
   else window.addEventListener('DOMContentLoaded', function () { setTimeout(start, 60); });
 
   /* 调试出口 */
-  window.ROUTER = { go: apply, sync: sync, hash: hashOf, stack: function () { return stack.slice(); } };
+  window.ROUTER = { go: apply, sync: sync, hash: hashOf, stack: function () { return stack.slice(); }, login: loginOn };
 })();

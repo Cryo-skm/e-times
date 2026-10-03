@@ -14,9 +14,10 @@
 ```
 index.html          移动端演示站入口（工行手机银行外壳 → e次元）
 pc/index.html       PC 端工作台入口（银行网银壳 + e次元工作台）
-css/                样式（style / xingegu / ec-theme / ec-modules）
-js/                 脚本（app / data / xingegu / chars / ec-entry / ec-discovery / modules3）
-img/art/            原创二次元插画素材（立绘、横幅）
+css/                样式（style / xingegu / ec-theme / ec-modules / ec-auth）
+js/                 脚本（app / data / xingegu / chars / ec-entry / ec-discovery /
+                    modules3 / auth 登录 / router hash 路由 / a11y 无障碍 / pwa / art）
+img/art/            原创二次元插画素材（立绘、横幅／WebP 响应式多档）
 manifest.json       PWA 清单
 sw.js               Service Worker（离线缓存）
 ```
@@ -43,6 +44,34 @@ sw.js               Service Worker（离线缓存）
 python -m http.server 8000
 # 然后访问 http://localhost:8000
 ```
+
+## 登录系统（js/auth.js + css/ec-auth.css）
+
+两端共用的统一账号体系，纯前端实现、零后端依赖，完整闭环：
+
+- **注册**：用户名 + 手机号 + 短信验证码 + 密码（可带头像）
+- **登录**：密码登录 / 验证码登录 双模式
+- **找回密码**：三步流程（用户名 → 身份验证（短信 / 旧密码双路径）→ 重设）
+- **会话保持**：同源 localStorage，移动端与 PC 端一处登录处处登录
+- **账户与安全**：修改头像 / 昵称（即登录名）/ 手机号 / 密码、账户安全信息、退出登录
+- **游客浏览**：不注册也能自由浏览全站（含 e次元），仅转账等资金操作要求登录
+
+安全与演示细节：密码不落明文（随机盐 + SHA-256 摘要）；演示环境的短信验证码直接显示
+在页面上（点击自动填入），无需真实短信；另提供「一键体验演示账号」快速通道。
+
+### 与站点其它层的衔接
+
+登录系统是后加入的，已与站内另两层基础设施打通，不是三套各跑各的：
+
+- **hash 路由（js/router.js）**：登录屏有独立路由 `#/login`，两端都能直达。
+  屏打开时地址栏与标签标题都归登录页（标题为「登录 · 中国工商银行（手机银行 模拟演示版）」），
+  登录成功或选择游客浏览后自动回落到登录前的页面；已登录状态下访问 `#/login` 不会重复弹屏。
+  登录屏进出用 `replaceState` 写入，不会在历史里留下一条"登录闸门"记录。
+- **无障碍（js/a11y.js）**：登录屏与账户抽屉被标记为 `role="dialog"` + `aria-modal` +
+  `aria-labelledby`，打开时背景兄弟节点自动 `aria-hidden`（可逆）；焦点进入对话框且被
+  限制在屏内循环（Tab 陷阱）；`Esc` 关闭最内层的账户抽屉 —— 但**不会**关掉登录屏本身，
+  登录是闸门，想跳过请走屏上的「先随便逛逛（游客浏览）」，避免误按 Esc 静默进入游客态。
+- **离线缓存（sw.js）**：`auth.js` 与 `ec-auth.css` 已进预缓存清单，断网也能打开登录屏。
 
 ## 技术要点
 
